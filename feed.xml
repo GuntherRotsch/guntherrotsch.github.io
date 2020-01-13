@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>JBake</title>
+    <link>http://localhost:8080</link>
+    <atom:link href="http://localhost:8080/feed.xml" rel="self" type="application/rss+xml" />
+    <description>JBake Bootstrap Template</description>
+    <language>en-gb</language>
+    <pubDate>Mon, 13 Jan 2020 20:23:11 +0100</pubDate>
+    <lastBuildDate>Mon, 13 Jan 2020 20:23:11 +0100</lastBuildDate>
+
+    <item>
+      <title>JBake Blog with Maven Plugin</title>
+      <link>http://localhost:8080/blog/2020/jbake-blog-with-maven.html</link>
+      <pubDate>Tue, 14 Jan 2020 00:00:00 +0100</pubDate>
+      <guid isPermaLink="false">blog/2020/jbake-blog-with-maven.html</guid>
+      	<description>
+	&lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     Summary
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;When decided to start blogging, the combination of Github pages and JBake looked most promising to me: Out-of-the-box support of Asciidoc, Java application looks friendly for me as Java developer, one of the popular most popular static site generators, etc.&lt;br&gt; &lt;br&gt; You’ll find few articles and blog posts for the combination of JBake and Gradle. But because I’m much more familiar with Maven and Maven tooling was already installed on my Notebook, I decided to use the JBake’s Maven plugin for generating the static Blog site.&lt;/p&gt; 
+    &lt;/dd&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect2&quot;&gt; 
+ &lt;h3 id=&quot;_preparation&quot;&gt;Preparation&lt;/h3&gt; 
+ &lt;div class=&quot;paragraph&quot;&gt; 
+  &lt;p&gt;Create GitHub repository named &amp;lt;Github-User&amp;gt;.github.io for personal GitHub Pages site.&lt;/p&gt; 
+ &lt;/div&gt; 
+ &lt;div class=&quot;paragraph&quot;&gt; 
+  &lt;p&gt;serve &apos;master&apos; branch&lt;/p&gt; 
+ &lt;/div&gt; 
+ &lt;div class=&quot;paragraph&quot;&gt; 
+  &lt;p&gt;Success of configuration can be verified when …​…​.. image of settings page&lt;/p&gt; 
+ &lt;/div&gt; 
+ &lt;div class=&quot;paragraph&quot;&gt; 
+  &lt;p&gt;Java version 8 is required&lt;/p&gt; 
+ &lt;/div&gt; 
+ &lt;div class=&quot;paragraph&quot;&gt; 
+  &lt;p&gt;but due to &lt;a href=&quot;https://github.com/jenv/jenv&quot;&gt;jenv&lt;/a&gt; it’s easy to switch between installed Java JDKs.&lt;/p&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect2&quot;&gt; 
+ &lt;h3 id=&quot;_jbake_maven_plugin&quot;&gt;JBake Maven Plugin&lt;/h3&gt; 
+ &lt;div class=&quot;paragraph&quot;&gt; 
+  &lt;p&gt;The plugin follows good practices of&lt;/p&gt; 
+ &lt;/div&gt; 
+ &lt;div class=&quot;listingblock&quot;&gt; 
+  &lt;div class=&quot;content&quot;&gt; 
+   &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:help&lt;/code&gt;&lt;/pre&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+ &lt;div class=&quot;listingblock&quot;&gt; 
+  &lt;div class=&quot;content&quot;&gt; 
+   &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:seed&lt;/code&gt;&lt;/pre&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+ &lt;div class=&quot;listingblock&quot;&gt; 
+  &lt;div class=&quot;content&quot;&gt; 
+   &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:generate&lt;/code&gt;&lt;/pre&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+ &lt;div class=&quot;listingblock&quot;&gt; 
+  &lt;div class=&quot;content&quot;&gt; 
+   &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:inline&lt;/code&gt;&lt;/pre&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+ &lt;div class=&quot;paragraph&quot;&gt; 
+  &lt;p&gt;&lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml&quot;&gt;pom.xml&lt;/a&gt;&lt;/p&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect2&quot;&gt; 
+ &lt;h3 id=&quot;_plantuml&quot;&gt;PlantUML&lt;/h3&gt; 
+ &lt;div class=&quot;imageblock&quot;&gt; 
+  &lt;div class=&quot;content&quot;&gt; 
+   &lt;img src=&quot;http://localhost:8080/blog/2020/asciidoctor-sequence-diagram.png&quot; alt=&quot;asciidoctor sequence diagram&quot; width=&quot;298&quot; height=&quot;214&quot;&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
+
+  </channel> 
+</rss>

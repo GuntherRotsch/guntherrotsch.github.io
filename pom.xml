@@ -1,0 +1,88 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>net.gunther</groupId>
+	<artifactId>blog</artifactId>
+	<version>0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<licenses>
+		<license>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<name>Apache 2.0</name>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>guntherrotsch</id>
+			<name>Gunther Rotsch</name>
+			<timezone>Europe/Zurich</timezone>
+		</developer>
+	</developers>
+
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/GuntherRotsch/guntherrotsch.github.io/issues</url>
+	</issueManagement>
+
+	<properties>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<outputDirectory>${project.basedir}/</outputDirectory>
+		<port>8080</port>
+	</properties>
+
+	<scm>
+		<connection>scm:git:http://github.com/GuntherRotsch/guntherrotsch.github.io/</connection>
+		<developerConnection>scm:git:https://github.com/GuntherRotsch/guntherrotsch.github.io/</developerConnection>
+		<url>http://github.com/GuntherRotsch/guntherrotsch.github.io/</url>
+	</scm>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.jbake</groupId>
+				<artifactId>jbake-maven-plugin</artifactId>
+				<version>0.3.1</version>
+				<executions>
+					<execution>
+						<id>default-generate</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<port>${port}</port>
+					<outputDirectory>${outputDirectory}</outputDirectory>
+				</configuration>
+				<dependencies>
+					<!--for asciidoc (.adoc) -->
+					<dependency>
+						<groupId>org.asciidoctor</groupId>
+						<artifactId>asciidoctorj</artifactId>
+						<version>1.5.8.1</version>
+					</dependency>
+					<!-- for freemarker templates (.ftl) -->
+					<dependency>
+						<groupId>org.freemarker</groupId>
+						<artifactId>freemarker</artifactId>
+						<version>2.3.28</version>
+					</dependency>
+					<!-- for PlantUML diagrams -->
+					<dependency>
+						<groupId>org.asciidoctor</groupId>
+						<artifactId>asciidoctorj-diagram</artifactId>
+						<version>1.5.18</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+</project>

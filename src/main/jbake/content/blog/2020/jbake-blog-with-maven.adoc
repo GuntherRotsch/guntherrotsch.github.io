@@ -1,0 +1,61 @@
+title=JBake Blog with Maven Plugin
+date=2020-01-14
+type=post
+tags=blog, asciidoc, jbake, maven
+status=published
+~~~~~~
+= JBake Blog with Maven Plugin
+Gunther Rotsch
+2020-01-14
+
+Summary::
+When decided to start blogging, the combination of Github pages and JBake looked
+most promising to me: Out-of-the-box support of Asciidoc, Java application looks
+friendly for me as Java developer, one of the popular most popular static site
+generators, etc. +
+ +
+You'll find few articles and blog posts for the combination of JBake and Gradle.
+But because I'm much more familiar with Maven and Maven tooling was already
+installed on my Notebook, I decided to use the JBake's Maven plugin for generating
+the static Blog site.
+
+
+=== Preparation
+
+Create GitHub repository named <Github-User>.github.io for personal GitHub Pages site.
+
+serve 'master' branch
+
+Success of configuration can be verified when ........ image of settings page
+
+Java version 8 is required
+
+but due to https://github.com/jenv/jenv[jenv] it's easy to switch between installed Java JDKs.
+
+=== JBake Maven Plugin
+
+
+https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml[pom.xml]
+
+
+The plugin follows good practices of
+
+```
+$ mvn jbake:help
+```
+
+```
+$ mvn jbake:seed
+```
+
+initialization
+
+```
+$ mvn jbake:generate
+```
+
+```
+$ mvn jbake:inline
+$ mvn jbake:inline -Dport=8000
+```
+serves also watches for changed files in source directory
