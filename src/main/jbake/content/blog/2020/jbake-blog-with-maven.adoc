@@ -1,24 +1,23 @@
 title=JBake Blog with Maven Plugin
-date=2020-01-14
+date=2020-01-21
 type=post
 tags=blog, asciidoc, jbake, maven
 status=published
 ~~~~~~
 = JBake Blog with Maven Plugin
 Gunther Rotsch
-2020-01-14
+2020-01-21
 
 Summary::
-When decided to start blogging, the combination of Github pages and JBake looked
-most promising to me: Out-of-the-box support of Asciidoc, Java application looks
-friendly for me as Java developer, one of the popular most popular static site
-generators, etc. +
+When I decided to start blogging, the combination of Github pages and
+JBake looked most promising to me: Out-of-the-box support of Asciidoc,
+Java application should be friendly for me as Java developer, is one of
+the popular most popular static site generators, etc. +
  +
-You'll find few articles and blog posts for the combination of JBake and Gradle.
-But because I'm much more familiar with Maven and Maven tooling was already
-installed on my Notebook, I decided to use the JBake's Maven plugin for generating
-the static Blog site.
-
+You'll find many articles and blog posts about the combination of JBake
+and Gradle. But because I'm much more familiar with Maven and Maven
+tooling was already installed on my Notebook, I decided to try the
+JBake's Maven plugin for stetting up the static Blog site.
 
 === Preparation
 
@@ -28,34 +27,125 @@ serve 'master' branch
 
 Success of configuration can be verified when ........ image of settings page
 
+image::./Github_Pages_Setting_Blog.png[]
+
 Java version 8 is required
 
 but due to https://github.com/jenv/jenv[jenv] it's easy to switch between installed Java JDKs.
 
+=== Starting Blog Project
+
+When setting up my Blog, the goal way to utilize JBake by Maven only.
+So, I don't wanted to install JBake explicitly and let Maven handle
+the download and integration of JBake artifacts.
+
+The most explanations below apply for the JBake Maven Plugin in general,
+but some are specific for settings I did for my Blog project. Please
+see  the Maven https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml[pom.xml]
+of my Blog project. If you also want to start your Blog with Maven and the
+JBake plugin, you could even copy the POM and adapt it slightly - very few
+definitions are specific to my Blog project, eg. group and artifact id.
+
 === JBake Maven Plugin
 
+The JBake Maven Plugin is hosted on https://github.com/jbake-org/jbake-maven-plugin[Github].
+There you can find some useful information to start its usage.
 
-https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml[pom.xml]
-
-
-The plugin follows good practices of
-
-```
-$ mvn jbake:help
-```
+It also helps a lot, that the plugin follows good practices of Maven
+plugin development and provides a `help` goal:
 
 ```
-$ mvn jbake:seed
+$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]
 ```
 
-initialization
+The `jbake:help` goal gives general information about other goals of the plugin,
+it provides even more information than the Github page of JBake Maven plugin.
+The `jbake:help` called without additional arguments just lists available goals.
+In addition, it considers the all but considers property System property
+arguments `detail` and `goal` (commented out above) to give more detailed
+information about each plugin's goal.
+
+==== Plugin Goals
+
+The most available goals consider arguments given as System properties. The most
+ important ones are:
+
+outputDirectory::
+The directory goals write the generated output.
+
+inputDirectory::
+The directory goals read input from. The input directory defaults for the most
+goals to `${project.basedir}/src/main/jbake)`.
+
+The easiest way to setup the Blog project is to fetch samples templates and
+content and populate the your Blog project folders. This can be achieved with
+the `jbake:seed` goal.
+
+The `jbake:seed` goal is an exception to the default `outputDirectory`
+argument, because it populates the input folders. If you don't like to
+modify the `pom.xml` temporarily for the initialization step and work with
+a copy of my POM, you can overwrite the output directory on the command-line
+as follows:
+
+```
+$ mvn jbake:seed -DoutputDirectory=./src/main/jbake
+```
+
+Before we generate the sample static Blog site, you should have a look at the
+jbake configuration, which is hosted in
+`${project.basedir}/src/main/jbake/jbake.properties)`:
+
+[source,]
+----
+#site.host=https://guntherrotsch.github.io
+site.host=http://localhost:8080
+render.tags=false
+render.sitemap=true
+----
+
+For local testing the site, I've changed the `site.host` property temporarily
+to localhost. JBake uses this parameter to generate the links between the site
+pages, which is quite important.
+
+[WARNING]
+Don't forget to change the `site.host` to you Github Pages URL before you commit
+and push the project files to Github. The commented out first line shows the
+definition for my Blog site's URL.
+
+The `jbake:generate` goal applies the project's templates to the sample content
+files and generates the static site:
 
 ```
 $ mvn jbake:generate
 ```
 
+My project POM already defines input and output parameters, which is why no
+arguments on the command-line need to be given. If you want to have a look at
+the generated site you can either serve it by a local Web server, e.g. by
+executing `python3 -m http.server` in the site's root folder, or use the
+`jbake:inline` goal, that starts JBake's internal Web server:
+
 ```
-$ mvn jbake:inline
-$ mvn jbake:inline -Dport=8000
+$ mvn jbake:inline [ -Dport=8000 ]
 ```
-serves also watches for changed files in source directory
+
+The JBake's internal Web server listens by default on port `8080`. If you have
+another application occupying `8080`, then the listening port of JBake can be
+changed with the `port` parameter.
+
+The `jbake:inline` watches for changes of templates and content in the source
+folder and re-generates the static site if any modified files are detected.
+After refreshing page in the browser you see the changes without explicitly
+generating the static site again, which is very nice for a workflow. So, it's
+worth considering usage of JBake's internal Web server, even if you are used
+to another local Web server.
+
+=== Conclusion
+
+I'm really happy to have selected JBake as static site generator when I started
+blogging. The Java tooling feels familiar for me and JBake's features are
+absolutely satisfying - I appreciate the Asciidoc support in particular.
+
+Also, the combination with the Maven plugin works really well. Till today I
+haven't installed JBake CLI and let do Maven the job of managing the required
+JBake dependencies.

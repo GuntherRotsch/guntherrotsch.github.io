@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Blog - Gunther Rotsch</title>
+    <title>JBake, Asciidoc and PlantUML</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -10,14 +10,14 @@
     <meta name="generator" content="JBake">
 
     <!-- Le styles -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/asciidoctor.css" rel="stylesheet">
-    <link href="css/base.css" rel="stylesheet">
-    <link href="css/prettify.css" rel="stylesheet">
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/asciidoctor.css" rel="stylesheet">
+    <link href="../../css/base.css" rel="stylesheet">
+    <link href="../../css/prettify.css" rel="stylesheet">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="js/html5shiv.min.js"></script>
+      <script src="../../js/html5shiv.min.js"></script>
     <![endif]-->
 
     <!-- Fav and touch icons -->
@@ -25,11 +25,11 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
-    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="shortcut icon" href="../../favicon.ico">
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
-
+	
 	<!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
@@ -40,13 +40,13 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="">JBake</a>
+          <a class="navbar-brand" href="../../">JBake</a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="feed.xml">Subscribe</a></li>
+            <li><a href="../../index.html">Home</a></li>
+            <li><a href="../../about.html">About</a></li>
+            <li><a href="../../feed.xml">Subscribe</a></li>
 		<!--
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
@@ -66,17 +66,44 @@
       </div>
     </div>
     <div class="container">
-	
+
 	<div class="page-header">
-		<h1>Blog Archive</h1>
+		<h1>JBake, Asciidoc and PlantUML</h1>
 	</div>
-	
-	<!--<ul>-->
-			<h4>January 2020</h4>
-			<ul>
-		
-		<li>21 - <a href="blog/2020/jbake-blog-with-maven.html">JBake Blog with Maven Plugin</a></li>
-	</ul>
+
+	<p><em>01 February 2020</em></p>
+
+	<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Currently we found project PlantUML for writing UML diagrams-as-a-code. This is really hype to have everything in version control and it is always better to version text source that images or binary files. I was really happy that AsciiDoctor and JBake support this, but it was little bit tricky to get it work. And it is still not how it could be.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>First problem was how to get it work. I’m using standalone JBake and all examples are pointing to Gradle builds. It was easier than I expect, just add following line to my jbake.properties:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="prettyprint highlight"><code>asciidoctor.option.requires = asciidoctor-diagram</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p><a href="https://xpj.ninja/blog/2018/03/2018-03-21-why-jbake.html" class="bare">https://xpj.ninja/blog/2018/03/2018-03-21-why-jbake.html</a></p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Next step was to include generated diagrams into result pages. I was debuging JBake, looking into properties files, trying this and that, because generated images had wrong src attribute. Finally I figured, that it was as simple as adding ./ in front of the file name:</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect2"> 
+ <h3 id="_plantuml">PlantUML</h3> 
+ <div class="imageblock"> 
+  <div class="content"> 
+   <img src="http://localhost:8080/blog/2020/asciidoctor-sequence-diagram.png" alt="asciidoctor sequence diagram" width="298" height="214"> 
+  </div> 
+ </div> 
+</div></p>
+
+	<hr />
 	
 		</div>
 		<div id="push"></div>
@@ -93,9 +120,9 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="js/jquery-1.11.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/prettify.js"></script>
+    <script src="../../js/jquery-1.11.1.min.js"></script>
+    <script src="../../js/bootstrap.min.js"></script>
+    <script src="../../js/prettify.js"></script>
     
   </body>
 </html>

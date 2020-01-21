@@ -1,12 +1,12 @@
 title=JBake, Asciidoc and PlantUML
-date=2020-01-20
+date=2020-02-01
 type=post
 tags=blog, asciidoc, jbake, plantuml
 status=draft
 ~~~~~~
 = JBake, Asciidoc and PlantUML
 Gunther Rotsch
-2020-01-20
+2020-02-01
 
 Currently we found project PlantUML for writing UML diagrams-as-a-code. This is really hype to have everything in version control and it is always better to version text source that images or binary files. I was really happy that AsciiDoctor and JBake support this, but it was little bit tricky to get it work. And it is still not how it could be.
 
