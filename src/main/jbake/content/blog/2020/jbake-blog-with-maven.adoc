@@ -21,27 +21,48 @@ JBake's Maven plugin for stetting up the static Blog site.
 
 === Preparation
 
-Create GitHub repository named <Github-User>.github.io for personal GitHub Pages site.
+==== Java
 
-serve 'master' branch
+JBake (or one of its dependencies) still requires as the time of writing
+a Java runtime in version 8 - I tried 11 and 13 with no success. Because of
+the widespread usage of Java 8 nowadays, this isn't surprising at all.
 
-Success of configuration can be verified when ........ image of settings page
+[TIP]
+I use the nice little tool https://github.com/jenv/jenv[jenv], that allows
+to switch between different Java JDK versions easily. If you work on many
+projects with different Java versions at the same time, you should give it
+a try,
+
+==== Github Pages
+
+I decided to publish my Blog on Github pages, which are well suited for
+statically generated sites. In addition, it's well integrated with git
+and supports well-known workflows.
+
+In my case, I created a personal Github Pages site by defining a repository
+named `guntherrotsch.github.io`. Project-specific Github Pages are also
+possible, but could create links/URLs in some cases, which are not so nice.
+Please see the .................[Github Pages documentation]
+for more information on setting up an approriate repository.
+
+The Github Pages paragraph of the repository settings should after
+configuration  look like:
 
 image::./Github_Pages_Setting_Blog.png[]
 
-Java version 8 is required
-
-but due to https://github.com/jenv/jenv[jenv] it's easy to switch between installed Java JDKs.
+The content merged to `master` branch will be automatically published
+(with a short delay of max a few minutes).
 
 === Starting Blog Project
 
-When setting up my Blog, the goal way to utilize JBake by Maven only.
+When setting up my Blog, the goal was to utilize JBake by Maven only.
 So, I don't wanted to install JBake explicitly and let Maven handle
 the download and integration of JBake artifacts.
 
 The most explanations below apply for the JBake Maven Plugin in general,
 but some are specific for settings I did for my Blog project. Please
-see  the Maven https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml[pom.xml]
+see  the Maven
+https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml[pom.xml]
 of my Blog project. If you also want to start your Blog with Maven and the
 JBake plugin, you could even copy the POM and adapt it slightly - very few
 definitions are specific to my Blog project, eg. group and artifact id.
@@ -60,15 +81,15 @@ $ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]
 
 The `jbake:help` goal gives general information about other goals of the plugin,
 it provides even more information than the Github page of JBake Maven plugin.
-The `jbake:help` called without additional arguments just lists available goals.
+The `jbake:help` called without additional parameters just lists available goals.
 In addition, it considers the all but considers property System property
-arguments `detail` and `goal` (commented out above) to give more detailed
+parameters `detail` and `goal` (commented out above) to give more detailed
 information about each plugin's goal.
 
 ==== Plugin Goals
 
-The most available goals consider arguments given as System properties. The most
- important ones are:
+The most goals of the plugin consider parameters given as Java System properties.
+The most important ones are:
 
 outputDirectory::
 The directory goals write the generated output.
@@ -82,7 +103,7 @@ content and populate the your Blog project folders. This can be achieved with
 the `jbake:seed` goal.
 
 The `jbake:seed` goal is an exception to the default `outputDirectory`
-argument, because it populates the input folders. If you don't like to
+parameter, because it populates the input folders. If you don't like to
 modify the `pom.xml` temporarily for the initialization step and work with
 a copy of my POM, you can overwrite the output directory on the command-line
 as follows:
@@ -120,7 +141,7 @@ $ mvn jbake:generate
 ```
 
 My project POM already defines input and output parameters, which is why no
-arguments on the command-line need to be given. If you want to have a look at
+parameters on the command-line need to be given. If you want to have a look at
 the generated site you can either serve it by a local Web server, e.g. by
 executing `python3 -m http.server` in the site's root folder, or use the
 `jbake:inline` goal, that starts JBake's internal Web server:
@@ -139,6 +160,12 @@ After refreshing page in the browser you see the changes without explicitly
 generating the static site again, which is very nice for a workflow. So, it's
 worth considering usage of JBake's internal Web server, even if you are used
 to another local Web server.
+
+You can now navigate with your favorite Browser to `http://localhost:8080` to
+have a look at the sample content. After replacing the samples with your own
+content and merging the changed files to `master` branch of your Blog project,
+Github Pages takes automatically care of publishing your site. Congratulations,
+your Blog is up and running.
 
 === Conclusion
 

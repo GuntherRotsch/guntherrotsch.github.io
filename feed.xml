@@ -6,8 +6,8 @@
     <atom:link href="http://localhost:8080/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Tue, 21 Jan 2020 10:40:17 +0100</pubDate>
-    <lastBuildDate>Tue, 21 Jan 2020 10:40:17 +0100</lastBuildDate>
+    <pubDate>Wed, 22 Jan 2020 19:03:29 +0100</pubDate>
+    <lastBuildDate>Wed, 22 Jan 2020 19:03:29 +0100</lastBuildDate>
 
     <item>
       <title>JBake Blog with Maven Plugin</title>
@@ -31,31 +31,50 @@
 &lt;/div&gt; 
 &lt;div class=&quot;sect2&quot;&gt; 
  &lt;h3 id=&quot;_preparation&quot;&gt;Preparation&lt;/h3&gt; 
- &lt;div class=&quot;paragraph&quot;&gt; 
-  &lt;p&gt;Create GitHub repository named &amp;lt;Github-User&amp;gt;.github.io for personal GitHub Pages site.&lt;/p&gt; 
- &lt;/div&gt; 
- &lt;div class=&quot;paragraph&quot;&gt; 
-  &lt;p&gt;serve &apos;master&apos; branch&lt;/p&gt; 
- &lt;/div&gt; 
- &lt;div class=&quot;paragraph&quot;&gt; 
-  &lt;p&gt;Success of configuration can be verified when …​…​.. image of settings page&lt;/p&gt; 
- &lt;/div&gt; 
- &lt;div class=&quot;imageblock&quot;&gt; 
-  &lt;div class=&quot;content&quot;&gt; 
-   &lt;img src=&quot;http://localhost:8080/blog/2020/Github_Pages_Setting_Blog.png&quot; alt=&quot;Github Pages Setting Blog&quot;&gt; 
+ &lt;div class=&quot;sect3&quot;&gt; 
+  &lt;h4 id=&quot;_java&quot;&gt;Java&lt;/h4&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;JBake (or one of its dependencies) still requires as the time of writing a Java runtime in version 8 - I tried 11 and 13 with no success. Because of the widespread usage of Java 8 nowadays, this isn’t surprising at all.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;admonitionblock tip&quot;&gt; 
+   &lt;table&gt; 
+    &lt;tbody&gt;
+     &lt;tr&gt; 
+      &lt;td class=&quot;icon&quot;&gt; 
+       &lt;div class=&quot;title&quot;&gt;
+        Tip
+       &lt;/div&gt; &lt;/td&gt; 
+      &lt;td class=&quot;content&quot;&gt; I use the nice little tool &lt;a href=&quot;https://github.com/jenv/jenv&quot;&gt;jenv&lt;/a&gt;, that allows to switch between different Java JDK versions easily. If you work on many projects with different Java versions at the same time, you should give it a try, &lt;/td&gt; 
+     &lt;/tr&gt; 
+    &lt;/tbody&gt;
+   &lt;/table&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
- &lt;div class=&quot;paragraph&quot;&gt; 
-  &lt;p&gt;Java version 8 is required&lt;/p&gt; 
- &lt;/div&gt; 
- &lt;div class=&quot;paragraph&quot;&gt; 
-  &lt;p&gt;but due to &lt;a href=&quot;https://github.com/jenv/jenv&quot;&gt;jenv&lt;/a&gt; it’s easy to switch between installed Java JDKs.&lt;/p&gt; 
+ &lt;div class=&quot;sect3&quot;&gt; 
+  &lt;h4 id=&quot;_github_pages&quot;&gt;Github Pages&lt;/h4&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;I decided to publish my Blog on Github pages, which are well suited for statically generated sites. In addition, it’s well integrated with git and supports well-known workflows.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;In my case, I created a personal Github Pages site by defining a repository named &lt;code&gt;guntherrotsch.github.io&lt;/code&gt;. Project-specific Github Pages are also possible, but could create links/URLs in some cases, which are not so nice. Please see the …​…​…​…​…​..[Github Pages documentation] for more information on setting up an approriate repository.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Github Pages paragraph of the repository settings should after configuration look like:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;img src=&quot;http://localhost:8080/blog/2020/Github_Pages_Setting_Blog.png&quot; alt=&quot;Github Pages Setting Blog&quot;&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The content merged to &lt;code&gt;master&lt;/code&gt; branch will be automatically published (with a short delay of max a few minutes).&lt;/p&gt; 
+  &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
 &lt;div class=&quot;sect2&quot;&gt; 
  &lt;h3 id=&quot;_starting_blog_project&quot;&gt;Starting Blog Project&lt;/h3&gt; 
  &lt;div class=&quot;paragraph&quot;&gt; 
-  &lt;p&gt;When setting up my Blog, the goal way to utilize JBake by Maven only. So, I don’t wanted to install JBake explicitly and let Maven handle the download and integration of JBake artifacts.&lt;/p&gt; 
+  &lt;p&gt;When setting up my Blog, the goal was to utilize JBake by Maven only. So, I don’t wanted to install JBake explicitly and let Maven handle the download and integration of JBake artifacts.&lt;/p&gt; 
  &lt;/div&gt; 
  &lt;div class=&quot;paragraph&quot;&gt; 
   &lt;p&gt;The most explanations below apply for the JBake Maven Plugin in general, but some are specific for settings I did for my Blog project. Please see the Maven &lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml&quot;&gt;pom.xml&lt;/a&gt; of my Blog project. If you also want to start your Blog with Maven and the JBake plugin, you could even copy the POM and adapt it slightly - very few definitions are specific to my Blog project, eg. group and artifact id.&lt;/p&gt; 
@@ -75,12 +94,12 @@
   &lt;/div&gt; 
  &lt;/div&gt; 
  &lt;div class=&quot;paragraph&quot;&gt; 
-  &lt;p&gt;The &lt;code&gt;jbake:help&lt;/code&gt; goal gives general information about other goals of the plugin, it provides even more information than the Github page of JBake Maven plugin. The &lt;code&gt;jbake:help&lt;/code&gt; called without additional arguments just lists available goals. In addition, it considers the all but considers property System property arguments &lt;code&gt;detail&lt;/code&gt; and &lt;code&gt;goal&lt;/code&gt; (commented out above) to give more detailed information about each plugin’s goal.&lt;/p&gt; 
+  &lt;p&gt;The &lt;code&gt;jbake:help&lt;/code&gt; goal gives general information about other goals of the plugin, it provides even more information than the Github page of JBake Maven plugin. The &lt;code&gt;jbake:help&lt;/code&gt; called without additional parameters just lists available goals. In addition, it considers the all but considers property System property parameters &lt;code&gt;detail&lt;/code&gt; and &lt;code&gt;goal&lt;/code&gt; (commented out above) to give more detailed information about each plugin’s goal.&lt;/p&gt; 
  &lt;/div&gt; 
  &lt;div class=&quot;sect3&quot;&gt; 
   &lt;h4 id=&quot;_plugin_goals&quot;&gt;Plugin Goals&lt;/h4&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;The most available goals consider arguments given as System properties. The most important ones are:&lt;/p&gt; 
+   &lt;p&gt;The most goals of the plugin consider parameters given as Java System properties. The most important ones are:&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;dlist&quot;&gt; 
    &lt;dl&gt; 
@@ -102,7 +121,7 @@
    &lt;p&gt;The easiest way to setup the Blog project is to fetch samples templates and content and populate the your Blog project folders. This can be achieved with the &lt;code&gt;jbake:seed&lt;/code&gt; goal.&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;The &lt;code&gt;jbake:seed&lt;/code&gt; goal is an exception to the default &lt;code&gt;outputDirectory&lt;/code&gt; argument, because it populates the input folders. If you don’t like to modify the &lt;code&gt;pom.xml&lt;/code&gt; temporarily for the initialization step and work with a copy of my POM, you can overwrite the output directory on the command-line as follows:&lt;/p&gt; 
+   &lt;p&gt;The &lt;code&gt;jbake:seed&lt;/code&gt; goal is an exception to the default &lt;code&gt;outputDirectory&lt;/code&gt; parameter, because it populates the input folders. If you don’t like to modify the &lt;code&gt;pom.xml&lt;/code&gt; temporarily for the initialization step and work with a copy of my POM, you can overwrite the output directory on the command-line as follows:&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
@@ -145,7 +164,7 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;My project POM already defines input and output parameters, which is why no arguments on the command-line need to be given. If you want to have a look at the generated site you can either serve it by a local Web server, e.g. by executing &lt;code&gt;python3 -m http.server&lt;/code&gt; in the site’s root folder, or use the &lt;code&gt;jbake:inline&lt;/code&gt; goal, that starts JBake’s internal Web server:&lt;/p&gt; 
+   &lt;p&gt;My project POM already defines input and output parameters, which is why no parameters on the command-line need to be given. If you want to have a look at the generated site you can either serve it by a local Web server, e.g. by executing &lt;code&gt;python3 -m http.server&lt;/code&gt; in the site’s root folder, or use the &lt;code&gt;jbake:inline&lt;/code&gt; goal, that starts JBake’s internal Web server:&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
@@ -157,6 +176,9 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;The &lt;code&gt;jbake:inline&lt;/code&gt; watches for changes of templates and content in the source folder and re-generates the static site if any modified files are detected. After refreshing page in the browser you see the changes without explicitly generating the static site again, which is very nice for a workflow. So, it’s worth considering usage of JBake’s internal Web server, even if you are used to another local Web server.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;You can now navigate with your favorite Browser to &lt;code&gt;&lt;a href=&quot;http://localhost:8080&quot; class=&quot;bare&quot;&gt;http://localhost:8080&lt;/a&gt;&lt;/code&gt; to have a look at the sample content. After replacing the samples with your own content and merging the changed files to &lt;code&gt;master&lt;/code&gt; branch of your Blog project, Github Pages takes automatically care of publishing your site. Congratulations, your Blog is up and running.&lt;/p&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
