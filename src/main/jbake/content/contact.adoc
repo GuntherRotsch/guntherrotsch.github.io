@@ -1,0 +1,36 @@
+title=Contact
+date=2020-01-21
+type=page
+status=published
+~~~~~~
+
+Gunther Rotsch
+
+Bahnhofstrasse 56
+
+5507 Mellingen
+
+Schweiz
+
+Tel.: +41 76 264 31 07
+
+Email: gunther.rotsch_at_gmail.com
+
+
+== Disclaimer
+
+__Blog Gunther Rotsch__ is a personal weblog and does not serve any commercial
+purpose. The content reflects my personal experiences and opinions.
+
+In addition, my thoughts and opinions change from time to time. I consider this
+a necessary consequence of having an open mind.
+
+This weblog is intended to provide a semi-permanent point in time snapshot and
+manifestation of the various memes running around my brain, and as such any
+thoughts and opinions expressed within out-of-date posts may not the same, nor
+even similar, to those I may hold today.
+
+This blog disclaimer is subject to change at anytime without notifications.
+
+The code samples and snippets are released under the terms of the
+https://www.apache.org/licenses/LICENSE-2.0[Apache License 2.0].
