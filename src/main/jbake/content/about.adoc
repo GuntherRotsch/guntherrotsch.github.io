@@ -5,20 +5,20 @@ status=published
 ~~~~~~
 == Me
 
-My name is Gunther Rotsch. I am born in 1965 Germany and live now in
+My name is Gunther Rotsch. I am born in 1965 in Germany and live now in
 Mellingen, a small village close-by Zurich in Switzerland.
 
-I studied Information Science at the University of Applied Science at
-Mannheim in Germany. After finishing my study, I worked for a consulting
+I studied Information Science at the University of Applied Science in
+Mannheim, Germany. After finishing my study, I worked for a consulting
 company for two years. After that I worked for 10 years as a freelancer
 in software development projects. Then I was employed by consulting
 companies and software application companies. Up until 2000 I mainly
-developed with C ++ on Unix systems. After that my focus was on Java
+developed with C ++ on Unix systems. After that my focus changed to Java
 Enterprise Systems.
 
 == Skills and Interests
 
-I have been developing business applications as a lead developer o
+I have been developing business applications as a lead developer or
 architect for 20+ years. Although my focus is on Java / Jarkata EE
 (full stack), I am open to other technologies such as Web, JavaScript,
 Python or Go.
@@ -32,9 +32,9 @@ continuous deployment.
 In the past four years, I have intensified with microservices /
 self-contained services, cloud-native applications (Design for
 Scalability, Resilience, Reliability, Monitoring), REST API Design
-(Open API / Swagger).
+(OpenAPI / Swagger).
 I have practical experience in the deployment of containerized
 applications with Docker, Kubernetes and OpenShift as well as in
-setting up the necessary automated processes. Most recently, I also
-have made experience with Ergon's Web Application Firewall and
+setting up the necessary automated deployment processes. Most recently,
+I also have made experience with Ergon's Web Application Firewall and
 roll-outs with Ansible, which complements my DevOps skills.

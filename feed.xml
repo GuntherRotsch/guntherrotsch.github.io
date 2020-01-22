@@ -6,8 +6,8 @@
     <atom:link href="http://localhost:8080/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Wed, 22 Jan 2020 19:03:29 +0100</pubDate>
-    <lastBuildDate>Wed, 22 Jan 2020 19:03:29 +0100</lastBuildDate>
+    <pubDate>Wed, 22 Jan 2020 20:21:26 +0100</pubDate>
+    <lastBuildDate>Wed, 22 Jan 2020 20:21:26 +0100</lastBuildDate>
 
     <item>
       <title>JBake Blog with Maven Plugin</title>
@@ -23,7 +23,7 @@
      Summary
     &lt;/dt&gt; 
     &lt;dd&gt; 
-     &lt;p&gt;When I decided to start blogging, the combination of Github pages and JBake looked most promising to me: Out-of-the-box support of Asciidoc, Java application should be friendly for me as Java developer, is one of the popular most popular static site generators, etc.&lt;br&gt; &lt;br&gt; You’ll find many articles and blog posts about the combination of JBake and Gradle. But because I’m much more familiar with Maven and Maven tooling was already installed on my Notebook, I decided to try the JBake’s Maven plugin for stetting up the static Blog site.&lt;/p&gt; 
+     &lt;p&gt;When I decided to start blogging, the combination of Github pages and JBake looked most promising to me: Out-of-the-box support of Asciidoc, Java application should be friendly for me as Java developer, one of the most popular static site generators, etc.&lt;br&gt; &lt;br&gt; There are many articles and blog posts about the combination of JBake and Gradle. But because I’m much more familiar with Maven and Maven tooling was already installed on my Notebook, I decided to try the JBake’s Maven plugin for stetting up the static Blog site.&lt;/p&gt; 
     &lt;/dd&gt; 
    &lt;/dl&gt; 
   &lt;/div&gt; 
@@ -34,7 +34,7 @@
  &lt;div class=&quot;sect3&quot;&gt; 
   &lt;h4 id=&quot;_java&quot;&gt;Java&lt;/h4&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;JBake (or one of its dependencies) still requires as the time of writing a Java runtime in version 8 - I tried 11 and 13 with no success. Because of the widespread usage of Java 8 nowadays, this isn’t surprising at all.&lt;/p&gt; 
+   &lt;p&gt;As of the time of writing, with Java runtime 11 or higher JBake (or one of its dependencies) logged exceptions to the console. At the first glance JBake still seemed to work. But to be on the save side, I usually run JBake with Java in version 8.&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;admonitionblock tip&quot;&gt; 
    &lt;table&gt; 
@@ -44,7 +44,7 @@
        &lt;div class=&quot;title&quot;&gt;
         Tip
        &lt;/div&gt; &lt;/td&gt; 
-      &lt;td class=&quot;content&quot;&gt; I use the nice little tool &lt;a href=&quot;https://github.com/jenv/jenv&quot;&gt;jenv&lt;/a&gt;, that allows to switch between different Java JDK versions easily. If you work on many projects with different Java versions at the same time, you should give it a try, &lt;/td&gt; 
+      &lt;td class=&quot;content&quot;&gt; I use the nice little tool &lt;a href=&quot;https://github.com/jenv/jenv&quot;&gt;jenv&lt;/a&gt;, that allows to switch between different Java JDK versions easily. If you work on many projects with different Java versions at the same time, you should give &lt;code&gt;jenv&lt;/code&gt; a try, &lt;/td&gt; 
      &lt;/tr&gt; 
     &lt;/tbody&gt;
    &lt;/table&gt; 
@@ -53,10 +53,10 @@
  &lt;div class=&quot;sect3&quot;&gt; 
   &lt;h4 id=&quot;_github_pages&quot;&gt;Github Pages&lt;/h4&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;I decided to publish my Blog on Github pages, which are well suited for statically generated sites. In addition, it’s well integrated with git and supports well-known workflows.&lt;/p&gt; 
+   &lt;p&gt;I decided to publish my Blog on Github pages, which are well suited for statically generated sites. In addition, it’s well integrated with git and by that supports well-known workflows.&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;In my case, I created a personal Github Pages site by defining a repository named &lt;code&gt;guntherrotsch.github.io&lt;/code&gt;. Project-specific Github Pages are also possible, but could create links/URLs in some cases, which are not so nice. Please see the …​…​…​…​…​..[Github Pages documentation] for more information on setting up an approriate repository.&lt;/p&gt; 
+   &lt;p&gt;In my case, I created a personal Github Pages site by defining a repository named &lt;code&gt;guntherrotsch.github.io&lt;/code&gt;. Project-specific Github Pages are also possible, but could create links/URLs in some cases, which are not so nice. Please see the &lt;a href=&quot;https://help.github.com/en/github/working-with-github-pages&quot;&gt;Github Pages documentation&lt;/a&gt; for more information on setting up an appropriate repository.&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;The Github Pages paragraph of the repository settings should after configuration look like:&lt;/p&gt; 
@@ -74,7 +74,7 @@
 &lt;div class=&quot;sect2&quot;&gt; 
  &lt;h3 id=&quot;_starting_blog_project&quot;&gt;Starting Blog Project&lt;/h3&gt; 
  &lt;div class=&quot;paragraph&quot;&gt; 
-  &lt;p&gt;When setting up my Blog, the goal was to utilize JBake by Maven only. So, I don’t wanted to install JBake explicitly and let Maven handle the download and integration of JBake artifacts.&lt;/p&gt; 
+  &lt;p&gt;When setting up my Blog, the goal was to utilize JBake by Maven only. So, I wanted to avoid to install JBake explicitly and let Maven handle the download and integration of JBake artifacts.&lt;/p&gt; 
  &lt;/div&gt; 
  &lt;div class=&quot;paragraph&quot;&gt; 
   &lt;p&gt;The most explanations below apply for the JBake Maven Plugin in general, but some are specific for settings I did for my Blog project. Please see the Maven &lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml&quot;&gt;pom.xml&lt;/a&gt; of my Blog project. If you also want to start your Blog with Maven and the JBake plugin, you could even copy the POM and adapt it slightly - very few definitions are specific to my Blog project, eg. group and artifact id.&lt;/p&gt; 
@@ -94,12 +94,12 @@
   &lt;/div&gt; 
  &lt;/div&gt; 
  &lt;div class=&quot;paragraph&quot;&gt; 
-  &lt;p&gt;The &lt;code&gt;jbake:help&lt;/code&gt; goal gives general information about other goals of the plugin, it provides even more information than the Github page of JBake Maven plugin. The &lt;code&gt;jbake:help&lt;/code&gt; called without additional parameters just lists available goals. In addition, it considers the all but considers property System property parameters &lt;code&gt;detail&lt;/code&gt; and &lt;code&gt;goal&lt;/code&gt; (commented out above) to give more detailed information about each plugin’s goal.&lt;/p&gt; 
+  &lt;p&gt;The &lt;code&gt;jbake:help&lt;/code&gt; goal gives general information about other goals of the plugin, it provides even more information than the Github page of JBake Maven plugin. The &lt;code&gt;jbake:help&lt;/code&gt; called without additional parameters just lists available goals. In addition, it considers the property System property parameters &lt;code&gt;detail&lt;/code&gt; and &lt;code&gt;goal&lt;/code&gt; (commented out above) to give more detailed information about each plugin’s goal.&lt;/p&gt; 
  &lt;/div&gt; 
  &lt;div class=&quot;sect3&quot;&gt; 
   &lt;h4 id=&quot;_plugin_goals&quot;&gt;Plugin Goals&lt;/h4&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;The most goals of the plugin consider parameters given as Java System properties. The most important ones are:&lt;/p&gt; 
+   &lt;p&gt;The most goals of the plugin consider configuration parameters. The most important ones are:&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;dlist&quot;&gt; 
    &lt;dl&gt; 
