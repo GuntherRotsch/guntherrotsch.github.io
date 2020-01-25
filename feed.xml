@@ -2,16 +2,16 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>JBake</title>
-    <link>http://localhost:8080</link>
-    <atom:link href="http://localhost:8080/feed.xml" rel="self" type="application/rss+xml" />
+    <link>https://guntherrotsch.github.io</link>
+    <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Wed, 22 Jan 2020 20:21:26 +0100</pubDate>
-    <lastBuildDate>Wed, 22 Jan 2020 20:21:26 +0100</lastBuildDate>
+    <pubDate>Sat, 25 Jan 2020 14:15:26 +0100</pubDate>
+    <lastBuildDate>Sat, 25 Jan 2020 14:15:26 +0100</lastBuildDate>
 
     <item>
       <title>JBake Blog with Maven Plugin</title>
-      <link>http://localhost:8080/blog/2020/jbake-blog-with-maven.html</link>
+      <link>https://guntherrotsch.github.io/blog/2020/jbake-blog-with-maven.html</link>
       <pubDate>Tue, 21 Jan 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog/2020/jbake-blog-with-maven.html</guid>
       	<description>
@@ -63,7 +63,7 @@
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8080/blog/2020/Github_Pages_Setting_Blog.png&quot; alt=&quot;Github Pages Setting Blog&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/blog/2020/Github_Pages_Setting_Blog.png&quot; alt=&quot;Github Pages Setting Blog&quot;&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -107,21 +107,21 @@
      outputDirectory
     &lt;/dt&gt; 
     &lt;dd&gt; 
-     &lt;p&gt;The directory goals write the generated output.&lt;/p&gt; 
+     &lt;p&gt;The directory the goals write the generated output.&lt;/p&gt; 
     &lt;/dd&gt; 
     &lt;dt class=&quot;hdlist1&quot;&gt;
      inputDirectory
     &lt;/dt&gt; 
     &lt;dd&gt; 
-     &lt;p&gt;The directory goals read input from. The input directory defaults for the most goals to &lt;code&gt;${project.basedir}/src/main/jbake)&lt;/code&gt;.&lt;/p&gt; 
+     &lt;p&gt;The directory the goals read input from. The input directory defaults for the most goals to &lt;code&gt;${project.basedir}/src/main/jbake)&lt;/code&gt;.&lt;/p&gt; 
     &lt;/dd&gt; 
    &lt;/dl&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;The easiest way to setup the Blog project is to fetch samples templates and content and populate the your Blog project folders. This can be achieved with the &lt;code&gt;jbake:seed&lt;/code&gt; goal.&lt;/p&gt; 
+   &lt;p&gt;The easiest way to setup the Blog project is to fetch samples templates and content and populate the Blog project folders. This can be achieved with the &lt;code&gt;jbake:seed&lt;/code&gt; goal.&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;The &lt;code&gt;jbake:seed&lt;/code&gt; goal is an exception to the default &lt;code&gt;outputDirectory&lt;/code&gt; parameter, because it populates the input folders. If you don’t like to modify the &lt;code&gt;pom.xml&lt;/code&gt; temporarily for the initialization step and work with a copy of my POM, you can overwrite the output directory on the command-line as follows:&lt;/p&gt; 
+   &lt;p&gt;The &lt;code&gt;jbake:seed&lt;/code&gt; goal is an exception to the default &lt;code&gt;outputDirectory&lt;/code&gt; parameter, because it populates the input directory. If you don’t like to modify the &lt;code&gt;pom.xml&lt;/code&gt; temporarily for the first initialization step and work with a copy of my POM, you can overwrite the output directory on the command-line by defining a Java System property as follows:&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
@@ -140,7 +140,7 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;For local testing the site, I’ve changed the &lt;code&gt;site.host&lt;/code&gt; property temporarily to localhost. JBake uses this parameter to generate the links between the site pages, which is quite important.&lt;/p&gt; 
+   &lt;p&gt;For local testing of the site, I’ve changed the &lt;code&gt;site.host&lt;/code&gt; property temporarily to localhost. JBake uses this parameter to generate the links between the site’s pages, which is quite important.&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;admonitionblock warning&quot;&gt; 
    &lt;table&gt; 
@@ -156,7 +156,7 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
    &lt;/table&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;The &lt;code&gt;jbake:generate&lt;/code&gt; goal applies the project’s templates to the sample content files and generates the static site:&lt;/p&gt; 
+   &lt;p&gt;The &lt;code&gt;jbake:generate&lt;/code&gt; goal applies the project’s templates to the content files and generates the static site:&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
@@ -164,7 +164,7 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;My project POM already defines input and output parameters, which is why no parameters on the command-line need to be given. If you want to have a look at the generated site you can either serve it by a local Web server, e.g. by executing &lt;code&gt;python3 -m http.server&lt;/code&gt; in the site’s root folder, or use the &lt;code&gt;jbake:inline&lt;/code&gt; goal, that starts JBake’s internal Web server:&lt;/p&gt; 
+   &lt;p&gt;My project POM already defines input and output configuration parameters properly. If you want to have a look at the generated site you can either serve it by a local Web server, e.g. by executing &lt;code&gt;python3 -m http.server&lt;/code&gt; in the site’s root folder, or use the &lt;code&gt;jbake:inline&lt;/code&gt; goal, that starts JBake’s internal Web server:&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
@@ -172,10 +172,10 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;The JBake’s internal Web server listens by default on port &lt;code&gt;8080&lt;/code&gt;. If you have another application occupying &lt;code&gt;8080&lt;/code&gt;, then the listening port of JBake can be changed with the &lt;code&gt;port&lt;/code&gt; parameter.&lt;/p&gt; 
+   &lt;p&gt;The JBake’s internal Web server listens by default on port &lt;code&gt;8080&lt;/code&gt;. If you have another application occupying port &lt;code&gt;8080&lt;/code&gt;, then the listening port of JBake can be changed with the &lt;code&gt;port&lt;/code&gt; parameter.&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
-   &lt;p&gt;The &lt;code&gt;jbake:inline&lt;/code&gt; watches for changes of templates and content in the source folder and re-generates the static site if any modified files are detected. After refreshing page in the browser you see the changes without explicitly generating the static site again, which is very nice for a workflow. So, it’s worth considering usage of JBake’s internal Web server, even if you are used to another local Web server.&lt;/p&gt; 
+   &lt;p&gt;The &lt;code&gt;jbake:inline&lt;/code&gt; watches for changes of templates and content in the source folder and re-generates the static site if any modified file is detected. After refreshing the page in the browser you see the changes without explicitly generating the static site again, which is very nice for a workflow. So, it’s worth considering usage of JBake’s internal Web server, even if you are used to another local Web server.&lt;/p&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;You can now navigate with your favorite Browser to &lt;code&gt;&lt;a href=&quot;http://localhost:8080&quot; class=&quot;bare&quot;&gt;http://localhost:8080&lt;/a&gt;&lt;/code&gt; to have a look at the sample content. After replacing the samples with your own content and merging the changed files to &lt;code&gt;master&lt;/code&gt; branch of your Blog project, Github Pages takes automatically care of publishing your site. Congratulations, your Blog is up and running.&lt;/p&gt; 
