@@ -40,7 +40,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="">JBake</a>
+          <a class="navbar-brand" href="">GR</a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -120,7 +120,7 @@
   </div> 
   <div class="imageblock"> 
    <div class="content"> 
-    <img src="http://localhost:8080/blog/2020/Github_Pages_Setting_Blog.png" alt="Github Pages Setting Blog"> 
+    <img src="https://guntherrotsch.github.io/blog/2020/Github_Pages_Setting_Blog.png" alt="Github Pages Setting Blog"> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -164,21 +164,21 @@
      outputDirectory
     </dt> 
     <dd> 
-     <p>The directory goals write the generated output.</p> 
+     <p>The directory the goals write the generated output.</p> 
     </dd> 
     <dt class="hdlist1">
      inputDirectory
     </dt> 
     <dd> 
-     <p>The directory goals read input from. The input directory defaults for the most goals to <code>${project.basedir}/src/main/jbake)</code>.</p> 
+     <p>The directory the goals read input from. The input directory defaults for the most goals to <code>${project.basedir}/src/main/jbake)</code>.</p> 
     </dd> 
    </dl> 
   </div> 
   <div class="paragraph"> 
-   <p>The easiest way to setup the Blog project is to fetch samples templates and content and populate the your Blog project folders. This can be achieved with the <code>jbake:seed</code> goal.</p> 
+   <p>The easiest way to setup the Blog project is to fetch samples templates and content and populate the Blog project folders. This can be achieved with the <code>jbake:seed</code> goal.</p> 
   </div> 
   <div class="paragraph"> 
-   <p>The <code>jbake:seed</code> goal is an exception to the default <code>outputDirectory</code> parameter, because it populates the input folders. If you don’t like to modify the <code>pom.xml</code> temporarily for the initialization step and work with a copy of my POM, you can overwrite the output directory on the command-line as follows:</p> 
+   <p>The <code>jbake:seed</code> goal is an exception to the default <code>outputDirectory</code> parameter, because it populates the input directory. If you don’t like to modify the <code>pom.xml</code> temporarily for the first initialization step and work with a copy of my POM, you can overwrite the output directory on the command-line by defining a Java System property as follows:</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
@@ -197,7 +197,7 @@ render.sitemap=true</code></pre>
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>For local testing the site, I’ve changed the <code>site.host</code> property temporarily to localhost. JBake uses this parameter to generate the links between the site pages, which is quite important.</p> 
+   <p>For local testing of the site, I’ve changed the <code>site.host</code> property temporarily to localhost. JBake uses this parameter to generate the links between the site’s pages, which is quite important.</p> 
   </div> 
   <div class="admonitionblock warning"> 
    <table> 
@@ -213,7 +213,7 @@ render.sitemap=true</code></pre>
    </table> 
   </div> 
   <div class="paragraph"> 
-   <p>The <code>jbake:generate</code> goal applies the project’s templates to the sample content files and generates the static site:</p> 
+   <p>The <code>jbake:generate</code> goal applies the project’s templates to the content files and generates the static site:</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
@@ -221,7 +221,7 @@ render.sitemap=true</code></pre>
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>My project POM already defines input and output parameters, which is why no parameters on the command-line need to be given. If you want to have a look at the generated site you can either serve it by a local Web server, e.g. by executing <code>python3 -m http.server</code> in the site’s root folder, or use the <code>jbake:inline</code> goal, that starts JBake’s internal Web server:</p> 
+   <p>My project POM already defines input and output configuration parameters properly. If you want to have a look at the generated site you can either serve it by a local Web server, e.g. by executing <code>python3 -m http.server</code> in the site’s root folder, or use the <code>jbake:inline</code> goal, that starts JBake’s internal Web server:</p> 
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
@@ -229,10 +229,10 @@ render.sitemap=true</code></pre>
    </div> 
   </div> 
   <div class="paragraph"> 
-   <p>The JBake’s internal Web server listens by default on port <code>8080</code>. If you have another application occupying <code>8080</code>, then the listening port of JBake can be changed with the <code>port</code> parameter.</p> 
+   <p>The JBake’s internal Web server listens by default on port <code>8080</code>. If you have another application occupying port <code>8080</code>, then the listening port of JBake can be changed with the <code>port</code> parameter.</p> 
   </div> 
   <div class="paragraph"> 
-   <p>The <code>jbake:inline</code> watches for changes of templates and content in the source folder and re-generates the static site if any modified files are detected. After refreshing page in the browser you see the changes without explicitly generating the static site again, which is very nice for a workflow. So, it’s worth considering usage of JBake’s internal Web server, even if you are used to another local Web server.</p> 
+   <p>The <code>jbake:inline</code> watches for changes of templates and content in the source folder and re-generates the static site if any modified file is detected. After refreshing the page in the browser you see the changes without explicitly generating the static site again, which is very nice for a workflow. So, it’s worth considering usage of JBake’s internal Web server, even if you are used to another local Web server.</p> 
   </div> 
   <div class="paragraph"> 
    <p>You can now navigate with your favorite Browser to <code><a href="http://localhost:8080" class="bare">http://localhost:8080</a></code> to have a look at the sample content. After replacing the samples with your own content and merging the changed files to <code>master</code> branch of your Blog project, Github Pages takes automatically care of publishing your site. Congratulations, your Blog is up and running.</p> 
