@@ -33,7 +33,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<outputDirectory>${project.basedir}/docs</outputDirectory>
+		<outputDirectory>${project.basedir}/</outputDirectory>
 		<port>8080</port>
 	</properties>
 
