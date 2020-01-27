@@ -50,7 +50,7 @@ for more information on setting up an appropriate repository.
 The Github Pages paragraph of the repository settings should after
 configuration  look like:
 
-image::./Github_Pages_Setting_Blog.png[]
+image::/assets/img/Github_Pages_Setting_Blog.png[]
 
 The content merged to `master` branch will be automatically published
 (with a short delay of max a few minutes).
