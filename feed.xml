@@ -6,8 +6,8 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Tue, 28 Jan 2020 22:54:39 +0100</pubDate>
-    <lastBuildDate>Tue, 28 Jan 2020 22:54:39 +0100</lastBuildDate>
+    <pubDate>Tue, 28 Jan 2020 23:04:06 +0100</pubDate>
+    <lastBuildDate>Tue, 28 Jan 2020 23:04:06 +0100</lastBuildDate>
 
     <item>
       <title>JBake Blog with Maven Plugin</title>
@@ -15,21 +15,7 @@
       <pubDate>Tue, 21 Jan 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/jbake-blog-with-maven.html</guid>
       	<description>
-	&lt;div id=&quot;preamble&quot;&gt; 
- &lt;div class=&quot;sectionbody&quot;&gt; 
-  &lt;div class=&quot;dlist&quot;&gt; 
-   &lt;dl&gt; 
-    &lt;dt class=&quot;hdlist1&quot;&gt;
-     Summary
-    &lt;/dt&gt; 
-    &lt;dd&gt; 
-     &lt;p&gt;When I decided to start blogging, the combination of Github pages and JBake looked most promising to me: Out-of-the-box support of Asciidoc, Java application should be friendly for me as Java developer, one of the most popular static site generators, etc.&lt;br&gt; &lt;br&gt; There are many articles and blog posts about the combination of JBake and Gradle. But because I’m much more familiar with Maven and Maven tooling was already installed on my Notebook, I decided to try the JBake’s Maven plugin for stetting up the static Blog site.&lt;/p&gt; 
-    &lt;/dd&gt; 
-   &lt;/dl&gt; 
-  &lt;/div&gt; 
- &lt;/div&gt; 
-&lt;/div&gt; 
-&lt;div class=&quot;sect2&quot;&gt; 
+	&lt;div class=&quot;sect2&quot;&gt; 
  &lt;h3 id=&quot;_preparation&quot;&gt;Preparation&lt;/h3&gt; 
  &lt;div class=&quot;sect3&quot;&gt; 
   &lt;h4 id=&quot;_java&quot;&gt;Java&lt;/h4&gt; 
