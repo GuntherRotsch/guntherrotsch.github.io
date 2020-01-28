@@ -1,5 +1,5 @@
 <#include "header.ftl">
-	
+
 	<#include "menu.ftl">
 
 	<#if (content.title)??>
@@ -13,5 +13,5 @@
 	<p>${content.body}</p>
 
 	<hr />
-	
+
 <#include "footer.ftl">
