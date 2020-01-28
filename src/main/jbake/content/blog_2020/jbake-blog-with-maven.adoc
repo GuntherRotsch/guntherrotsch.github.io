@@ -3,7 +3,7 @@ date=2020-01-21
 type=post
 tags=blog, asciidoc, jbake, maven
 status=published
-summary=When I decided to start blogging, the combination of Github pages and JBake looked most promising to me: Out-of-the-box support of Asciidoc, Java application should be friendly for me as Java developer, one of the most popular static site generators, etc. There are many articles and blog posts about the combination of JBake and Gradle. But because I'm much more familiar with Maven and Maven tooling was already installed on my Notebook, I decided to try the JBake's Maven plugin for stetting up the static Blog site.
+summary=When I decided to start blogging, the combination of Github pages and JBake looked most promising to me: Out-of-the-box support of Asciidoc, Java application should be friendly for me as Java developer, one of the most popular static site generators, etc.<p> There are many articles and blog posts about the combination of JBake and Gradle. But because I'm much more familiar with Maven and Maven tooling was already installed on my Notebook, I decided to try the JBake's Maven plugin for   stetting up the static Blog site.
 ~~~~~~
 = JBake Blog with Maven Plugin
 Gunther Rotsch
