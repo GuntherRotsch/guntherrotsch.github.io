@@ -10,6 +10,17 @@
 
 	<p><em>${content.date?string("dd MMMM yyyy")}</em></p>
 
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>${content.summary}</p>
+    </dd>
+   </dl>
+  </div>
+
 	<p>${content.body}</p>
 
 	<hr />
