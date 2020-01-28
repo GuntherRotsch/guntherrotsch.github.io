@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Blog - Gunther Rotsch</title>
+    <title>JBake Blog with Maven Plugin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -10,14 +10,14 @@
     <meta name="generator" content="JBake">
 
     <!-- Le styles -->
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/asciidoctor.css" rel="stylesheet">
-    <link href="assets/css/base.css" rel="stylesheet">
-    <link href="assets/css/prettify.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../../assets/css/base.css" rel="stylesheet">
+    <link href="../../assets/css/prettify.css" rel="stylesheet">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="js/html5shiv.min.js"></script>
+      <script src="../../js/html5shiv.min.js"></script>
     <![endif]-->
 
     <!-- Fav and touch icons -->
@@ -25,11 +25,11 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
-    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="shortcut icon" href="../../favicon.ico">
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
-
+	
 	<!-- Fixed navbar -->
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
@@ -40,13 +40,13 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="">GR</a>
+          <a class="navbar-brand" href="../../">GR</a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="feed.xml">Subscribe</a></li>
+            <li><a href="../../index.html">Home</a></li>
+            <li><a href="../../about.html">About</a></li>
+            <li><a href="../../feed.xml">Subscribe</a></li>
 		<!--
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
@@ -68,189 +68,12 @@
     <div class="container">
 
 	<div class="page-header">
-		<h1>Blog</h1>
+		<h1>JBake Blog with Maven Plugin</h1>
 	</div>
-  			<a href="/#/blog/_2020/jbake-blog-with-maven.html"><h1>JBake Blog with Maven Plugin</h1></a>
-  			<p>21 January 2020</p>
-  			<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     Summary
-    </dt> 
-    <dd> 
-     <p>When I decided to start blogging, the combination of Github pages and JBake looked most promising to me: Out-of-the-box support of Asciidoc, Java application should be friendly for me as Java developer, one of the most popular static site generators, etc.<br> <br> There are many articles and blog posts about the combination of JBake and Gradle. But because I’m much more familiar with Maven and Maven tooling was already installed on my Notebook, I decided to try the JBake’s Maven plugin for stetting up the static Blog site.</p> 
-    </dd> 
-   </dl> 
-  </div> 
- </div> 
-</div> 
-<div class="sect2"> 
- <h3 id="_preparation">Preparation</h3> 
- <div class="sect3"> 
-  <h4 id="_java">Java</h4> 
-  <div class="paragraph"> 
-   <p>As of the time of writing, with Java runtime 11 or higher JBake (or one of its dependencies) logged exceptions to the console. At the first glance JBake still seemed to work. But to be on the save side, I usually run JBake with Java in version 8.</p> 
-  </div> 
-  <div class="admonitionblock tip"> 
-   <table> 
-    <tbody>
-     <tr> 
-      <td class="icon"> 
-       <div class="title">
-        Tip
-       </div> </td> 
-      <td class="content"> I use the nice little tool <a href="https://github.com/jenv/jenv">jenv</a>, that allows to switch between different Java JDK versions easily. If you work on many projects with different Java versions at the same time, you should give <code>jenv</code> a try, </td> 
-     </tr> 
-    </tbody>
-   </table> 
-  </div> 
- </div> 
- <div class="sect3"> 
-  <h4 id="_github_pages">Github Pages</h4> 
-  <div class="paragraph"> 
-   <p>I decided to publish my Blog on Github pages, which are well suited for statically generated sites. In addition, it’s well integrated with git and by that supports well-known workflows.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>In my case, I created a personal Github Pages site by defining a repository named <code>guntherrotsch.github.io</code>. Project-specific Github Pages are also possible, but could create links/URLs in some cases, which are not so nice. Please see the <a href="https://help.github.com/en/github/working-with-github-pages">Github Pages documentation</a> for more information on setting up an appropriate repository.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The Github Pages paragraph of the repository settings should after configuration look like:</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://guntherrotsch.github.io/assets/img/Github_Pages_Setting_Blog.png" alt="Github Pages Setting Blog"> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The content merged to <code>master</code> branch will be automatically published (with a short delay of max a few minutes).</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect2"> 
- <h3 id="_starting_blog_project">Starting Blog Project</h3> 
- <div class="paragraph"> 
-  <p>When setting up my Blog, the goal was to utilize JBake by Maven only. So, I wanted to avoid to install JBake explicitly and let Maven handle the download and integration of JBake artifacts.</p> 
- </div> 
- <div class="paragraph"> 
-  <p>The most explanations below apply for the JBake Maven Plugin in general, but some are specific for settings I did for my Blog project. Please see the Maven <a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml">pom.xml</a> of my Blog project. If you also want to start your Blog with Maven and the JBake plugin, you could even copy the POM and adapt it slightly - very few definitions are specific to my Blog project, eg. group and artifact id.</p> 
- </div> 
-</div> 
-<div class="sect2"> 
- <h3 id="_jbake_maven_plugin">JBake Maven Plugin</h3> 
- <div class="paragraph"> 
-  <p>The JBake Maven Plugin is hosted on <a href="https://github.com/jbake-org/jbake-maven-plugin">Github</a>. There you can find some useful information to start its usage.</p> 
- </div> 
- <div class="paragraph"> 
-  <p>It also helps a lot, that the plugin follows good practices of Maven plugin development and provides a <code>help</code> goal:</p> 
- </div> 
- <div class="listingblock"> 
-  <div class="content"> 
-   <pre class="prettyprint highlight"><code>$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]</code></pre> 
-  </div> 
- </div> 
- <div class="paragraph"> 
-  <p>The <code>jbake:help</code> goal gives general information about other goals of the plugin, it provides even more information than the Github page of JBake Maven plugin. The <code>jbake:help</code> called without additional parameters just lists available goals. In addition, it considers the property System property parameters <code>detail</code> and <code>goal</code> (commented out above) to give more detailed information about each plugin’s goal.</p> 
- </div> 
- <div class="sect3"> 
-  <h4 id="_plugin_goals">Plugin Goals</h4> 
-  <div class="paragraph"> 
-   <p>The most goals of the plugin consider configuration parameters. The most important ones are:</p> 
-  </div> 
-  <div class="dlist"> 
-   <dl> 
-    <dt class="hdlist1">
-     outputDirectory
-    </dt> 
-    <dd> 
-     <p>The directory the goals write the generated output.</p> 
-    </dd> 
-    <dt class="hdlist1">
-     inputDirectory
-    </dt> 
-    <dd> 
-     <p>The directory the goals read input from. The input directory defaults for the most goals to <code>${project.basedir}/src/main/jbake)</code>.</p> 
-    </dd> 
-   </dl> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The easiest way to setup the Blog project is to fetch samples templates and content and populate the Blog project folders. This can be achieved with the <code>jbake:seed</code> goal.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The <code>jbake:seed</code> goal is an exception to the default <code>outputDirectory</code> parameter, because it populates the input directory. If you don’t like to modify the <code>pom.xml</code> temporarily for the first initialization step and work with a copy of my POM, you can overwrite the output directory on the command-line by defining a Java System property as follows:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="prettyprint highlight"><code>$ mvn jbake:seed -DoutputDirectory=./src/main/jbake</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Before we generate the sample static Blog site, you should have a look at the jbake configuration, which is hosted in <code>${project.basedir}/src/main/jbake/jbake.properties)</code>:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="prettyprint highlight"><code>#site.host=https://guntherrotsch.github.io
-site.host=http://localhost:8080
-render.tags=false
-render.sitemap=true</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>For local testing of the site, I’ve changed the <code>site.host</code> property temporarily to localhost. JBake uses this parameter to generate the links between the site’s pages, which is quite important.</p> 
-  </div> 
-  <div class="admonitionblock warning"> 
-   <table> 
-    <tbody>
-     <tr> 
-      <td class="icon"> 
-       <div class="title">
-        Warning
-       </div> </td> 
-      <td class="content"> Don’t forget to change the <code>site.host</code> to you Github Pages URL before you commit and push the project files to Github. The commented out first line shows the definition for my Blog site’s URL. </td> 
-     </tr> 
-    </tbody>
-   </table> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The <code>jbake:generate</code> goal applies the project’s templates to the content files and generates the static site:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="prettyprint highlight"><code>$ mvn jbake:generate</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>My project POM already defines input and output configuration parameters properly. If you want to have a look at the generated site you can either serve it by a local Web server, e.g. by executing <code>python3 -m http.server</code> in the site’s root folder, or use the <code>jbake:inline</code> goal, that starts JBake’s internal Web server:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="prettyprint highlight"><code>$ mvn jbake:inline [ -Dport=8000 ]</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The JBake’s internal Web server listens by default on port <code>8080</code>. If you have another application occupying port <code>8080</code>, then the listening port of JBake can be changed with the <code>port</code> parameter.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The <code>jbake:inline</code> watches for changes of templates and content in the source folder and re-generates the static site if any modified file is detected. After refreshing the page in the browser you see the changes without explicitly generating the static site again, which is very nice for a workflow. So, it’s worth considering usage of JBake’s internal Web server, even if you are used to another local Web server.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>You can now navigate with your favorite Browser to <code><a href="http://localhost:8080" class="bare">http://localhost:8080</a></code> to have a look at the sample content. After replacing the samples with your own content and merging the changed files to <code>master</code> branch of your Blog project, Github Pages takes automatically care of publishing your site. Congratulations, your Blog is up and running.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect2"> 
- <h3 id="_conclusion">Conclusion</h3> 
- <div class="paragraph"> 
-  <p>I’m really happy to have selected JBake as static site generator when I started blogging. The Java tooling feels familiar for me and JBake’s features are absolutely satisfying - I appreciate the Asciidoc support in particular.</p> 
- </div> 
- <div class="paragraph"> 
-  <p>Also, the combination with the Maven plugin works really well. Till today I haven’t installed JBake CLI and let do Maven the job of managing the required JBake dependencies.</p> 
- </div> 
-</div></p>
-  			<a href="/#/blog_2020/_2020/jbake-blog-with-maven.html"><h1>JBake Blog with Maven Plugin</h1></a>
-  			<p>21 January 2020</p>
-  			<p><div id="preamble"> 
+
+	<p><em>21 January 2020</em></p>
+
+	<p><div id="preamble"> 
  <div class="sectionbody"> 
   <div class="dlist"> 
    <dl> 
@@ -428,9 +251,7 @@ render.sitemap=true</code></pre>
 </div></p>
 
 	<hr />
-
-	<p>Older posts are available in the <a href="archive.html">archive</a>.</p>
-
+	
 		</div>
 		<div id="push"></div>
     </div>
@@ -446,9 +267,9 @@ render.sitemap=true</code></pre>
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="assets/js/jquery-1.11.1.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
-    <script src="assets/js/prettify.js"></script>
+    <script src="../../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../../assets/js/bootstrap.min.js"></script>
+    <script src="../../assets/js/prettify.js"></script>
 
   </body>
 </html>
