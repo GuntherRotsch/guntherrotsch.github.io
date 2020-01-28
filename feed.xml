@@ -6,14 +6,14 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Mon, 27 Jan 2020 20:32:47 +0100</pubDate>
-    <lastBuildDate>Mon, 27 Jan 2020 20:32:47 +0100</lastBuildDate>
+    <pubDate>Tue, 28 Jan 2020 21:30:18 +0100</pubDate>
+    <lastBuildDate>Tue, 28 Jan 2020 21:30:18 +0100</lastBuildDate>
 
     <item>
       <title>JBake Blog with Maven Plugin</title>
-      <link>https://guntherrotsch.github.io/blog/2020/jbake-blog-with-maven.html</link>
+      <link>https://guntherrotsch.github.io/blog/_2020/jbake-blog-with-maven.html</link>
       <pubDate>Tue, 21 Jan 2020 00:00:00 +0100</pubDate>
-      <guid isPermaLink="false">blog/2020/jbake-blog-with-maven.html</guid>
+      <guid isPermaLink="false">blog/_2020/jbake-blog-with-maven.html</guid>
       	<description>
 	&lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
