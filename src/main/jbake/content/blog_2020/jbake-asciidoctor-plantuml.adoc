@@ -3,6 +3,7 @@ date=2020-02-01
 type=post
 tags=blog, asciidoc, jbake, plantuml
 status=draft
+summary=ADD SUMMARY HERE...
 ~~~~~~
 = JBake, Asciidoc and PlantUML
 Gunther Rotsch
