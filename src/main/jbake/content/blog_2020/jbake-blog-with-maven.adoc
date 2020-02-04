@@ -1,17 +1,14 @@
-title=JBake Blog with Maven Plugin
-date=2020-01-21
-type=post
-tags=blog, asciidoc, jbake, maven
-status=published
-summary=When I decided to start blogging, the combination of Github pages and JBake looked most promising to me: Out-of-the-box support of Asciidoc, Java application should be friendly for me as Java developer, one of the most popular static site generators, etc.<p> There are many articles and blog posts about the combination of JBake and Gradle. But because I'm much more familiar with Maven and Maven tooling was already installed on my Notebook, I decided to try the JBake's Maven plugin for   stetting up the static Blog site.
-~~~~~~
 = JBake Blog with Maven Plugin
 Gunther Rotsch
 2020-01-21
+:jbake-type: post
+:jbake-tags: blog, asciidoc, jbake, maven
+:jbake-status: published
+:jbake-summary: When I decided to start blogging, the combination of Github pages and JBake looked most promising to me: Out-of-the-box support of Asciidoc, Java application should be friendly for me as Java developer, one of the most popular static site generators, etc.<p> There are many articles and blog posts about the combination of JBake and Gradle. But because I'm much more familiar with Maven and Maven tooling was already installed on my Notebook, I decided to try the JBake's Maven plugin for stetting up the static Blog site.
 
-=== Preparation
+== Preparation
 
-==== Java
+=== Java
 
 As of the time of writing, with Java runtime 11 or higher JBake (or one
 of its dependencies) logged exceptions to the console. At the first glance
@@ -24,7 +21,7 @@ to switch between different Java JDK versions easily. If you work on many
 projects with different Java versions at the same time, you should give `jenv`
 a try,
 
-==== Github Pages
+=== Github Pages
 
 I decided to publish my Blog on Github pages, which are well suited for
 statically generated sites. In addition, it's well integrated with git
@@ -45,7 +42,7 @@ image::/assets/img/Github_Pages_Setting_Blog.png[]
 The content merged to `master` branch will be automatically published
 (with a short delay of max a few minutes).
 
-=== Starting Blog Project
+== Starting Blog Project
 
 When setting up my Blog, the goal was to utilize JBake by Maven only.
 So, I wanted to avoid to install JBake explicitly and let Maven handle
@@ -59,7 +56,7 @@ of my Blog project. If you also want to start your Blog with Maven and the
 JBake plugin, you could even copy the POM and adapt it slightly - very few
 definitions are specific to my Blog project, eg. group and artifact id.
 
-=== JBake Maven Plugin
+== JBake Maven Plugin
 
 The JBake Maven Plugin is hosted on
 https://github.com/jbake-org/jbake-maven-plugin[Github].
@@ -79,7 +76,7 @@ In addition, it considers the property System property parameters `detail` and
 `goal` (commented out above) to give more detailed information about each
 plugin's goal.
 
-==== Plugin Goals
+=== Plugin Goals
 
 The most goals of the plugin consider configuration parameters. The most
 important ones are:
@@ -160,7 +157,7 @@ content and merging the changed files to `master` branch of your Blog project,
 Github Pages takes automatically care of publishing your site. Congratulations,
 your Blog is up and running.
 
-=== Conclusion
+== Conclusion
 
 I'm really happy to have selected JBake as static site generator when I started
 blogging. The Java tooling feels familiar for me and JBake's features are

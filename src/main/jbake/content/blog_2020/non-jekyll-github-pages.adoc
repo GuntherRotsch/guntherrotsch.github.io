@@ -1,0 +1,100 @@
+= Non-Jekyll Github Pages
+Gunther Rotsch
+2020-02-01
+:jbake-type: post
+:jbake-tags: blog, jbake, github-pages
+:jbake-status: published
+:jbake-summary: After initially setting up my Blog (see previous post 'JBake Blog with Maven Plugin'), I noticed that the deployment to Github Pages is not fully functional, although with local web server everything works fine. The problems were: 1) images are not shown, 2) navigation to posts, that are hosted in sub-directories, lead to 404 error (page not found). This post is about possible solutions for described issues.
+
+Github Pages was originally designed to integrate static site-generator Jekyll.
+This may still be the most applied combination. But today it's also possible
+to generate a static site using a generator of your choice and publish it with
+Github Pages.
+Because my Blog is generated with JBake and only distribution files are pushed
+to `master` branch of Github repo, I placed an empty `.nojekyll` file into the
+web root. According to the documentation, this tells Github Pages to
+skip the Jekyll build and just transfer every file hosted in `master` branch
+to the web server. However, images are still not deployed and the _alternative_
+text is shown instead to the users.
+
+== Images
+
+The Github Pages documentation mentions, that images should be kept below an
+`assets` folder. This may apply for Jekyll especially, but nevertheless I
+introduced such a folder and moved the images to `/assets/img`.
+Actually, I ended up with two nested folders named `assets` in the sources of
+the project. JBake removes one of them during _baking_ of the site, so that the
+directory structure of the distribution contains only one folder `assets`
+possibly required by Github Pages.
+
+To clean everything up a bit, the `css`, `fonts`, and `js` folders are also
+moved below the `/assets` directory. This requires adaption of the templates,
+eg. the `header.ftl` has to reference the right stylesheets:
+
+```
+...
+<link href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>assets/css/bootstrap.min.css" rel="stylesheet">
+<link href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>assets/css/asciidoctor.css" rel="stylesheet">
+<link href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>assets/css/base.css" rel="stylesheet">
+<link href="<#if (content.rootpath)??>${content.rootpath}<#else></#if>assets/css/prettify.css" rel="stylesheet">
+...
+```
+
+After publishing these changes, the the images embedded in the pages appear as
+expected.
+
+== Pages in Sub-directories
+
+The typical directory structure of a JBake project organizes HTML pages as
+follows:
+
+```
+/
+   ...
+   index.html
+   ...
+   /blog/2020
+      first-post.html
+      second-post.html
+      ...
+```
+
+The index page is initially presented to the user when he navigates to the
+web page's root. From here users may navigate to the individual Blog posts,
+which are hosted in two level deep sub-directories `/blog/<year>`. Though,
+the Blog post in sub-directories were not deployed and navigation to such pages
+resulted in 404 (page not found) error pages.
+
+The documentation of Github Pages mentions, that the `Checks` tab of the Pull
+Requests should be observed for detecting issues during the Github/Jekyll build.
+But I've never seen a single message there. May be this applies to _pure_
+Jekyll builds only. In general, I find it hard to get an insight into what
+happens on Github Pages. To my knowledge, it't not even possible to get an eye
+on the actually distributed files hosted by the web server - please drop me
+an email, if I missed something.
+
+Anyway, to find by trial-and-error out what's going on during the Github Pages
+build/deployment, I placed additional `index.html` files into the directories
+`/blog` as well as `/blog/2020`. Surprisingly, the index page in `/blog` could
+be retrieved by the Browser, but `/blog/2020` is missing and leads a 404
+(page not found) error page. Does the additional level of directories really
+makes the difference? That'd be far away from being logical. But after merging
+the directories `/blog/2020` to `/blog_2020` and moving the Blog posts into the
+new directory, the navigation to individual posts works fine, even on Github
+Pages' deployment.
+
+== Conclusion
+
+Actually, my enthusiasm for Github Pages diminished quite a bit. The process
+of build and deployment could be improved to more transparency in principle.
+In addition, I initially was not aware of the limitation that personal
+(and organizational) Github pages can only be served from `master` branch's
+root directory, but not like project pages from a `/docs` folder - the reason
+for this limitation is not clear to me. (Because of this limitation, I
+separated sources and distribution files of my project to different branches
+`sources-master` and `master`. The local development is then setup with a
+single Git repo managing two worktrees.)
+
+However, I'm still excited about JBake, it's easy to use and always works as
+expected. In the meantime, I also adapted several templates, which is
+understandable and also well documented. JBake, really good stuff.

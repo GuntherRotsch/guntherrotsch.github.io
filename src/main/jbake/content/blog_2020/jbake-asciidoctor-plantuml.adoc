@@ -1,13 +1,10 @@
-title=JBake, Asciidoc and PlantUML
-date=2020-02-01
-type=post
-tags=blog, asciidoc, jbake, plantuml
-status=draft
-summary=ADD SUMMARY HERE...
-~~~~~~
 = JBake, Asciidoc and PlantUML
 Gunther Rotsch
 2020-02-01
+:jbake-type: post
+:jbake-tags: blog, asciidoc, jbake, plantuml
+:jbake-status: draft
+:jbake-summary: ADD SUMMARY HERE...
 
 Currently we found project PlantUML for writing UML diagrams-as-a-code. This is really hype to have everything in version control and it is always better to version text source that images or binary files. I was really happy that AsciiDoctor and JBake support this, but it was little bit tricky to get it work. And it is still not how it could be.
 
@@ -23,7 +20,7 @@ https://xpj.ninja/blog/2018/03/2018-03-21-why-jbake.html
 Next step was to include generated diagrams into result pages. I was debuging JBake, looking into properties files, trying this and that, because generated images had wrong src attribute. Finally I figured, that it was as simple as adding ./ in front of the file name:
 
 
-=== PlantUML
+== PlantUML
 
 [plantuml, "./asciidoctor-sequence-diagram", "png"]
 ----
