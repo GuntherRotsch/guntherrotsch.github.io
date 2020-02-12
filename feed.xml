@@ -6,9 +6,53 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Tue, 4 Feb 2020 19:09:51 +0100</pubDate>
-    <lastBuildDate>Tue, 4 Feb 2020 19:09:51 +0100</lastBuildDate>
+    <pubDate>Wed, 12 Feb 2020 20:14:20 +0100</pubDate>
+    <lastBuildDate>Wed, 12 Feb 2020 20:14:20 +0100</lastBuildDate>
 
+    <item>
+      <title>Maven Dependecy Analyzis Plugin</title>
+      <link>https://guntherrotsch.github.io/blog_2020/maven-dependency-analysis-plugin.html</link>
+      <pubDate>Wed, 12 Feb 2020 00:00:00 +0100</pubDate>
+      <guid isPermaLink="false">blog_2020/maven-dependency-analysis-plugin.html</guid>
+      	<description>
+	&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;When implementing an application I usually use the logging facade &lt;code&gt;slf4j&lt;/code&gt;. When double-checking the dependencies of such a project with&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;listingblock&quot;&gt; 
+ &lt;div class=&quot;content&quot;&gt; 
+  &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn dependency:analyse&lt;/code&gt;&lt;/pre&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;the plugin often reports&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;listingblock&quot;&gt; 
+ &lt;div class=&quot;content&quot;&gt; 
+  &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;[WARNING] Unused declared dependencies found:
+[WARNING]    org.slf4j:slf4j-log4j12:jar:1.7.26:test&lt;/code&gt;&lt;/pre&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;But without declaring the reported &lt;code&gt;slf4j-log4j&lt;/code&gt; as dependency, the tests suppress the log output entirely. The reason for this is that &lt;code&gt;slf4j&lt;/code&gt; logging facade looks up available implementations of the facade interface by reflection. If no implementation like the &lt;code&gt;slf4j-log4j&lt;/code&gt; is found, the &lt;code&gt;no-op&lt;/code&gt; logger is installed and no logging output is generated.&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;But we cannot blame the Maven dependency plugin, because it can only consider dependencies explicitly defined in the POM, and not libraries resolved by reflection.&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;admonitionblock note&quot;&gt; 
+ &lt;table&gt; 
+  &lt;tbody&gt;
+   &lt;tr&gt; 
+    &lt;td class=&quot;icon&quot;&gt; 
+     &lt;div class=&quot;title&quot;&gt;
+      Note
+     &lt;/div&gt; &lt;/td&gt; 
+    &lt;td class=&quot;content&quot;&gt; The scope of the &lt;code&gt;slf4j-log4j&lt;/code&gt; artifact is just &lt;code&gt;test&lt;/code&gt;, because at runtime the application server provides an appropriate implementation of the logging facade interface. &lt;/td&gt; 
+   &lt;/tr&gt; 
+  &lt;/tbody&gt;
+ &lt;/table&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Non-Jekyll Github Pages</title>
       <link>https://guntherrotsch.github.io/blog_2020/non-jekyll-github-pages.html</link>

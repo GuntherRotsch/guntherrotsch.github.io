@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>Blog - Gunther Rotsch</title>
+    <title>Maven Dependecy Analyzis Plugin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -66,23 +66,63 @@
       </div>
     </div>
     <div class="container">
-	
+
 	<div class="page-header">
-		<h1>Tag: maven</h1>
+		<h1>Maven Dependecy Analyzis Plugin</h1>
 	</div>
-	
-	<!--<ul>-->
-			<h4>February 2020</h4>
-			<ul>
-		
-		<li>12 - <a href="../blog_2020/maven-dependency-analysis-plugin.html">Maven Dependecy Analyzis Plugin</a></li>
-				</ul>
-				<h4>January 2020</h4>
-				<ul>
-		
-		<li>21 - <a href="../blog_2020/jbake-blog-with-maven.html">JBake Blog with Maven Plugin</a></li>
-	</ul>
-	
+
+	<p><em>12 February 2020</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>Note on usage of Maven's dependency plugin for analyzing project dependencies.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div class="paragraph"> 
+ <p>When implementing an application I usually use the logging facade <code>slf4j</code>. When double-checking the dependencies of such a project with</p> 
+</div> 
+<div class="listingblock"> 
+ <div class="content"> 
+  <pre class="prettyprint highlight"><code>$ mvn dependency:analyse</code></pre> 
+ </div> 
+</div> 
+<div class="paragraph"> 
+ <p>the plugin often reports</p> 
+</div> 
+<div class="listingblock"> 
+ <div class="content"> 
+  <pre class="prettyprint highlight"><code>[WARNING] Unused declared dependencies found:
+[WARNING]    org.slf4j:slf4j-log4j12:jar:1.7.26:test</code></pre> 
+ </div> 
+</div> 
+<div class="paragraph"> 
+ <p>But without declaring the reported <code>slf4j-log4j</code> as dependency, the tests suppress the log output entirely. The reason for this is that <code>slf4j</code> logging facade looks up available implementations of the facade interface by reflection. If no implementation like the <code>slf4j-log4j</code> is found, the <code>no-op</code> logger is installed and no logging output is generated.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>But we cannot blame the Maven dependency plugin, because it can only consider dependencies explicitly defined in the POM, and not libraries resolved by reflection.</p> 
+</div> 
+<div class="admonitionblock note"> 
+ <table> 
+  <tbody>
+   <tr> 
+    <td class="icon"> 
+     <div class="title">
+      Note
+     </div> </td> 
+    <td class="content"> The scope of the <code>slf4j-log4j</code> artifact is just <code>test</code>, because at runtime the application server provides an appropriate implementation of the logging facade interface. </td> 
+   </tr> 
+  </tbody>
+ </table> 
+</div></p>
+
+	<hr />
+
 		</div>
 		<div id="push"></div>
     </div>
