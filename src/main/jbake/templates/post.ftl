@@ -10,6 +10,7 @@
 
 	<p><em>${content.date?string("dd MMMM yyyy")}</em></p>
 
+  <#if content.summary??>
 	<div class="dlist">
    <dl>
     <dt class="hdlist1">
@@ -20,6 +21,7 @@
     </dd>
    </dl>
   </div>
+  </#if>
 
 	<p>${content.body}</p>
 

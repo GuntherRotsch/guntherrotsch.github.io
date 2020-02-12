@@ -1,0 +1,36 @@
+= Maven Dependecy Analyzis Plugin
+Gunther Rotsch
+2020-02-12
+:jbake-type: post
+:jbake-tags: maven, dependency, plugin
+:jbake-status: published
+:jbake-summary:  Note on usage of Maven's dependency plugin for analyzing project dependencies.
+
+When implementing an application I usually use the logging facade `slf4j`. When
+double-checking the dependencies of such a project with
+
+```
+$ mvn dependency:analyse
+```
+
+the plugin often reports
+
+```
+[WARNING] Unused declared dependencies found:
+[WARNING]    org.slf4j:slf4j-log4j12:jar:1.7.26:test
+```
+
+But without declaring the reported `slf4j-log4j` as dependency, the tests
+suppress the log output entirely. The reason for this is that `slf4j` logging
+facade looks up available implementations of the facade interface by reflection.
+If no implementation like the `slf4j-log4j` is found, the `no-op` logger is
+installed and no logging output is generated.
+
+But we cannot blame the Maven dependency plugin, because it can only consider
+dependencies explicitly defined in the POM, and not libraries resolved by
+reflection.
+
+[NOTE]
+The scope of the `slf4j-log4j` artifact is just `test`, because at runtime the
+application server provides an appropriate implementation of the logging facade
+interface.
