@@ -13,7 +13,9 @@ Gunther Rotsch
 As of the time of writing, with Java runtime 11 or higher JBake (or one
 of its dependencies) logged exceptions to the console. At the first glance
 JBake still seemed to work. But to be on the save side, I usually run JBake
-with Java in version 8.
+with Java in version 8 footnote:[Amendment, 18th of February 2020: In the
+meantime I found out that at least the OrionDB used by Jbake to manage the
+posts during the build requires Java 8.].
 
 [TIP]
 I use the nice little tool https://github.com/jenv/jenv[jenv], that allows
@@ -37,7 +39,7 @@ for more information on setting up an appropriate repository.
 The Github Pages paragraph of the repository settings should after
 configuration  look like:
 
-image::/assets/img/Github_Pages_Setting_Blog.png[]
+image::/assets/img/Github_Pages_Setting_Blog.png[Image: Github Pages Setting]
 
 The content merged to `master` branch will be automatically published
 (with a short delay of max a few minutes).

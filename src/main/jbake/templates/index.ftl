@@ -11,7 +11,9 @@
   			<p>${post.date?string("dd MMMM yyyy")}</p>
 				<#if (post.summary??)>
   				<p>${post.summary}</p>
-					<p>...</p>
+					<p>
+					  <a href="/${post.uri}">Read More...</a>
+					</p>
 				<#else>
 				  <p>${post.body}</p>
 				</#if>

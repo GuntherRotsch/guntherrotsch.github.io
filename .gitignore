@@ -1,2 +1,4 @@
 dist
 setup.sh
+src/main/jbake/assets/assets/img/diagrams/**
+**/.asciidoctor/

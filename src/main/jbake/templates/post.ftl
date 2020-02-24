@@ -25,6 +25,17 @@
 
 	<p>${content.body}</p>
 
+  <span>Tags:
+	<#list tags as tag>
+	  <#list tag.tagged_posts as post>
+	    <#assign tagged_post_title = post.title>
+			<#if tagged_post_title == content.title>
+			  <span><a href="${content.rootpath}${tag.uri}">${tag.name}</a></span>
+			</#if>
+	</#list>
+	</#list>
+	</span>
+
 	<hr />
 
 <#include "footer.ftl">

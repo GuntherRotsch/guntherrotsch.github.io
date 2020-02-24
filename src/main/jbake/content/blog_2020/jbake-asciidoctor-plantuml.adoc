@@ -14,15 +14,13 @@ First problem was how to get it work. I’m using standalone JBake and all examp
 asciidoctor.option.requires = asciidoctor-diagram
 ```
 
-https://xpj.ninja/blog/2018/03/2018-03-21-why-jbake.html
 
-
-Next step was to include generated diagrams into result pages. I was debuging JBake, looking into properties files, trying this and that, because generated images had wrong src attribute. Finally I figured, that it was as simple as adding ./ in front of the file name:
+Next step was to include generated diagrams into result pages. I was debugging JBake, looking into properties files, trying this and that, because generated images had wrong src attribute. Finally I figured, that it was as simple as adding ./ in front of the file name:
 
 
 == PlantUML
 
-[plantuml, "./asciidoctor-sequence-diagram", "png"]
+[plantuml, "asciidoctor-sequence-diagram", "png"]
 ----
 Alice -> Bob: Authentication Request
 Bob --> Alice: Authentication Response
