@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>JBake, Asciidoc and PlantUML</title>
+    <title>OpenApi generated JAX/RS Service: Binary Encoding</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -68,10 +68,10 @@
     <div class="container">
 
 	<div class="page-header">
-		<h1>JBake, Asciidoc and PlantUML</h1>
+		<h1>OpenApi generated JAX/RS Service: Binary Encoding</h1>
 	</div>
 
-	<p><em>01 February 2020</em></p>
+	<p><em>24 February 2020</em></p>
 
 	<div class="dlist">
    <dl>
@@ -79,41 +79,78 @@
      	Summary
     </dt>
     <dd>
-			<p>ADD SUMMARY HERE...</p>
+			<p>Implementing JAX/RS REST APIs with Swagger/OpenApi following a Design-First approach starts with the formal specification of the REST API. Then Swagger/OpenApi generators are used to create server stubs as well as client code. Nowadays, the REST APIs often exchange JSON response and request objects. If binary fields are part of such JSON structures, the generated code encodes/decodes such binary fields. For some combinations of generators the produced client and server do not fit together.</p>
     </dd>
    </dl>
   </div>
 
-	<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Currently we found project PlantUML for writing UML diagrams-as-a-code. This is really hype to have everything in version control and it is always better to version text source that images or binary files. I was really happy that AsciiDoctor and JBake support this, but it was little bit tricky to get it work. And it is still not how it could be.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>First problem was how to get it work. I’m using standalone JBake and all examples are pointing to Gradle builds. It was easier than I expect, just add following line to my jbake.properties:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>asciidoctor.option.requires = asciidoctor-diagram</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Next step was to include generated diagrams into result pages. I was debugging JBake, looking into properties files, trying this and that, because generated images had wrong src attribute. Finally I figured, that it was as simple as adding ./ in front of the file name:</p> 
-  </div> 
+	<p><div class="paragraph"> 
+ <p>Let’s say an API defines a response model object as follows:</p> 
+</div> 
+<div class="listingblock"> 
+ <div class="content"> 
+  <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">  ....
+definitions:
+  SomeResponse:
+    type: "object"
+        required: "data"
+    properties:
+      ...
+      data:
+        description: The binary data of the response object.
+        type: "string"
+        format: "byte"
+  ...</code></pre> 
  </div> 
 </div> 
-<div class="sect1"> 
- <h2 id="_plantuml">PlantUML</h2> 
- <div class="sectionbody"> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://guntherrotsch.github.io/assets/img/diagrams/asciidoctor-sequence-diagram.png" alt="asciidoctor sequence diagram" width="298" height="214"> 
-   </div> 
-  </div> 
+<div class="paragraph"> 
+ <p>The code produced by generator <code>jaxrs-spec</code> encodes the <code>data</code> field as an array of bytes (numbers). The ASCII string "Java" for example results in an encoded JSON field <code>"data": [ 112, 141, 166, 141 ]</code>.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>On the other side, the generator <code>java</code> creates client code that encodes such <em>byte strings</em> of the API spec as base 64 strings. The sample string "Java" results in <code>"data": "SmF2YQ=="</code>.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Eventually, this leads to a situation, the generated client and server are not compatible and cannot exchange binary data.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>The simplest approach to fix this issue is by configuring the binary data strategy on the server-side:</p> 
+</div> 
+<div class="listingblock"> 
+ <div class="content"> 
+  <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import javax.json.bind.*;
+import javax.ws.rs.ext.*;
+
+/**
+ * The JsonbConfigurator configures the binary data strategy of JSON Binding.
+ * Instead of the default strategy "byte array" the "base 64" encoding is
+ * activated.
+ */
+@Provider
+public class JsonbConfigurator implements ContextResolver&lt;Jsonb&gt; {
+
+  @Override
+  public Jsonb getContext(Class&lt;?&gt; type) {
+    JsonbConfig config = getJsonbConfig();
+    return JsonbBuilder.newBuilder().withConfig(config).build();
+  }
+
+  private JsonbConfig getJsonbConfig() {
+    return new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64);
+  }
+}</code></pre> 
  </div> 
+</div> 
+<div class="paragraph"> 
+ <p>If you add this class to your JAX/RS server project, client and server both encode and decode binary data as base 64 strings and start to work well together. Such a Jarkata EE based solution should definitely preferred over the customization of generator’s templates, in particular if you take long-term maintainability into account.</p> 
 </div></p>
 
   <span>Tags:
+			  <span><a href="../tags/encding.html">encding</a></span>
+			  <span><a href="../tags/swagger.html">swagger</a></span>
+			  <span><a href="../tags/design-first.html">design-first</a></span>
+			  <span><a href="../tags/generator.html">generator</a></span>
+			  <span><a href="../tags/openapi.html">openapi</a></span>
+			  <span><a href="../tags/jaxrs.html">jaxrs</a></span>
 	</span>
 
 	<hr />

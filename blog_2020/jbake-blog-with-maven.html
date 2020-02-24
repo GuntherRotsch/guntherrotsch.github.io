@@ -90,16 +90,13 @@
   <div class="sect2"> 
    <h3 id="_java">Java</h3> 
    <div class="paragraph"> 
-    <p>As of the time of writing, with Java runtime 11 or higher JBake (or one of its dependencies) logged exceptions to the console. At the first glance JBake still seemed to work. But to be on the save side, I usually run JBake with Java in version 8.</p> 
+    <p>As of the time of writing, with Java runtime 11 or higher JBake (or one of its dependencies) logged exceptions to the console. At the first glance JBake still seemed to work. But to be on the save side, I usually run JBake with Java in version 8 <sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>.</p> 
    </div> 
    <div class="admonitionblock tip"> 
     <table> 
      <tbody>
       <tr> 
-       <td class="icon"> 
-        <div class="title">
-         Tip
-        </div> </td> 
+       <td class="icon"> <i class="fa icon-tip" title="Tip"></i> </td> 
        <td class="content"> I use the nice little tool <a href="https://github.com/jenv/jenv">jenv</a>, that allows to switch between different Java JDK versions easily. If you work on many projects with different Java versions at the same time, you should give <code>jenv</code> a try, </td> 
       </tr> 
      </tbody>
@@ -119,7 +116,7 @@
    </div> 
    <div class="imageblock"> 
     <div class="content"> 
-     <img src="https://guntherrotsch.github.io/assets/img/Github_Pages_Setting_Blog.png" alt="Github Pages Setting Blog"> 
+     <img src="https://guntherrotsch.github.io/assets/img/Github_Pages_Setting_Blog.png" alt="Image: Github Pages Setting"> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -150,7 +147,7 @@
   </div> 
   <div class="listingblock"> 
    <div class="content"> 
-    <pre class="prettyprint highlight"><code>$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]</code></pre> 
+    <pre class="highlightjs highlight"><code>$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]</code></pre> 
    </div> 
   </div> 
   <div class="paragraph"> 
@@ -185,7 +182,7 @@
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="prettyprint highlight"><code>$ mvn jbake:seed -DoutputDirectory=./src/main/jbake</code></pre> 
+     <pre class="highlightjs highlight"><code>$ mvn jbake:seed -DoutputDirectory=./src/main/jbake</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -193,7 +190,7 @@
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="prettyprint highlight"><code>#site.host=https://guntherrotsch.github.io
+     <pre class="highlightjs highlight"><code>#site.host=https://guntherrotsch.github.io
 site.host=http://localhost:8080
 render.tags=false
 render.sitemap=true</code></pre> 
@@ -206,10 +203,7 @@ render.sitemap=true</code></pre>
     <table> 
      <tbody>
       <tr> 
-       <td class="icon"> 
-        <div class="title">
-         Warning
-        </div> </td> 
+       <td class="icon"> <i class="fa icon-warning" title="Warning"></i> </td> 
        <td class="content"> Don’t forget to change the <code>site.host</code> to you Github Pages URL before you commit and push the project files to Github. The commented out first line shows the definition for my Blog site’s URL. </td> 
       </tr> 
      </tbody>
@@ -220,7 +214,7 @@ render.sitemap=true</code></pre>
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="prettyprint highlight"><code>$ mvn jbake:generate</code></pre> 
+     <pre class="highlightjs highlight"><code>$ mvn jbake:generate</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -228,7 +222,7 @@ render.sitemap=true</code></pre>
    </div> 
    <div class="listingblock"> 
     <div class="content"> 
-     <pre class="prettyprint highlight"><code>$ mvn jbake:inline [ -Dport=8000 ]</code></pre> 
+     <pre class="highlightjs highlight"><code>$ mvn jbake:inline [ -Dport=8000 ]</code></pre> 
     </div> 
    </div> 
    <div class="paragraph"> 
@@ -253,7 +247,20 @@ render.sitemap=true</code></pre>
    <p>Also, the combination with the Maven plugin works really well. Till today I haven’t installed JBake CLI and let do Maven the job of managing the required JBake dependencies.</p> 
   </div> 
  </div> 
+</div> 
+<div id="footnotes"> 
+ <hr> 
+ <div class="footnote" id="_footnotedef_1"> 
+  <a href="#_footnoteref_1">1</a>. Amendment, 18th of February 2020: In the meantime I found out that at least the OrionDB used by Jbake to manage the posts during the build requires Java 8. 
+ </div> 
 </div></p>
+
+  <span>Tags:
+			  <span><a href="../tags/blog.html">blog</a></span>
+			  <span><a href="../tags/maven.html">maven</a></span>
+			  <span><a href="../tags/asciidoc.html">asciidoc</a></span>
+			  <span><a href="../tags/jbake.html">jbake</a></span>
+	</span>
 
 	<hr />
 

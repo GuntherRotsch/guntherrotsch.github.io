@@ -6,9 +6,76 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Wed, 12 Feb 2020 20:14:20 +0100</pubDate>
-    <lastBuildDate>Wed, 12 Feb 2020 20:14:20 +0100</lastBuildDate>
+    <pubDate>Mon, 24 Feb 2020 20:40:30 +0100</pubDate>
+    <lastBuildDate>Mon, 24 Feb 2020 20:40:30 +0100</lastBuildDate>
 
+    <item>
+      <title>OpenApi generated JAX/RS Service: Binary Encoding</title>
+      <link>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-encoding-configuration.html</link>
+      <pubDate>Mon, 24 Feb 2020 00:00:00 +0100</pubDate>
+      <guid isPermaLink="false">blog_2020/openapi-jaxrs-encoding-configuration.html</guid>
+      	<description>
+	&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;Let’s say an API defines a response model object as follows:&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;listingblock&quot;&gt; 
+ &lt;div class=&quot;content&quot;&gt; 
+  &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-yaml hljs&quot; data-lang=&quot;yaml&quot;&gt;  ....
+definitions:
+  SomeResponse:
+    type: &quot;object&quot;
+        required: &quot;data&quot;
+    properties:
+      ...
+      data:
+        description: The binary data of the response object.
+        type: &quot;string&quot;
+        format: &quot;byte&quot;
+  ...&lt;/code&gt;&lt;/pre&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;The code produced by generator &lt;code&gt;jaxrs-spec&lt;/code&gt; encodes the &lt;code&gt;data&lt;/code&gt; field as an array of bytes (numbers). The ASCII string &quot;Java&quot; for example results in an encoded JSON field &lt;code&gt;&quot;data&quot;: [ 112, 141, 166, 141 ]&lt;/code&gt;.&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;On the other side, the generator &lt;code&gt;java&lt;/code&gt; creates client code that encodes such &lt;em&gt;byte strings&lt;/em&gt; of the API spec as base 64 strings. The sample string &quot;Java&quot; results in &lt;code&gt;&quot;data&quot;: &quot;SmF2YQ==&quot;&lt;/code&gt;.&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;Eventually, this leads to a situation, the generated client and server are not compatible and cannot exchange binary data.&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;The simplest approach to fix this issue is by configuring the binary data strategy on the server-side:&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;listingblock&quot;&gt; 
+ &lt;div class=&quot;content&quot;&gt; 
+  &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;import javax.json.bind.*;
+import javax.ws.rs.ext.*;
+
+/**
+ * The JsonbConfigurator configures the binary data strategy of JSON Binding.
+ * Instead of the default strategy &quot;byte array&quot; the &quot;base 64&quot; encoding is
+ * activated.
+ */
+@Provider
+public class JsonbConfigurator implements ContextResolver&amp;lt;Jsonb&amp;gt; {
+
+  @Override
+  public Jsonb getContext(Class&amp;lt;?&amp;gt; type) {
+    JsonbConfig config = getJsonbConfig();
+    return JsonbBuilder.newBuilder().withConfig(config).build();
+  }
+
+  private JsonbConfig getJsonbConfig() {
+    return new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64);
+  }
+}&lt;/code&gt;&lt;/pre&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;If you add this class to your JAX/RS server project, client and server both encode and decode binary data as base 64 strings and start to work well together. Such a Jarkata EE based solution should definitely preferred over the customization of generator’s templates, in particular if you take long-term maintainability into account.&lt;/p&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Maven Dependecy Analyzis Plugin</title>
       <link>https://guntherrotsch.github.io/blog_2020/maven-dependency-analysis-plugin.html</link>
@@ -20,7 +87,7 @@
 &lt;/div&gt; 
 &lt;div class=&quot;listingblock&quot;&gt; 
  &lt;div class=&quot;content&quot;&gt; 
-  &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn dependency:analyse&lt;/code&gt;&lt;/pre&gt; 
+  &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ mvn dependency:analyse&lt;/code&gt;&lt;/pre&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
 &lt;div class=&quot;paragraph&quot;&gt; 
@@ -28,7 +95,7 @@
 &lt;/div&gt; 
 &lt;div class=&quot;listingblock&quot;&gt; 
  &lt;div class=&quot;content&quot;&gt; 
-  &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;[WARNING] Unused declared dependencies found:
+  &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;[WARNING] Unused declared dependencies found:
 [WARNING]    org.slf4j:slf4j-log4j12:jar:1.7.26:test&lt;/code&gt;&lt;/pre&gt; 
  &lt;/div&gt; 
 &lt;/div&gt; 
@@ -42,10 +109,7 @@
  &lt;table&gt; 
   &lt;tbody&gt;
    &lt;tr&gt; 
-    &lt;td class=&quot;icon&quot;&gt; 
-     &lt;div class=&quot;title&quot;&gt;
-      Note
-     &lt;/div&gt; &lt;/td&gt; 
+    &lt;td class=&quot;icon&quot;&gt; &lt;i class=&quot;fa icon-note&quot; title=&quot;Note&quot;&gt;&lt;/i&gt; &lt;/td&gt; 
     &lt;td class=&quot;content&quot;&gt; The scope of the &lt;code&gt;slf4j-log4j&lt;/code&gt; artifact is just &lt;code&gt;test&lt;/code&gt;, because at runtime the application server provides an appropriate implementation of the logging facade interface. &lt;/td&gt; 
    &lt;/tr&gt; 
   &lt;/tbody&gt;
@@ -77,7 +141,7 @@
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;...
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;...
 &amp;lt;link href=&quot;&amp;lt;#if (content.rootpath)??&amp;gt;${content.rootpath}&amp;lt;#else&amp;gt;&amp;lt;/#if&amp;gt;assets/css/bootstrap.min.css&quot; rel=&quot;stylesheet&quot;&amp;gt;
 &amp;lt;link href=&quot;&amp;lt;#if (content.rootpath)??&amp;gt;${content.rootpath}&amp;lt;#else&amp;gt;&amp;lt;/#if&amp;gt;assets/css/asciidoctor.css&quot; rel=&quot;stylesheet&quot;&amp;gt;
 &amp;lt;link href=&quot;&amp;lt;#if (content.rootpath)??&amp;gt;${content.rootpath}&amp;lt;#else&amp;gt;&amp;lt;/#if&amp;gt;assets/css/base.css&quot; rel=&quot;stylesheet&quot;&amp;gt;
@@ -98,7 +162,7 @@
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;/
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;/
    ...
    index.html
    ...
@@ -144,16 +208,13 @@
   &lt;div class=&quot;sect2&quot;&gt; 
    &lt;h3 id=&quot;_java&quot;&gt;Java&lt;/h3&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
-    &lt;p&gt;As of the time of writing, with Java runtime 11 or higher JBake (or one of its dependencies) logged exceptions to the console. At the first glance JBake still seemed to work. But to be on the save side, I usually run JBake with Java in version 8.&lt;/p&gt; 
+    &lt;p&gt;As of the time of writing, with Java runtime 11 or higher JBake (or one of its dependencies) logged exceptions to the console. At the first glance JBake still seemed to work. But to be on the save side, I usually run JBake with Java in version 8 &lt;sup class=&quot;footnote&quot;&gt;[&lt;a id=&quot;_footnoteref_1&quot; class=&quot;footnote&quot; href=&quot;#_footnotedef_1&quot; title=&quot;View footnote.&quot;&gt;1&lt;/a&gt;]&lt;/sup&gt;.&lt;/p&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;admonitionblock tip&quot;&gt; 
     &lt;table&gt; 
      &lt;tbody&gt;
       &lt;tr&gt; 
-       &lt;td class=&quot;icon&quot;&gt; 
-        &lt;div class=&quot;title&quot;&gt;
-         Tip
-        &lt;/div&gt; &lt;/td&gt; 
+       &lt;td class=&quot;icon&quot;&gt; &lt;i class=&quot;fa icon-tip&quot; title=&quot;Tip&quot;&gt;&lt;/i&gt; &lt;/td&gt; 
        &lt;td class=&quot;content&quot;&gt; I use the nice little tool &lt;a href=&quot;https://github.com/jenv/jenv&quot;&gt;jenv&lt;/a&gt;, that allows to switch between different Java JDK versions easily. If you work on many projects with different Java versions at the same time, you should give &lt;code&gt;jenv&lt;/code&gt; a try, &lt;/td&gt; 
       &lt;/tr&gt; 
      &lt;/tbody&gt;
@@ -173,7 +234,7 @@
    &lt;/div&gt; 
    &lt;div class=&quot;imageblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/Github_Pages_Setting_Blog.png&quot; alt=&quot;Github Pages Setting Blog&quot;&gt; 
+     &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/Github_Pages_Setting_Blog.png&quot; alt=&quot;Image: Github Pages Setting&quot;&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -204,7 +265,7 @@
   &lt;/div&gt; 
   &lt;div class=&quot;listingblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]&lt;/code&gt;&lt;/pre&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]&lt;/code&gt;&lt;/pre&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -239,7 +300,7 @@
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:seed -DoutputDirectory=./src/main/jbake&lt;/code&gt;&lt;/pre&gt; 
+     &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ mvn jbake:seed -DoutputDirectory=./src/main/jbake&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -247,7 +308,7 @@
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;#site.host=https://guntherrotsch.github.io
+     &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;#site.host=https://guntherrotsch.github.io
 site.host=http://localhost:8080
 render.tags=false
 render.sitemap=true&lt;/code&gt;&lt;/pre&gt; 
@@ -260,10 +321,7 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
     &lt;table&gt; 
      &lt;tbody&gt;
       &lt;tr&gt; 
-       &lt;td class=&quot;icon&quot;&gt; 
-        &lt;div class=&quot;title&quot;&gt;
-         Warning
-        &lt;/div&gt; &lt;/td&gt; 
+       &lt;td class=&quot;icon&quot;&gt; &lt;i class=&quot;fa icon-warning&quot; title=&quot;Warning&quot;&gt;&lt;/i&gt; &lt;/td&gt; 
        &lt;td class=&quot;content&quot;&gt; Don’t forget to change the &lt;code&gt;site.host&lt;/code&gt; to you Github Pages URL before you commit and push the project files to Github. The commented out first line shows the definition for my Blog site’s URL. &lt;/td&gt; 
       &lt;/tr&gt; 
      &lt;/tbody&gt;
@@ -274,7 +332,7 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:generate&lt;/code&gt;&lt;/pre&gt; 
+     &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ mvn jbake:generate&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -282,7 +340,7 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
    &lt;/div&gt; 
    &lt;div class=&quot;listingblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:inline [ -Dport=8000 ]&lt;/code&gt;&lt;/pre&gt; 
+     &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ mvn jbake:inline [ -Dport=8000 ]&lt;/code&gt;&lt;/pre&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 
@@ -306,6 +364,12 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;Also, the combination with the Maven plugin works really well. Till today I haven’t installed JBake CLI and let do Maven the job of managing the required JBake dependencies.&lt;/p&gt; 
   &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div id=&quot;footnotes&quot;&gt; 
+ &lt;hr&gt; 
+ &lt;div class=&quot;footnote&quot; id=&quot;_footnotedef_1&quot;&gt; 
+  &lt;a href=&quot;#_footnoteref_1&quot;&gt;1&lt;/a&gt;. Amendment, 18th of February 2020: In the meantime I found out that at least the OrionDB used by Jbake to manage the posts during the build requires Java 8. 
  &lt;/div&gt; 
 &lt;/div&gt;
 	</description>
