@@ -1,24 +1,66 @@
 = JBake, Asciidoc and PlantUML
 Gunther Rotsch
-2020-02-01
+2020-02-29
 :jbake-type: post
-:jbake-tags: blog, asciidoc, jbake, plantuml
-:jbake-status: draft
-:jbake-summary: ADD SUMMARY HERE...
+:jbake-tags: blog, asciidoc, jbake, plantuml, tree
+:jbake-status: published
+:jbake-summary: When blogging about software topics it becomes quickly compelling to include diagrams into the posts. The project PlantUML for writing UML as diagrams-as-a-code is well suited for those needs. This Blog post is about, how PlantUML is configured with Asciidoc and JBake.
 
-Currently we found project PlantUML for writing UML diagrams-as-a-code. This is really hype to have everything in version control and it is always better to version text source that images or binary files. I was really happy that AsciiDoctor and JBake support this, but it was little bit tricky to get it work. And it is still not how it could be.
+&nbsp;
 
-First problem was how to get it work. I’m using standalone JBake and all examples are pointing to Gradle builds. It was easier than I expect, just add following line to my jbake.properties:
+It is really a hype to have everything in version control, namely Git, - and it
+is always better to version text source than images or binary files. This applies
+to diagrams, too. With the PlantUML extension Asciidoc offers a way to define
+diagrams in a declarative way, but include them as images into generated
+documents, eg. Blog posts like HTML pages.
 
-```
-asciidoctor.option.requires = asciidoctor-diagram
-```
+== Configuration
 
+The use of PlantUML is actually not very difficult to configure. Because my
+Blog project setup works with JBake's Maven plugin, we need to add the
+dependency of `jbake-maven-plugin` on the _diagram_ extension:
+[source, xml]
+----
+<dependency>
+  <groupId>org.asciidoctor</groupId>
+  <artifactId>asciidoctorj-diagram</artifactId>
+  <version>1.5.18</version>
+</dependency>
+----
 
-Next step was to include generated diagrams into result pages. I was debugging JBake, looking into properties files, trying this and that, because generated images had wrong src attribute. Finally I figured, that it was as simple as adding ./ in front of the file name:
+The diagram extension includes PlantUML.
 
+The next and last step is to set some properties in JBake's configuration file
+`jbake.properties`:
 
-== PlantUML
+[source,java]
+----
+asciidoctor.option.requires=asciidoctor-diagram
+asciidoctor.attributes=sourceDir=src/main/jbake,imagesdir=assets/img/diagrams,imagesoutdir=../../assets/assets/img/diagrams,source-highlighter=highlight.js,icons=font
+----
+
+If you're interested in the image directory configuration the
+https://guntherrotsch.github.io/blog_2020/non-jekyll-github-pages.html[Blog post]
+gives more details.
+
+== Usage
+
+With described configurations in place, UML diagrams can be easily included
+in Blog posts. The definition:
+
+[source,]
+....
+[plantuml, "asciidoctor-sequence-diagram", "png"]
+----
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another authentication Request
+Alice <-- Bob: another authentication Response
+----
+....
+
+results in the diagram:
 
 [plantuml, "asciidoctor-sequence-diagram", "png"]
 ----
@@ -27,4 +69,53 @@ Bob --> Alice: Authentication Response
 
 Alice -> Bob: Another authentication Request
 Alice <-- Bob: another authentication Response
+----
+
+Because PlantUML includes the _Creole_ markup engine, which offers the
+definition of simple _tree like_ structures, it's also possible to create
+diagrams of directory hierarchies for example. The definition:
+
+[source,]
+....
+[plantuml, "file system tree", "png", opts="inline"]
+----
+@startuml
+skinparam {
+  BackgroundColor transparent
+  BorderColor transparent
+}
+legend
+Root
+|_ Element 1
+  |_ Element 1.1
+    |_ Element 1.1.1
+    |_ Element 1.1.2
+  |_ Element 1.2
+  |_ Element 1.3
+|_ Element 2
+  |_ Element 2.1
+end legend
+----
+....
+
+renders to:
+
+[plantuml, "file system tree", "png", opts="inline"]
+----
+@startuml
+skinparam {
+  BackgroundColor transparent
+  BorderColor transparent
+}
+legend
+Root
+|_ Element 1
+  |_ Element 1.1
+    |_ Element 1.1.1
+    |_ Element 1.1.2
+  |_ Element 1.2
+  |_ Element 1.3
+|_ Element 2
+  |_ Element 2.1
+end legend
 ----

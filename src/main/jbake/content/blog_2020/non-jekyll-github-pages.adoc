@@ -6,6 +6,8 @@ Gunther Rotsch
 :jbake-status: published
 :jbake-summary: After initially setting up my Blog (see previous post 'JBake Blog with Maven Plugin'), I noticed that the deployment to Github Pages is not fully functional, although with local web server everything works fine. The problems were: 1) images are not shown, 2) navigation to posts, that are hosted in sub-directories, lead to 404 error (page not found). This post is about possible solutions for described issues.
 
+&nbsp;
+
 Github Pages was originally designed to integrate static site-generator Jekyll.
 This may still be the most applied combination. But today it's also possible
 to generate a static site using a generator of your choice and publish it with

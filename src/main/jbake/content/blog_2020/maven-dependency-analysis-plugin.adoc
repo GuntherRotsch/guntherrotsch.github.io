@@ -6,6 +6,8 @@ Gunther Rotsch
 :jbake-status: published
 :jbake-summary:  Note on usage of Maven's dependency plugin for analyzing project dependencies.
 
+&nbsp;
+
 When implementing an application I usually use the logging facade `slf4j`. When
 double-checking the dependencies of such a project with
 

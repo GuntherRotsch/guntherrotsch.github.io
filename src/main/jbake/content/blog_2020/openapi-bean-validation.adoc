@@ -1,0 +1,123 @@
+= OpenApi generated JAX/RS Service: Binary Encoding
+Gunther Rotsch
+2020-03-13
+:jbake-type: post
+:jbake-tags: openapi, swagger, design-first, code-generator, jakarta-ee, jaxrs, bean-validation
+:jbake-status: draft
+:jbake-summary: Validation of input data is a crucial requirement for every serious application. This also applies to REST services implemented by JAX/RS. If you follow a Design-First development approach with Swagger/OpenApi, server stubs and request/response objects are usually generated. The generated code of API's model classes already contains JSR 380 annotations, which trigger validation of received request objects by the Beans Validation 2.0 framework. This article is about application-specific extension of validation rules for generated model classes.
+
+Implementing JAX/RS REST APIs with Swagger/OpenApi following a Design-First approach starts with the formal specification of the REST API.
+Then Swagger/OpenApi generators are used to create server stubs as well as client API code. For Java JAX/RS generated servers, the
+request model classes already contain validations in form of JSR 380 annotations like `@NotNull`. But because of limitations in validation
+specification with OpenApi or gaps of the code generators, more often than not, validation rules need to be added to the generated model
+classes.
+There are differe This article (series) is about to add such validation rules.
+
+Some words about JSR 380 ... Jakarta Bean Validation 2.0
+standard for checking validity of
+
+
+Example
+
+[source, java]
+----
+package com.allianz.aoms.generated.rendering.model;
+
+import io.swagger.annotations.*;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
+
+import io.swagger.annotations.*;
+import java.util.Objects;
+import javax.json.bind.annotation.*;
+
+
+public class Range   {
+
+  private @Valid Integer min;
+  private @Valid Integer max;
+
+
+  @ApiModelProperty(required = true)
+  @JsonbProperty("min")
+  @NotNull
+  @Min(1)
+  public Integer getMin() {
+    return min;
+  }
+  public void setMin(Integer min) {
+    this.min = min;
+  }
+
+  @ApiModelProperty(required = true)
+  @JsonbProperty("max")
+  @NotNull
+  @Min(1)
+  @Max(1000)
+  public Integer getMax() {
+    return max;
+  }
+  public void setMax(Integer max) {
+    this.max = max;
+  }
+
+
+  @Override
+  public boolean equals(java.lang.Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Range range = (Range) o;
+    return Objects.equals(this.min, range.min) &&
+        Objects.equals(this.may, range.max);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(min, max);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class Range {\n");
+    sb.append("    min: ").append(toIndentedString(min)).append("\n");
+    sb.append("    max: ").append(toIndentedString(max)).append("\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(java.lang.Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\n", "\n    ");
+  }
+}
+----
+
+Range request object
+- OpenApi definition of the request object
+- POST endpoint
+
+Generated Code
+
+<<sample>>
+
+Changing generated code is not an option. Because of the individual nature of the validation rules, the custom template are also no viable solution/way.
+
+requirements:
+- Violations should be reported the same way as the violations of the generated JSR 380 annotations.
+- Violations should be
+
+Naive Approach: Validation intermingled with business logic.
+
+
+The

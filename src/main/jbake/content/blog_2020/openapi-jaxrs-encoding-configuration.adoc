@@ -2,9 +2,11 @@
 Gunther Rotsch
 2020-02-24
 :jbake-type: post
-:jbake-tags: openapi, swagger, design-first, generator, jaxrs, encding
+:jbake-tags: openapi, swagger, design-first, code-generator, jakarta-ee, jaxrs, encoding
 :jbake-status: published
 :jbake-summary: Implementing JAX/RS REST APIs with Swagger/OpenApi following a Design-First approach starts with the formal specification of the REST API. Then Swagger/OpenApi generators are used to create server stubs as well as client code. Nowadays, the REST APIs often exchange JSON response and request objects. If binary fields are part of such JSON structures, the generated code encodes/decodes such binary fields. For some combinations of generators the produced client and server do not fit together.
+
+&nbsp;
 
 Let's say an API defines a response model object as follows:
 
@@ -65,6 +67,6 @@ public class JsonbConfigurator implements ContextResolver<Jsonb> {
 
 If you add this class to your JAX/RS server project, client and server both
 encode and decode binary data as base 64 strings and start to work well
-together. Such a Jarkata EE based solution should definitely preferred over
+together. Such a Jakarta EE based solution should definitely preferred over
 the customization of generator's templates, in particular if you take
 long-term maintainability into account.

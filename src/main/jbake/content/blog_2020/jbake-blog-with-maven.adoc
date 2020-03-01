@@ -14,7 +14,7 @@ As of the time of writing, with Java runtime 11 or higher JBake (or one
 of its dependencies) logged exceptions to the console. At the first glance
 JBake still seemed to work. But to be on the save side, I usually run JBake
 with Java in version 8 footnote:[Amendment, 18th of February 2020: In the
-meantime I found out that at least the OrionDB used by Jbake to manage the
+meantime I found out that at least the OrientDB used by Jbake to manage the
 posts during the build requires Java 8.].
 
 [TIP]
