@@ -71,7 +71,7 @@
 		<h1>OpenApi generated JAX/RS Service: Binary Encoding</h1>
 	</div>
 
-	<p><em>24 February 2020</em></p>
+	<p><em>13 March 2020</em></p>
 
 	<div class="dlist">
    <dl>
@@ -79,72 +79,124 @@
      	Summary
     </dt>
     <dd>
-			<p>Implementing JAX/RS REST APIs with Swagger/OpenApi following a Design-First approach starts with the formal specification of the REST API. Then Swagger/OpenApi generators are used to create server stubs as well as client code. Nowadays, the REST APIs often exchange JSON response and request objects. If binary fields are part of such JSON structures, the generated code encodes/decodes such binary fields. For some combinations of generators the produced client and server do not fit together.</p>
+			<p>Validation of input data is a crucial requirement for every serious application. This also applies to REST services implemented by JAX/RS. If you follow a Design-First development approach with Swagger/OpenApi, server stubs and request/response objects are usually generated. The generated code of API's model classes already contains JSR 380 annotations, which trigger validation of received request objects by the Beans Validation 2.0 framework. This article is about application-specific extension of validation rules for generated model classes.</p>
     </dd>
    </dl>
   </div>
 
 	<p><div class="paragraph"> 
- <p>&nbsp;</p> 
+ <p>Implementing JAX/RS REST APIs with Swagger/OpenApi following a Design-First approach starts with the formal specification of the REST API. Then Swagger/OpenApi generators are used to create server stubs as well as client API code. For Java JAX/RS generated servers, the request model classes already contain validations in form of JSR 380 annotations like <code>@NotNull</code>. But because of limitations in validation specification with OpenApi or gaps of the code generators, more often than not, validation rules need to be added to the generated model classes. There are differe This article (series) is about to add such validation rules.</p> 
 </div> 
 <div class="paragraph"> 
- <p>Let’s say an API defines a response model object as follows:</p> 
+ <p>Some words about JSR 380 …​ Jakarta Bean Validation 2.0 standard for checking validity of</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Example</p> 
 </div> 
 <div class="listingblock"> 
  <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">  ....
-definitions:
-  SomeResponse:
-    type: "object"
-        required: "data"
-    properties:
-      ...
-      data:
-        description: The binary data of the response object.
-        type: "string"
-        format: "byte"
-  ...</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>The code produced by generator <code>jaxrs-spec</code> encodes the <code>data</code> field as an array of bytes (numbers). The ASCII string "Java" for example results in an encoded JSON field <code>"data": [ 112, 141, 166, 141 ]</code>.</p> 
-</div> 
-<div class="paragraph"> 
- <p>On the other side, the generator <code>java</code> creates client code that encodes such <em>byte strings</em> of the API spec as base 64 strings. The sample string "Java" results in <code>"data": "SmF2YQ=="</code>.</p> 
-</div> 
-<div class="paragraph"> 
- <p>Eventually, this leads to a situation, the generated client and server are not compatible and cannot exchange binary data.</p> 
-</div> 
-<div class="paragraph"> 
- <p>The simplest approach to fix this issue is by configuring the binary data strategy on the server-side:</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import javax.json.bind.*;
-import javax.ws.rs.ext.*;
+  <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package com.allianz.aoms.generated.rendering.model;
 
-/**
- * The JsonbConfigurator configures the binary data strategy of JSON Binding.
- * Instead of the default strategy "byte array" the "base 64" encoding is
- * activated.
- */
-@Provider
-public class JsonbConfigurator implements ContextResolver&lt;Jsonb&gt; {
+import io.swagger.annotations.*;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
 
-  @Override
-  public Jsonb getContext(Class&lt;?&gt; type) {
-    JsonbConfig config = getJsonbConfig();
-    return JsonbBuilder.newBuilder().withConfig(config).build();
+import io.swagger.annotations.*;
+import java.util.Objects;
+import javax.json.bind.annotation.*;
+
+
+public class Range   {
+
+  private @Valid Integer min;
+  private @Valid Integer max;
+
+
+  @ApiModelProperty(required = true)
+  @JsonbProperty("min")
+  @NotNull
+  @Min(1)
+  public Integer getMin() {
+    return min;
+  }
+  public void setMin(Integer min) {
+    this.min = min;
   }
 
-  private JsonbConfig getJsonbConfig() {
-    return new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64);
+  @ApiModelProperty(required = true)
+  @JsonbProperty("max")
+  @NotNull
+  @Min(1)
+  @Max(1000)
+  public Integer getMax() {
+    return max;
+  }
+  public void setMax(Integer max) {
+    this.max = max;
+  }
+
+
+  @Override
+  public boolean equals(java.lang.Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Range range = (Range) o;
+    return Objects.equals(this.min, range.min) &amp;&amp;
+        Objects.equals(this.may, range.max);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(min, max);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("class Range {\n");
+    sb.append("    min: ").append(toIndentedString(min)).append("\n");
+    sb.append("    max: ").append(toIndentedString(max)).append("\n");
+    sb.append("}");
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(java.lang.Object o) {
+    if (o == null) {
+      return "null";
+    }
+    return o.toString().replace("\n", "\n    ");
   }
 }</code></pre> 
  </div> 
 </div> 
 <div class="paragraph"> 
- <p>If you add this class to your JAX/RS server project, client and server both encode and decode binary data as base 64 strings and start to work well together. Such a Jakarta EE based solution should definitely preferred over the customization of generator’s templates, in particular if you take long-term maintainability into account.</p> 
+ <p>Range request object - OpenApi definition of the request object - POST endpoint</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Generated Code</p> 
+</div> 
+<div class="paragraph"> 
+ <p><a href="#sample">[sample]</a></p> 
+</div> 
+<div class="paragraph"> 
+ <p>Changing generated code is not an option. Because of the individual nature of the validation rules, the custom template are also no viable solution/way.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>requirements: - Violations should be reported the same way as the violations of the generated JSR 380 annotations. - Violations should be</p> 
+</div> 
+<div class="paragraph"> 
+ <p>Naive Approach: Validation intermingled with business logic.</p> 
+</div> 
+<div class="paragraph"> 
+ <p>The</p> 
 </div></p>
 
   <span>Tags:

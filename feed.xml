@@ -6,9 +6,121 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Mon, 24 Feb 2020 20:40:30 +0100</pubDate>
-    <lastBuildDate>Mon, 24 Feb 2020 20:40:30 +0100</lastBuildDate>
+    <pubDate>Sun, 1 Mar 2020 19:20:24 +0100</pubDate>
+    <lastBuildDate>Sun, 1 Mar 2020 19:20:24 +0100</lastBuildDate>
 
+    <item>
+      <title>JBake, Asciidoc and PlantUML</title>
+      <link>https://guntherrotsch.github.io/blog_2020/jbake-asciidoctor-plantuml.html</link>
+      <pubDate>Sat, 29 Feb 2020 00:00:00 +0100</pubDate>
+      <guid isPermaLink="false">blog_2020/jbake-asciidoctor-plantuml.html</guid>
+      	<description>
+	&lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;&amp;nbsp;&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;It is really a hype to have everything in version control, namely Git, - and it is always better to version text source than images or binary files. This applies to diagrams, too. With the PlantUML extension Asciidoc offers a way to define diagrams in a declarative way, but include them as images into generated documents, eg. Blog posts like HTML pages.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_configuration&quot;&gt;Configuration&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The use of PlantUML is actually not very difficult to configure. Because my Blog project setup works with JBake’s Maven plugin, we need to add the dependency of &lt;code&gt;jbake-maven-plugin&lt;/code&gt; on the &lt;em&gt;diagram&lt;/em&gt; extension:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;dependency&amp;gt;
+  &amp;lt;groupId&amp;gt;org.asciidoctor&amp;lt;/groupId&amp;gt;
+  &amp;lt;artifactId&amp;gt;asciidoctorj-diagram&amp;lt;/artifactId&amp;gt;
+  &amp;lt;version&amp;gt;1.5.18&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The diagram extension includes PlantUML.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The next and last step is to set some properties in JBake’s configuration file &lt;code&gt;jbake.properties&lt;/code&gt;:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;asciidoctor.option.requires=asciidoctor-diagram
+asciidoctor.attributes=sourceDir=src/main/jbake,imagesdir=assets/img/diagrams,imagesoutdir=../../assets/assets/img/diagrams,source-highlighter=highlight.js,icons=font&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;If you’re interested in the image directory configuration the &lt;a href=&quot;https://guntherrotsch.github.io/blog_2020/non-jekyll-github-pages.html&quot;&gt;Blog post&lt;/a&gt; gives more details.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_usage&quot;&gt;Usage&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;With described configurations in place, UML diagrams can be easily included in Blog posts. The definition:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;[plantuml, &quot;asciidoctor-sequence-diagram&quot;, &quot;png&quot;]
+----
+Alice -&amp;gt; Bob: Authentication Request
+Bob --&amp;gt; Alice: Authentication Response
+
+Alice -&amp;gt; Bob: Another authentication Request
+Alice &amp;lt;-- Bob: another authentication Response
+----&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;results in the diagram:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/diagrams/asciidoctor-sequence-diagram.png&quot; alt=&quot;asciidoctor sequence diagram&quot; width=&quot;298&quot; height=&quot;214&quot;&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Because PlantUML includes the &lt;em&gt;Creole&lt;/em&gt; markup engine, which offers the definition of simple &lt;em&gt;tree like&lt;/em&gt; structures, it’s also possible to create diagrams of directory hierarchies for example. The definition:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;[plantuml, &quot;file-system-tree&quot;, &quot;png&quot;, opts=&quot;inline&quot;]
+----
+@startuml
+skinparam {
+  BackgroundColor transparent
+  BorderColor transparent
+}
+legend
+Root
+|_ Element 1
+  |_ Element 1.1
+    |_ Element 1.1.1
+    |_ Element 1.1.2
+  |_ Element 1.2
+  |_ Element 1.3
+|_ Element 2
+  |_ Element 2.1
+end legend
+----&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;renders to:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/diagrams/file-system-tree.png&quot; alt=&quot;file system tree&quot; width=&quot;164&quot; height=&quot;196&quot;&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>OpenApi generated JAX/RS Service: Binary Encoding</title>
       <link>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-encoding-configuration.html</link>
@@ -16,6 +128,9 @@
       <guid isPermaLink="false">blog_2020/openapi-jaxrs-encoding-configuration.html</guid>
       	<description>
 	&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;&amp;nbsp;&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
  &lt;p&gt;Let’s say an API defines a response model object as follows:&lt;/p&gt; 
 &lt;/div&gt; 
 &lt;div class=&quot;listingblock&quot;&gt; 
@@ -72,7 +187,7 @@ public class JsonbConfigurator implements ContextResolver&amp;lt;Jsonb&amp;gt; {
  &lt;/div&gt; 
 &lt;/div&gt; 
 &lt;div class=&quot;paragraph&quot;&gt; 
- &lt;p&gt;If you add this class to your JAX/RS server project, client and server both encode and decode binary data as base 64 strings and start to work well together. Such a Jarkata EE based solution should definitely preferred over the customization of generator’s templates, in particular if you take long-term maintainability into account.&lt;/p&gt; 
+ &lt;p&gt;If you add this class to your JAX/RS server project, client and server both encode and decode binary data as base 64 strings and start to work well together. Such a Jakarta EE based solution should definitely preferred over the customization of generator’s templates, in particular if you take long-term maintainability into account.&lt;/p&gt; 
 &lt;/div&gt;
 	</description>
     </item>
@@ -83,6 +198,9 @@ public class JsonbConfigurator implements ContextResolver&amp;lt;Jsonb&amp;gt; {
       <guid isPermaLink="false">blog_2020/maven-dependency-analysis-plugin.html</guid>
       	<description>
 	&lt;div class=&quot;paragraph&quot;&gt; 
+ &lt;p&gt;&amp;nbsp;&lt;/p&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;paragraph&quot;&gt; 
  &lt;p&gt;When implementing an application I usually use the logging facade &lt;code&gt;slf4j&lt;/code&gt;. When double-checking the dependencies of such a project with&lt;/p&gt; 
 &lt;/div&gt; 
 &lt;div class=&quot;listingblock&quot;&gt; 
@@ -125,6 +243,9 @@ public class JsonbConfigurator implements ContextResolver&amp;lt;Jsonb&amp;gt; {
       	<description>
 	&lt;div id=&quot;preamble&quot;&gt; 
  &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;&amp;nbsp;&lt;/p&gt; 
+  &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
    &lt;p&gt;Github Pages was originally designed to integrate static site-generator Jekyll. This may still be the most applied combination. But today it’s also possible to generate a static site using a generator of your choice and publish it with Github Pages. Because my Blog is generated with JBake and only distribution files are pushed to &lt;code&gt;master&lt;/code&gt; branch of Github repo, I placed an empty &lt;code&gt;.nojekyll&lt;/code&gt; file into the web root. According to the documentation, this tells Github Pages to skip the Jekyll build and just transfer every file hosted in &lt;code&gt;master&lt;/code&gt; branch to the web server. However, images are still not deployed and the &lt;em&gt;alternative&lt;/em&gt; text is shown instead to the users.&lt;/p&gt; 
   &lt;/div&gt; 
@@ -369,7 +490,7 @@ render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
 &lt;div id=&quot;footnotes&quot;&gt; 
  &lt;hr&gt; 
  &lt;div class=&quot;footnote&quot; id=&quot;_footnotedef_1&quot;&gt; 
-  &lt;a href=&quot;#_footnoteref_1&quot;&gt;1&lt;/a&gt;. Amendment, 18th of February 2020: In the meantime I found out that at least the OrionDB used by Jbake to manage the posts during the build requires Java 8. 
+  &lt;a href=&quot;#_footnoteref_1&quot;&gt;1&lt;/a&gt;. Amendment, 18th of February 2020: In the meantime I found out that at least the OrientDB used by Jbake to manage the posts during the build requires Java 8. 
  &lt;/div&gt; 
 &lt;/div&gt;
 	</description>
