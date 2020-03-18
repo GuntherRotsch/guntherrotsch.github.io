@@ -1,0 +1,38 @@
+swagger: "2.0"
+info:
+  description: "This is a sample application."
+  version: "1.0.0"
+  title: "Sample App"
+  contact:
+    email: "gunther.rotsch@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost"
+basePath: "/"
+tags:
+- name: "misc"
+  description: "Everything so far"
+schemes:
+- "https"
+- "http"
+paths:
+  /greeting:
+    get:
+      tags:
+      - "misc"
+      description: ""
+      operationId: "greet"
+      produces:
+      - 'text/plain'
+      parameters:
+      - in: "query"
+        name: "name"
+        type: "string"
+        description: "Optional name of person to greet"
+      responses:
+        200:
+          description: "Returns greeting on succes"
+        405:
+          description: "Invalid input"
+

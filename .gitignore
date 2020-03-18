@@ -1,1 +1,7 @@
-.asciidoctor
+# Maven files
+target/
+
+# Eclipse files
+.project
+.classpath
+.settings/
