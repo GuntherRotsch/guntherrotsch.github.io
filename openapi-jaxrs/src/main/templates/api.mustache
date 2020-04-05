@@ -18,6 +18,8 @@ import java.util.List;
 import javax.validation.Valid;{{/useBeanValidation}}
 import javax.inject.Inject;
 
+import net.gunther.blog.codegen.JAXRSContext;
+
 @Path("/{{{baseName}}}"){{#useSwaggerAnnotations}}
 @Api(description = "the {{{baseName}}} API"){{/useSwaggerAnnotations}}{{#hasConsumes}}
 @Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}{{#hasProduces}}
@@ -26,9 +28,11 @@ import javax.inject.Inject;
 
     @Context
     UriInfo uriInfo;
+    @Context
+    HttpHeaders httpHeaders;
 
-//    @Inject com.allianz.aoms.rendering.UriInfoHolder uriInfoHolder;
-    @Inject net.gunther.blog.sample.service.{{classname}}Impl service;
+    @Inject JAXRSContext context;
+    @Inject {{package}}.services.{{classname}}Impl delegate;
 
 {{#operations}}
 {{#operation}}

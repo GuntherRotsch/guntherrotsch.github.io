@@ -16,9 +16,11 @@ tags:
 schemes:
 - "https"
 - "http"
+
 paths:
   /greeting:
     get:
+      produces: "text/plain"
       tags:
       - "misc"
       description: ""
@@ -32,7 +34,7 @@ paths:
         description: "Optional name of person to greet"
       responses:
         200:
-          description: "Returns greeting on succes"
+          description: "Returns greeting on success"
         405:
           description: "Invalid input"
 

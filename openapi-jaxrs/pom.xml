@@ -6,11 +6,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.gunther.jee</groupId>
-	<artifactId>swagger-jaxrs</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<artifactId>openapi-jaxrs</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
-	<name>swagger-jaxrs</name>
+	<name>openapi-jaxrs</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -68,13 +68,12 @@
 			<groupId>io.thorntail</groupId>
 			<artifactId>logging</artifactId>
 		</dependency>
-
-		<!-- API -->
-		<!-- <dependency> <groupId>jakarta.xml.bind</groupId> <artifactId>jakarta.xml.bind-api</artifactId> 
-			<version>2.3.2</version> </dependency> -->
-		<!-- Runtime -->
-		<!-- <dependency> <groupId>org.glassfish.jaxb</groupId> <artifactId>jaxb-runtime</artifactId> 
-			<version>2.3.2</version> </dependency> -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.30</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -91,14 +90,14 @@
 	</dependencies>
 
 	<build>
-		<finalName>swagger-jaxrs</finalName>
+		<finalName>openapi-jaxrs</finalName>
 
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>org.openapitools</groupId>
 					<artifactId>openapi-generator-maven-plugin</artifactId>
-					<version>4.0.3</version>
+					<version>4.2.3</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-war-plugin</artifactId>
@@ -157,24 +156,24 @@
 				<artifactId>openapi-generator-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>swagger-codegen-java-sources</id>
+						<id>openapi-codegen-java-sources</id>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
 							<inputSpec>${project.basedir}/src/main/resources/swagger.yaml</inputSpec>
-							<language>jaxrs-spec</language>
+							<generatorName>jaxrs-spec</generatorName>
 							<generateApiTests>false</generateApiTests>
-							<modelPackage>net.gunther.blog.codegen.sample.models</modelPackage>
-							<apiPackage>net.gunther.blog.codegen.sample.api</apiPackage>
+							<modelPackage>net.gunther.blog.codegen.models</modelPackage>
+							<apiPackage>net.gunther.blog.codegen.api</apiPackage>
 							<output>${project.basedir}/target</output>
 							<templateDirectory>${project.basedir}/src/main/templates</templateDirectory>
 							<configOptions>
-							<interfaceOnly>true</interfaceOnly>
-								<sourceFolder>src/main/java</sourceFolder>
+								<interfaceOnly>false</interfaceOnly>
+								<sourceFolder>generated-sources/main/java</sourceFolder>
 								<dateLibrary>java8</dateLibrary>
-								<useGenericResponse>true</useGenericResponse>
+								<returnResponse>true</returnResponse>
 							</configOptions>
 						</configuration>
 					</execution>
