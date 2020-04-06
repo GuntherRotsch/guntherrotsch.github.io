@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <title>OpenApi generated JAX/RS Service: Binary Encoding</title>
+    <title>OpenApi generated JAX/RS Service: Bean Validation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -68,7 +68,7 @@
     <div class="container">
 
 	<div class="page-header">
-		<h1>OpenApi generated JAX/RS Service: Binary Encoding</h1>
+		<h1>OpenApi generated JAX/RS Service: Bean Validation</h1>
 	</div>
 
 	<p><em>13 March 2020</em></p>
@@ -84,29 +84,23 @@
    </dl>
   </div>
 
-	<p><div class="paragraph"> 
- <p>Implementing JAX/RS REST APIs with Swagger/OpenApi following a Design-First approach starts with the formal specification of the REST API. Then Swagger/OpenApi generators are used to create server stubs as well as client API code. For Java JAX/RS generated servers, the request model classes already contain validations in form of JSR 380 annotations like <code>@NotNull</code>. But because of limitations in validation specification with OpenApi or gaps of the code generators, more often than not, validation rules need to be added to the generated model classes. There are differe This article (series) is about to add such validation rules.</p> 
-</div> 
-<div class="paragraph"> 
- <p>Some words about JSR 380 …​ Jakarta Bean Validation 2.0 standard for checking validity of</p> 
-</div> 
-<div class="paragraph"> 
- <p>Example</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package com.allianz.aoms.generated.rendering.model;
-
-import io.swagger.annotations.*;
-import javax.validation.constraints.*;
-import javax.validation.Valid;
-
-import io.swagger.annotations.*;
-import java.util.Objects;
-import javax.json.bind.annotation.*;
-
-
-public class Range   {
+	<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>&nbsp;</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Implementing JAX/RS REST APIs with Swagger/OpenApi following a Design-First approach starts with the formal specification of the REST API. Then Swagger/OpenApi generators are used to create server stubs as well as client API code. For Java JAX/RS generated servers, the request model classes already contain validations in form of JSR 380 annotations like <code>@NotNull</code>. But because of limitations in validation specification with OpenApi or gaps of the code generators, more often than not, validation rules need to be added to the generated model classes. There are differe This article (series) is about to add such validation rules.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Some words about JSR 380 …​ Jakarta Bean Validation 2.0 standard for checking validity of</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Example</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class Range   {
 
   private @Valid Integer min;
   private @Valid Integer max;
@@ -164,10 +158,6 @@ public class Range   {
     return sb.toString();
   }
 
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
   private String toIndentedString(java.lang.Object o) {
     if (o == null) {
       return "null";
@@ -175,38 +165,97 @@ public class Range   {
     return o.toString().replace("\n", "\n    ");
   }
 }</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Range request object - OpenApi definition of the request object - POST endpoint</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Generated Code</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p><a href="#sample">[sample]</a></p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Changing generated code is not an option. Because of the individual nature of the validation rules, the custom template are also no viable solution/way.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>requirements: - Violations should be reported the same way as the violations of the generated JSR 380 annotations. - Violations should be</p> 
+  </div> 
  </div> 
 </div> 
-<div class="paragraph"> 
- <p>Range request object - OpenApi definition of the request object - POST endpoint</p> 
+<div class="sect1"> 
+ <h2 id="_naive_approach_validation_intermingled_with_business_logic">Naive Approach: Validation intermingled with business logic.</h2> 
+ <div class="sectionbody"> 
+ </div> 
 </div> 
-<div class="paragraph"> 
- <p>Generated Code</p> 
+<div class="sect1"> 
+ <h2 id="_cdi_validation">CDI Validation</h2> 
+ <div class="sectionbody"> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code>unther@gunther-K501UQ:~/_work/java/beans-validation$ curl -v -H "Content-type: application/json" -H "Accept: application/json" http://localhost:8080/beans-validation/cdi/validate -d '{"min": 1, "max": 100 }'
+*   Trying 127.0.0.1:8080...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; POST /beans-validation/cdi/validate HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.65.3
+&gt; Content-type: application/json
+&gt; Accept: application/json
+&gt; Content-Length: 23
+&gt;
+* upload completely sent off: 23 out of 23 bytes
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 400 Bad Request
+&lt; Connection: keep-alive
+&lt; validation-exception: true
+&lt; Content-Type: application/json
+&lt; Content-Length: 369
+&lt; Date: Wed, 11 Mar 2020 19:10:10 GMT
+&lt;
+* Connection #0 to host localhost left intact
+{"exception":null,"fieldViolations":[],"propertyViolations":[],"classViolations":[],"parameterViolations":[{"constraintType":"PARAMETER","path":"validate.arg0.max","message":"must be greater than or equal to 1","value":"0"},{"constraintType":"PARAMETER","path":"validate.arg0.min","message":"must be greater than or equal to 1","value":"0"}],"returnValueViolations":[]}</code></pre> 
+   </div> 
+  </div> 
+ </div> 
 </div> 
-<div class="paragraph"> 
- <p><a href="#sample">[sample]</a></p> 
-</div> 
-<div class="paragraph"> 
- <p>Changing generated code is not an option. Because of the individual nature of the validation rules, the custom template are also no viable solution/way.</p> 
-</div> 
-<div class="paragraph"> 
- <p>requirements: - Violations should be reported the same way as the violations of the generated JSR 380 annotations. - Violations should be</p> 
-</div> 
-<div class="paragraph"> 
- <p>Naive Approach: Validation intermingled with business logic.</p> 
-</div> 
-<div class="paragraph"> 
- <p>The</p> 
+<div class="sect1"> 
+ <h2 id="_xml_deployment_descriptor">XML Deployment Descriptor</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Output of unit test</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code>gunther@gunther-K501UQ:~/_work/java/beans-validation$ curl -v -H "Content-type: application/json" -H "Accept: application/json" http://localhost:8080/beans-validation/xml/validate -d '{"min": 1, "max": 100 }'
+*   Trying 127.0.0.1:8080...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; POST /beans-validation/xml/validate HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.65.3
+&gt; Content-type: application/json
+&gt; Accept: application/json
+&gt; Content-Length: 23
+&gt;
+* upload completely sent off: 23 out of 23 bytes
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 400 Bad Request
+&lt; Connection: keep-alive
+&lt; validation-exception: true
+&lt; Content-Type: application/json
+&lt; Content-Length: 369
+&lt; Date: Wed, 11 Mar 2020 19:09:22 GMT
+&lt;
+* Connection #0 to host localhost left intact
+{"exception":null,"fieldViolations":[],"propertyViolations":[],"classViolations":[],"parameterViolations":[{"constraintType":"PARAMETER","path":"validate.arg0.min","message":"must be greater than or equal to 1","value":"0"},{"constraintType":"PARAMETER","path":"validate.arg0.max","message":"must be greater than or equal to 1","value":"0"}],"returnValueViolations":[]}</code></pre> 
+   </div> 
+  </div> 
+ </div> 
 </div></p>
 
   <span>Tags:
-			  <span><a href="../tags/jakarta-ee.html">jakarta-ee</a></span>
-			  <span><a href="../tags/swagger.html">swagger</a></span>
-			  <span><a href="../tags/encoding.html">encoding</a></span>
-			  <span><a href="../tags/design-first.html">design-first</a></span>
-			  <span><a href="../tags/openapi.html">openapi</a></span>
-			  <span><a href="../tags/code-generator.html">code-generator</a></span>
-			  <span><a href="../tags/jaxrs.html">jaxrs</a></span>
 	</span>
 
 	<hr />
