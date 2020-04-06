@@ -1,10 +1,12 @@
-= OpenApi generated JAX/RS Service: Binary Encoding
+= OpenApi generated JAX/RS Service: Bean Validation
 Gunther Rotsch
 2020-03-13
 :jbake-type: post
 :jbake-tags: openapi, swagger, design-first, code-generator, jakarta-ee, jaxrs, bean-validation
 :jbake-status: draft
 :jbake-summary: Validation of input data is a crucial requirement for every serious application. This also applies to REST services implemented by JAX/RS. If you follow a Design-First development approach with Swagger/OpenApi, server stubs and request/response objects are usually generated. The generated code of API's model classes already contains JSR 380 annotations, which trigger validation of received request objects by the Beans Validation 2.0 framework. This article is about application-specific extension of validation rules for generated model classes.
+
+&nbsp;
 
 Implementing JAX/RS REST APIs with Swagger/OpenApi following a Design-First approach starts with the formal specification of the REST API.
 Then Swagger/OpenApi generators are used to create server stubs as well as client API code. For Java JAX/RS generated servers, the
@@ -21,17 +23,6 @@ Example
 
 [source, java]
 ----
-package com.allianz.aoms.generated.rendering.model;
-
-import io.swagger.annotations.*;
-import javax.validation.constraints.*;
-import javax.validation.Valid;
-
-import io.swagger.annotations.*;
-import java.util.Objects;
-import javax.json.bind.annotation.*;
-
-
 public class Range   {
 
   private @Valid Integer min;
@@ -90,10 +81,6 @@ public class Range   {
     return sb.toString();
   }
 
-  /**
-   * Convert the given object to string with each line indented by 4 spaces
-   * (except the first line).
-   */
   private String toIndentedString(java.lang.Object o) {
     if (o == null) {
       return "null";
@@ -117,7 +104,63 @@ requirements:
 - Violations should be reported the same way as the violations of the generated JSR 380 annotations.
 - Violations should be
 
-Naive Approach: Validation intermingled with business logic.
+== Naive Approach: Validation intermingled with business logic.
 
 
-The
+== CDI Validation
+
+[source,]
+----
+unther@gunther-K501UQ:~/_work/java/beans-validation$ curl -v -H "Content-type: application/json" -H "Accept: application/json" http://localhost:8080/beans-validation/cdi/validate -d '{"min": 1, "max": 100 }'
+*   Trying 127.0.0.1:8080...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> POST /beans-validation/cdi/validate HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.65.3
+> Content-type: application/json
+> Accept: application/json
+> Content-Length: 23
+>
+* upload completely sent off: 23 out of 23 bytes
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 400 Bad Request
+< Connection: keep-alive
+< validation-exception: true
+< Content-Type: application/json
+< Content-Length: 369
+< Date: Wed, 11 Mar 2020 19:10:10 GMT
+<
+* Connection #0 to host localhost left intact
+{"exception":null,"fieldViolations":[],"propertyViolations":[],"classViolations":[],"parameterViolations":[{"constraintType":"PARAMETER","path":"validate.arg0.max","message":"must be greater than or equal to 1","value":"0"},{"constraintType":"PARAMETER","path":"validate.arg0.min","message":"must be greater than or equal to 1","value":"0"}],"returnValueViolations":[]}
+----
+
+== XML Deployment Descriptor
+
+Output of unit test
+
+[source,]
+----
+gunther@gunther-K501UQ:~/_work/java/beans-validation$ curl -v -H "Content-type: application/json" -H "Accept: application/json" http://localhost:8080/beans-validation/xml/validate -d '{"min": 1, "max": 100 }'
+*   Trying 127.0.0.1:8080...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> POST /beans-validation/xml/validate HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.65.3
+> Content-type: application/json
+> Accept: application/json
+> Content-Length: 23
+>
+* upload completely sent off: 23 out of 23 bytes
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 400 Bad Request
+< Connection: keep-alive
+< validation-exception: true
+< Content-Type: application/json
+< Content-Length: 369
+< Date: Wed, 11 Mar 2020 19:09:22 GMT
+<
+* Connection #0 to host localhost left intact
+{"exception":null,"fieldViolations":[],"propertyViolations":[],"classViolations":[],"parameterViolations":[{"constraintType":"PARAMETER","path":"validate.arg0.min","message":"must be greater than or equal to 1","value":"0"},{"constraintType":"PARAMETER","path":"validate.arg0.max","message":"must be greater than or equal to 1","value":"0"}],"returnValueViolations":[]}
+----

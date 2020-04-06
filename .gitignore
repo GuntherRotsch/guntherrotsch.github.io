@@ -1,4 +1,10 @@
+# 'mount point' of code branch worktree
+code
+# 'mount point' of distribution branch worktree
 dist
+# jenv configuration file
+.java-version
+# ...and the rest
 setup.sh
 src/main/jbake/assets/assets/img/diagrams/**
 **/.asciidoctor/

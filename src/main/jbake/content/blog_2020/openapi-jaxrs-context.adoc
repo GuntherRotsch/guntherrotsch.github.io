@@ -1,0 +1,407 @@
+= OpenApi generated JAX/RS Service: JAX/RS Context
+Gunther Rotsch
+2020-03-23
+:jbake-type: post
+:jbake-tags: openapi, swagger, design-first, code-generator, jakarta-ee, jaxrs, jaxrs-context
+:jbake-status: published
+:jbake-summary: Implementing JAX/RS REST APIs with Swagger/OpenAPI, the language agnostic interface to RESTful APIs, following an API Design-First approach starts with the formal specification of the REST API. Then OpenAPI generators are used to create server stubs. These code generators create specific problems, that may require customization of templates or the whole generator. This article describes several solutions that are related to the JAX/RS context objects.
+
+&nbsp;
+
+But, before starting the discussion of the JAX/RS context object related issues,
+I shortly describe the setup of the `openapi-jaxrs` sample project, you'll find
+on the
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code[code branch]
+of the Blog repository.
+
+== Demo Project Setup
+
+The prerequisites to run the demo project are Java of version equal or
+higher 8 and a current version of Maven.
+The code samples shown in this Blog post use the OpenAPI Maven plugin:
+
+[source, xml]
+----
+<plugin>
+  <groupId>org.openapitools</groupId>
+  <artifactId>openapi-generator-maven-plugin</artifactId>
+  <version>4.2.3</version>
+</plugin>
+----
+
+This plugin integrates very well with Eclipse: Updating the Maven project
+executes the generator. In addition, the output directory of generated code
+is automatically added as source folder to the Eclipse project.
+
+The generator places the output directory into the `target` folder of the
+project. This ensures that the code generation is executed for every build
+and generated code is never put under version control.
+
+The OpenAPI generator plugin supports several kinds of JAX/RS generators, eg.
+`jaxrs-spec`, `jaxrs-resteasy`, `jaxrs-cxf`. For this Blog post, we'll use
+the `jaxrs-spec` generator, which produces code that is compliant to the
+Jakarta EE standard, but does not depend on a particular implementation of
+this standard. Nowadays the standard APIs support all features typically
+required in application development, so that implementation specific
+extensions are rarely required.
+
+The documentation of the `jaxrs-spec` generator's options can be found on
+the `OpenAPITools/openapi-generator` Github repo at
+https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/jaxrs-spec.md[JAX/RS Spec Generator].
+
+The demo project is configured for the `Thorntail` framework, which allows
+convenient start of the sample application from the command-line by
+
+[source]
+----
+mvn thorntail:run
+----
+
+But the classical packaging as `war` file and deployment to an Jakarta EE
+compliant application server is equally possible.
+
+== JAX/RS Context
+
+The following list enumerates all JAX/RS context objects of the JAX-RS
+2.1 specification, ie. types that can be injected using the `@Context`
+annotation:
+
+[source, java]
+----
+    javax.ws.rs.core.Application
+    javax.ws.rs.core.HttpHeaders
+    javax.ws.rs.core.Request
+    javax.ws.rs.core.SecurityContext
+    javax.ws.rs.core.UriInfo
+    javax.ws.rs.core.Configuration
+    javax.ws.rs.container.ResourceContext
+    javax.ws.rs.ext.Providers
+    javax.ws.rs.sse.Sse
+    javax.ws.rs.sse.SseEventSink
+----
+
+In addition, the following types are available when the application in
+deployed to a servlet container:
+
+[source, java]
+----
+    javax.servlet.HttpServletRequest
+    javax.servlet.HttpServletResponse
+    javax.servlet.ServletConfig
+    javax.servlet.ServletContext
+----
+
+What makes JAX/RS context objects special is that they can only injected into
+JAX/RS resources itself, but not into CDI beans, that are injected into the
+JAX/RS resource objects. If the JAX/RS resources reside in generated code,
+the context objects are available only if the generator takes them into account.
+
+=== Interface-Only Generation
+
+The easiest solution to make JAX/RS context objects available is to generate
+interfaces of the JAX/RS resources only. This can achieved by setting the
+generator's option
+
+[source, xml]
+----
+  <interfaceOnly>true</interfaceOnly>
+----
+
+in the OpenAPI generator plugin of Maven's `pom.xml` file.
+
+The resulting generated code of a simple _greeting_ service looks then like
+this:
+
+[source, java]
+----
+  Path("/greeting")
+  @Api(description = "the greeting API")
+  @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", date = "2020-03-23T19:02:54.718784+01:00[Europe/Zurich]")
+  public interface GreetingApi {
+
+      @GET
+      @ApiOperation(value = "", notes = "", tags={ "misc" })
+      @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Returns greeting on success", response = Void.class),
+          @ApiResponse(code = 405, message = "Invalid input", response = Void.class) })
+      Response greet(@QueryParam("name")   @ApiParam("Optional name of person to greet")  String name);
+  }
+----
+
+Since only interfaces are generated, the actual implementation must be coded
+manually, eg.:
+
+[source, java]
+----
+  public class GreetingApiImpl implements GreetingApi {
+
+  	private static final Logger LOGGER = LoggerFactory.getLogger(GreetingApiImpl.class);
+
+  	@Context
+  	HttpHeaders headers;
+  	@Context
+  	UriInfo uriInfo;
+
+  	public Response greet(@QueryParam("name") @ApiParam("Optional name of person to greet") String name) {
+  		StringBuilder headersBuilder = new StringBuilder("Headers:\n");
+  		for (Map.Entry<String, List<String>> header : headers.getRequestHeaders().entrySet()) {
+  			headersBuilder.append("\t").append(header.getKey()).append(": ").append(header.getValue()).append("\n");
+  		}
+  		LOGGER.info(headersBuilder.toString());
+  		LOGGER.info("UriInfo: {}", uriInfo);
+
+  		return Response.ok("Hello world").build();
+  	}
+  }
+----
+
+Because the JAX/RS resource implementation is hand-written, you are free to
+inject any context object. In the example above, `HttpHeaders` and
+`UriInfo` have been added for demo purposes, but any others is possible, too.
+
+=== Implementation Generation
+
+For some projects it might not be desired or possible to work with interfaces
+of JAX/RS resource objects. Let's see what happens when we change the
+OpenAPI generator to
+
+[source, xml]
+----
+  <interfaceOnly>false</interfaceOnly>
+----
+
+First difference to _interface only_ generation is that the `RestApplication`
+object is now generated and must not longer provided with the application code.
+
+The generate JAX/RS resource now looks like:
+
+[source, java]
+----
+  @Path("/greeting")
+  @Api(description = "the greeting API")
+  @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", date = "2020-03-23T19:06:40.010561+01:00[Europe/Zurich]")
+  public class GreetingApi {
+
+      @GET
+      @ApiOperation(value = "", notes = "", response = Void.class, tags={ "misc" })
+      @ApiResponses(value = {
+          @ApiResponse(code = 200, message = "Returns greeting on success", response = Void.class),
+          @ApiResponse(code = 405, message = "Invalid input", response = Void.class)
+      })
+      public Response greet(@QueryParam("name")   @ApiParam("Optional name of person to greet")  String name) {
+          return Response.ok().entity("magic!").build();
+      }
+  }
+----
+
+The API method of the generated class provides an implementation already. You
+might be tempted to change this implementation to your needs and add the
+application's business logic here. However, the class is generated and the
+next build would overwrite any manual change.
+
+What can we do about that?
+Moving the generated class to the developer managed code-base is not an option,
+because it violates the principle that the code is generated on each build
+and generated code is never taken under version control.
+The best would be to customize the generation in a way that the actual
+business logic gets injected and the JAX/RS API methods just delegate to the
+injected business services. This idea is based on the integration of JAX/RS
+and CDI, which allows to inject arbitrary CDI beans into JAX/RS resources.
+
+==== Template Customization
+
+The OpenAPITools/openapi-generator Github repository includes comprising
+documentation about the customization of
+https://github.com/OpenAPITools/openapi-generator/blob/master/docs/templating.md[Templates]
+or even the entire
+https://github.com/OpenAPITools/openapi-generator/blob/master/docs/customization.md[Generators].
+
+For our purposes the customization of templates is sufficient. After adding
+the configuration
+
+[source, xml]
+----
+  <templateDirectory>${project.basedir}/src/main/templates</templateDirectory>
+----
+
+to the OpenAPI generator plugin, customized Mustache templates can be provided
+in defined folder.
+
+[NOTE]
+The OpenAPI generator processes many template files in a generation run, but
+only the customized templates need to be hosted in the project's template
+directory. The remaining templates will still be retrieved from the set
+of standard templates of the generator, ie. the custom teplates _shadow_
+the equally named templates of the generator.
+
+For our use case the injection of the service class need to be added in the
+`api.mustache` template file:
+
+[source, java]
+----
+  @Inject {{package}}.services.{{classname}}Impl delegatee;
+----
+
+And the delegation to the injected business service need to be added
+in the `apiMethod.mustache` template file:
+
+[source, java]
+----
+  public Response {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+      return delegatee.{{nickname}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+  }
+----
+
+The delegatee, ie. the CDI bean hosting the business logic, looks in its
+simplest form like:
+
+[source, java]
+----
+  package net.gunther.blog.codegen.api.services;
+
+  import javax.ws.rs.core.Response;
+
+  public class GreetingApiImpl {
+
+  	public Response greet(String name) {
+  		return Response.ok("Hello world").build();
+  	}
+  }
+----
+
+At this point we achieved that the generated JAX/RS resource classes delegate
+each call to a hand-written service class, that host the actual business logic.
+The JAX/RS context objects are still unavailable to the application. To solve
+this last challenge, we introduce a request scoped _holder_ object of the
+JAX/RS context:
+
+[source, java]
+----
+@RequestScoped
+public class JAXRSContext {
+
+  private UriInfo uriInfo;
+  private HttpHeaders httpHeaders;
+
+  public UriInfo getUriInfo() {
+	  return uriInfo;
+  }
+
+  public void setUriInfo(UriInfo uriInfo) {
+	  this.uriInfo = uriInfo;
+  }
+
+  public HttpHeaders getHttpHeaders() {
+	  return httpHeaders;
+  }
+
+  public void setHttpHeaders(HttpHeaders httpHeaders) {
+	  this.httpHeaders = httpHeaders;
+  }
+}
+----
+
+[NOTE]
+For sake of simplicity, the sample code limits to `HttpHeaders` and `UriInfo`,
+but any other JAX/RS context object can be easily added. Import statements
+are also omitted.
+
+Then we add the injection of the JAX/RS context objects and our new holder
+object to the customized `api.mustache` template file:
+
+[source, java]
+----
+  ...
+  @Context UriInfo uriInfo;
+  @Context HttpHeaders httpHeaders;
+
+  @Inject JAXRSContext context;
+  ...
+----
+
+The injected objects can then be used in the generated API methods, ie. the
+template `apiMethod.mustache` file can further customized by adding:
+
+[source, java]
+----
+  public Response {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+    context.setUriInfo(uriInfo);
+    context.setHttpHeaders(httpHeaders);
+    return delegatee.{{nickname}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+  }
+----
+
+You may have noted, that we do not add the JAX/RS holder object to the
+signature of the delegatee's method.
+The JAX/RS holder `context` is a CDI bean, which is just populated with the
+JAX/RS context in the generated resource class. Because the bean of type
+`JAXRSContext` is request scoped, every request processing (thread) gets its
+own instance of the bean.
+
+The `JAXRSContext` is a regular CDI bean which can be injected into any other
+CDI bean, eg. the delegatee's service implementation:
+
+[source, java]
+----
+  public class GreetingApiImpl {
+
+  	private static final Logger LOGGER = LoggerFactory.getLogger(GreetingApiImpl.class);
+
+    @Inject JAXRSContext context;
+
+  	public Response greet(String name) {
+  		StringBuilder headersBuilder = new StringBuilder("Headers:\n");
+  		for (Map.Entry<String, List<String>> header : context.getHttpHeaders().getRequestHeaders().entrySet()) {
+  			headersBuilder.append("\t").append(header.getKey()).append(": ").append(header.getValue()).append("\n");
+  		}
+  		LOGGER.info(headersBuilder.toString());
+  		LOGGER.info("UriInfo.absolutePath: {}", context.getUriInfo().getAbsolutePath());
+  		return Response.ok("Hello world").build();
+  	}
+  }
+----
+
+When now calling the application the HTTP headers and the absolute path of the
+requested JAX/RS resource are logged, for example:
+
+[source]
+----
+2020-03-24 20:45:02,834 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) Headers:
+	DNT: [1]
+	Accept-Language: [en-US,en;q=0.5]
+	Host: [localhost:8080]
+	Accept: [text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8]
+	User-Agent: [Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0]
+	Accept-Encoding: [gzip, deflate]
+	Upgrade-Insecure-Requests: [1]
+	Connection: [keep-alive]
+	Cache-Control: [max-age=0]
+
+2020-03-24 20:45:02,836 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) UriInfo.absolutePath: http://localhost:8080/greeting
+----
+
+Implementing the `JAXRSContext` as request scoped CDI bean has several
+benefits:
+
+* The technical JAX/RS context does not pollute the business interfaces
+implemented by the service delegates.
+* The `JAXRSContext` can hold any number of context objects, you can start
+with just one and add more if you need more in later stages of the development.
+Adding more context objects means extending the template, but does not break
+a single line of existing code.
+* The `JAXRSContext` can be injected into business logic of any level in the
+call hierarchy, not only in the directly called delegatee.
+* The `JAXRSContext` is only injected into CDI beans that actually need the
+context.
+
+== Summary
+
+The simplest approach when it comes to OpenAPI and its generators is to
+limit the generated code to interfaces. This approach does not require
+customization of templates and nevertheless leaves any implementation
+option in your hands.
+
+If you already generate JAX/RS resource implementations or need to customize
+the generator's templates anyway, then the described JAX/RS holder object
+may be an option for you. Implementing the JAX/RS holder as request scoped
+CDI bean offers several benefits as listed above.
