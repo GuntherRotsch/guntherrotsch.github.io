@@ -1,0 +1,46 @@
+openapi: "3.0.0"
+
+info:
+  description: "This is a sample application."
+  version: "1.0.0"
+  title: "Sample App"
+  contact:
+    email: "gunther.rotsch@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+
+servers:
+  - url: http://localhost
+    description: Local host for development
+
+tags:
+- name: "misc"
+  description: "Everything so far"
+
+paths:
+  /range:
+    post:
+      operationId: newRange
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Range'
+      responses:
+        201:
+          description: "Range resource created successfully"
+
+components:
+  schemas:
+    Range:
+      properties:
+        min:
+          type: "integer"
+          minimum: 1
+          maximum: 999
+        max:
+          type: "integer"
+          minimum: 1
+          maximum: 1000

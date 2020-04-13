@@ -5,3 +5,7 @@ target/
 .project
 .classpath
 .settings/
+
+# jenv configuration file
+.java-version
+
