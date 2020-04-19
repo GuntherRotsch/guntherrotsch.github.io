@@ -2,7 +2,7 @@
 Gunther Rotsch
 2020-03-23
 :jbake-type: post
-:jbake-tags: openapi, swagger, design-first, code-generator, jakarta-ee, jaxrs, jaxrs-context
+:jbake-tags: openapi, swagger, design-first, code-generator, jakarta-ee, cdi, jaxrs, jaxrs-context
 :jbake-status: published
 :jbake-summary: Implementing JAX/RS REST APIs with Swagger/OpenAPI, the language agnostic interface to RESTful APIs, following an API Design-First approach starts with the formal specification of the REST API. Then OpenAPI generators are used to create server stubs. These code generators create specific problems, that may require customization of templates or the whole generator. This article describes several solutions that are related to the JAX/RS context objects.
 
