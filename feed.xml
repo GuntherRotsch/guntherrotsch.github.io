@@ -6,9 +6,529 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Mon, 6 Apr 2020 09:53:43 +0200</pubDate>
-    <lastBuildDate>Mon, 6 Apr 2020 09:53:43 +0200</lastBuildDate>
+    <pubDate>Sun, 19 Apr 2020 13:28:55 +0200</pubDate>
+    <lastBuildDate>Sun, 19 Apr 2020 13:28:55 +0200</lastBuildDate>
 
+    <item>
+      <title>OpenApi generated JAX/RS Service: Bean Validation</title>
+      <link>https://guntherrotsch.github.io/blog_2020/openapi-bean-validation.html</link>
+      <pubDate>Sun, 19 Apr 2020 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2020/openapi-bean-validation.html</guid>
+      	<description>
+	&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_introduction&quot;&gt;Introduction&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Implementing JAX/RS REST APIs with OpenApi following a Design-First approach starts with the formal specification of the REST API. The OpenAPI generators are used to create server stubs as well as client API code. For Java JAX/RS generated servers, the request model classes already contain validations in form of JSR 380 annotations like &lt;code&gt;@NotNull&lt;/code&gt;. But because of limitations in validation specification with OpenAPI or gaps of the code generators, more often than not, validation rules need to be added to the generated model classes.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sidebarblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;div class=&quot;title&quot;&gt;
+     JSR 380
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;Jakarta EE 8 includes the version 2.0 of JSR 380, the &lt;em&gt;Bean Validation&lt;/em&gt; standard for checking validity of model objects. The bean validation is mainly applied to request parameters and persisted entity objects.&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;Bean Validation standardizes constraint definition, declaration and validation for the Java platform. Its first two incarnations have been widely popular amongst the Java community in both, SE and EE environments. Integrations with many other specifications (CDI, JAX-RS, JPA, etc.) and frameworks have been created.&lt;/p&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;I’d like illustrate the issue and possible solutions of extending the request object validation for REST APIs by a simplified, yet realistic example. You’ll find the sample project in the folder &lt;code&gt;bean-validation&lt;/code&gt; of the &lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code&quot;&gt;code branch of the Blog repository&lt;/a&gt;.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;admonitionblock note&quot;&gt; 
+   &lt;table&gt; 
+    &lt;tbody&gt;
+     &lt;tr&gt; 
+      &lt;td class=&quot;icon&quot;&gt; &lt;i class=&quot;fa icon-note&quot; title=&quot;Note&quot;&gt;&lt;/i&gt; &lt;/td&gt; 
+      &lt;td class=&quot;content&quot;&gt; The sample application is packaged as web application (WAR file) and for tests deployed to a Wildfly 19 application server. &lt;/td&gt; 
+     &lt;/tr&gt; 
+    &lt;/tbody&gt;
+   &lt;/table&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_example&quot;&gt;Example&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Let’s say, you’re going to define a REST API to manage &lt;em&gt;Ranges&lt;/em&gt; defined by a minimum and maximum integer values. The following OpenAPI snippet defines the &lt;code&gt;Range&lt;/code&gt; object:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-yaml hljs&quot; data-lang=&quot;yaml&quot;&gt;  components:
+    schemas:
+      Range:
+        properties:
+          min:
+            type: &quot;integer&quot;
+            minimum: 1
+            maximum: 1000
+          max:
+            type: &quot;integer&quot;
+            minimum: 1
+            maximum: 1000&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The OpenAPI generator &lt;strong&gt;Java JAX/RS spec&lt;/strong&gt; creates the following model class from the specification:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class Range   {
+
+  private @Valid Integer min;
+  private @Valid Integer max;
+
+  /**
+   * minimum: 1
+   * maximum: 1000
+   **/
+  public Range min(Integer min) {
+    this.min = min;
+    return this;
+  }
+
+  @ApiModelProperty(value = &quot;&quot;)
+  @JsonProperty(&quot;min&quot;)
+  @Min(1) @Max(1000)  public Integer getMin() {
+    return min;
+  }
+  public void setMin(Integer min) {
+    this.min = min;
+  }
+
+  /**
+   * minimum: 1
+   * maximum: 1000
+   **/
+  public Range max(Integer max) {
+    this.max = max;
+    return this;
+  }
+
+  @ApiModelProperty(value = &quot;&quot;)
+  @JsonProperty(&quot;max&quot;)
+  @Min(1) @Max(1000)  public Integer getMax() {
+    return max;
+  }
+  public void setMax(Integer max) {
+    this.max = max;
+  }
+
+  @Override
+  public boolean equals(java.lang.Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Range range = (Range) o;
+    return Objects.equals(this.min, range.min) &amp;amp;&amp;amp;
+        Objects.equals(this.max, range.max);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(min, max);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(&quot;class Range {\n&quot;);
+
+    sb.append(&quot;    min: &quot;).append(toIndentedString(min)).append(&quot;\n&quot;);
+    sb.append(&quot;    max: &quot;).append(toIndentedString(max)).append(&quot;\n&quot;);
+    sb.append(&quot;}&quot;);
+    return sb.toString();
+  }
+
+  /**
+   * Convert the given object to string with each line indented by 4 spaces
+   * (except the first line).
+   */
+  private String toIndentedString(java.lang.Object o) {
+    if (o == null) {
+      return &quot;null&quot;;
+    }
+    return o.toString().replace(&quot;\n&quot;, &quot;\n    &quot;);
+  }
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;As you can see, the generated model class already contains Bean Validation annotations like &lt;code&gt;@Min&lt;/code&gt; and &lt;code&gt;@Max&lt;/code&gt;. Because JAX/RS integrates with Bean Validation this annotations are considered when the also generated API classes are called. Such a API class may be a POST to create a new &lt;code&gt;Range&lt;/code&gt; resource:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-yaml hljs&quot; data-lang=&quot;yaml&quot;&gt;  paths:
+    /range:
+      post:
+        operationId: newRange
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: &apos;#/components/schemas/Range&apos;
+        responses:
+          201:
+            description: &quot;Range resource created successfully&quot;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Without any manually written code the deployed service responds with HTTP status 400 (Bad Request) when called with a &lt;code&gt;Range&lt;/code&gt; object, that violates one of the bean validation rules. The following &lt;code&gt;curl&lt;/code&gt; statement illustrates the generated API:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/bean-validation/range -d &apos;{ &quot;min&quot;: 0, &quot;max&quot;: 1 }&apos; \
+      -H &quot;Content-Type: application/json&quot; -H &quot;Accept: application/json&quot; -o - \
+ | jq
+...
+{
+  &quot;exception&quot;: null,
+  &quot;fieldViolations&quot;: [],
+  &quot;propertyViolations&quot;: [],
+  &quot;classViolations&quot;: [],
+  &quot;parameterViolations&quot;: [
+    {
+      &quot;constraintType&quot;: &quot;PARAMETER&quot;,
+      &quot;path&quot;: &quot;newRange.arg0.min&quot;,
+      &quot;message&quot;: &quot;must be greater than or equal to 1&quot;,
+      &quot;value&quot;: &quot;0&quot;
+    }
+  ],
+  &quot;returnValueViolations&quot;: []
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Up to this point everything seems to be fine. But we miss an important validation rule: The provided minimum value has to be equal or smaller than the maximum contained in the request. Unfortunately, such a rule can neither expressed by an OpenAPI specification nor considered by any generator available. This basically applies to all validations taking multiple fields of a class into account. But how do we implement such validations?&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_requirements&quot;&gt;Requirements&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Before we discuss different implementation options, let’s list the requirements of request validation from a API user’s point of view:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;olist arabic&quot;&gt; 
+   &lt;ol class=&quot;arabic&quot;&gt; 
+    &lt;li&gt; &lt;p&gt;Validation rule violations should be reported the same way as JSR 380 detected violations, ie. no mix of JSR 380 and application formatted violation reports.&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;The violation report returned by the application server should consider the &lt;code&gt;Accept&lt;/code&gt; header given by the client, ie. as shown in example above, if the request contains a header &lt;code&gt;Accept: application/json&lt;/code&gt;, the response should be in JSON format.&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Invalid requests should create a response containing &lt;strong&gt;all&lt;/strong&gt; violated rules. It’s not reasonable for a user if &lt;strong&gt;some&lt;/strong&gt; violations are reported, fixed by the user and on the next request &lt;strong&gt;some other&lt;/strong&gt; violations get reported - such behavior is rather annoying.&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ol&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The listed requirements are far from being complete and focus more on the reporting of validation rule violation, the area relating to REST API and affecting the API’s user mostly.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;With the requirements in mind, some implementation ideas appear immediately as insufficient:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;Changing generated code is generally not an option, because after re-generation the manual changes are overwritten and get lost.&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Because of the individual nature of the validation rules, adapting the code generator, eg. with custom templates, don’t look promising.&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Moving validation checks into the business code would ignore most of the requirements listed above.&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_cdi_based_solution&quot;&gt;CDI based Solution&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;One design pattern I’ve seen in professional projects is based on the fact, that Bean Validation is not only integrated with JAX/RS, but also with CDI. For the range sample the implementation of this pattern requires the definition of a wrapper class around the &lt;code&gt;Range&lt;/code&gt; object, that implements the additional validation as JSR 380 rule:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class ValidateableRange {
+
+	private final Range range;
+
+	public ValidateableRange(Range range) {
+		this.range = range;
+	}
+
+	@Valid
+	public Range getRange() {
+		return range;
+	}
+
+	@AssertTrue(message = &quot;min must be less than or equal to max&quot;)
+	public boolean isMinLessThanOrEqualToMax() {
+		return range.getMin() &amp;lt;= range.getMax();
+	}
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;In addition, a &lt;em&gt;validator&lt;/em&gt; CDI bean is required:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@ApplicationScoped
+public class ApplicationValidator {
+
+	public void validate(@Valid ValidateableRange validateableRange) {
+		// no-op
+	}
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Please note, that the &lt;em&gt;validator&lt;/em&gt; can contain several validation methods for different objects, that need to be validated. Please also note, that the validation method is empty. The &lt;code&gt;@Valid&lt;/code&gt; annotation attached to the method argument is the crucial piece, that triggers the Bean Validation when the method is called.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Given these classes, the validation can be triggered before the actual processing of the request is started:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@Inject ApplicationValidator appValidator;
+
+public Response newRange(Range range) {
+  appValidator.validate(new ValidateableRange(range));
+
+  // business logic goes here
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The implementation of this pattern satisfies all requirements, but the 3rd one: Request validation is performed two times, first when the request enters the JAX/RS API method and second when the &lt;code&gt;ApplicationValidator&lt;/code&gt; enters the stage. Because the &lt;code&gt;ApplicationValidator&lt;/code&gt; performs additional checks, invalid requests fixed by the user may report more violations when called the second time.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;There are more problems with this pattern:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;Some validation may be checked twice. That can become problematic when checking the validation rules is rather &lt;em&gt;expensive&lt;/em&gt; in terms of resource consumption/performance.&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;The reported objects may be of type &lt;code&gt;ValidateableRange&lt;/code&gt;, although, the API user requested a &lt;code&gt;Range&lt;/code&gt; object.&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;However, for many projects, in particular for internal APIs, the behavior implemented by this CDI based validation pattern is sufficient. In addition, it’s entirely based on Java code and therefor very flexible.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;But if you offer a public REST API, the requirements of API consistency and quality may be higher, also in terms of request validation.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_general_jaxrs_solution&quot;&gt;General JAX/RS Solution&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;To satisfy all requirements listed above, the solution need to be based on JAX/RS and Bean Validation solely. The question is, how should this be done when the JAX/RS resources are generated and not easy modifiable?&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;To begin, let’s ignore the fact, that some code is generated. A class&apos; validation rule like the sample above &lt;em&gt;min must be less or equal to max&lt;/em&gt;, can be implemented:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;Generically with a &lt;code&gt;@AssertTrue&lt;/code&gt; (or &lt;code&gt;@AssertFalse&lt;/code&gt;) annotated method like in &lt;code&gt;ValidatebleRange&lt;/code&gt; example above.&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;More specific with a custom validator, that can be associated by a custom annotation to the model class to be validated.&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Because the generic solution would require the modification of the generated code, let’s have a look at the second option. Therefor a validator as well as a annotation like the following are needed in our &lt;em&gt;range&lt;/em&gt; sample:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class RangeValidator implements ConstraintValidator&amp;lt;CheckMinLessOrEqualMax, Range&amp;gt; {
+
+	public void initialize(CheckMinLessOrEqualMax arg0) {
+	}
+
+	public boolean isValid(Range range, ConstraintValidatorContext context) {
+		return range.getMin() &amp;lt;= range.getMax();
+	}
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@Target({ FIELD, METHOD, PARAMETER, ANNOTATION_TYPE, TYPE_USE })
+@Retention(RUNTIME)
+@Constraint(validatedBy = RangeValidator.class)
+@Documented
+public @interface CheckMinLessOrEqualMax {
+	String message() default &quot;{net.gunther.jee.beansvalidation.xml.RangeValidator.&quot; + &quot;message}&quot;;
+
+	Class&amp;lt;?&amp;gt;[] groups() default {};
+
+	Class&amp;lt;? extends Payload&amp;gt;[] payload() default {};
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The defined &lt;code&gt;RangeValidator&lt;/code&gt; is typically attached to the objects of range &lt;code&gt;Range&lt;/code&gt; by annotating this class with &lt;code&gt;@CheckMinLessOrEqualMax&lt;/code&gt;. Because the &lt;code&gt;Range&lt;/code&gt; class is a generated API model class, this is not possible. However, like most Jakarta EE APIs, beside annotations, XML deployment descriptor are supported for configuration of the API’s objects or beans. For our example we just create a &lt;code&gt;META-INF/validation.xml&lt;/code&gt; deployment descriptor to activate custom Bean Validation configurations:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;validation-config
+	xmlns=&quot;http://xmlns.jcp.org/xml/ns/validation/configuration&quot;
+	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+	xsi:schemaLocation=&quot;http://xmlns.jcp.org/xml/ns/validation/configuration
+            http://xmlns.jcp.org/xml/ns/validation/configuration/validation-configuration-2.0.xsd&quot;
+	version=&quot;2.0&quot;&amp;gt;
+
+	&amp;lt;default-provider&amp;gt;org.hibernate.validator.HibernateValidator&amp;lt;/default-provider&amp;gt;
+	&amp;lt;message-interpolator&amp;gt;org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator&amp;lt;/message-interpolator&amp;gt;
+	&amp;lt;constraint-mapping&amp;gt;META-INF/validation/constraints-range.xml&amp;lt;/constraint-mapping&amp;gt;
+&amp;lt;/validation-config&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;This deployment descriptor references a &lt;code&gt;META-INF/validation/constraints-range.xml&lt;/code&gt; file, that eventually attaches the custom annotation &lt;code&gt;CheckMinLessOrEqualMax&lt;/code&gt; to the &lt;code&gt;Range&lt;/code&gt; model class:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;
+&amp;lt;constraint-mappings
+	xmlns=&quot;http://xmlns.jcp.org/xml/ns/validation/mapping&quot;
+	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+	xsi:schemaLocation=&quot;http://xmlns.jcp.org/xml/ns/validation/mapping
+            http://xmlns.jcp.org/xml/ns/validation/mapping/validation-mapping-2.0.xsd&quot;
+	version=&quot;2.0&quot;&amp;gt;
+
+	&amp;lt;default-package&amp;gt;net.gunther.blog.codegen.models&amp;lt;/default-package&amp;gt;
+
+	&amp;lt;bean class=&quot;Range&quot; ignore-annotations=&quot;false&quot;&amp;gt;
+		&amp;lt;class&amp;gt;
+			&amp;lt;constraint annotation=&quot;net.gunther.jee.beansvalidation.xml.CheckMinLessOrEqualMax&quot;&amp;gt;
+				&amp;lt;message&amp;gt;min must be less than or equal to max&amp;lt;/message&amp;gt;
+			&amp;lt;/constraint&amp;gt;
+		&amp;lt;/class&amp;gt;
+	&amp;lt;/bean&amp;gt;
+
+&amp;lt;/constraint-mappings&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;With that in place, the request validation satisfies all requirements listed above:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/bean-validation/range -d &apos;{ &quot;min&quot;: 1001, &quot;max&quot;: 0 }&apos; \
+       -H &quot;Content-Type: application/json&quot; -H &quot;Accept: application/json&quot; -o - -v \
+     | jq
+...
+&amp;gt; POST /bean-validation/range HTTP/1.1
+&amp;gt; Host: localhost:8080
+&amp;gt; User-Agent: curl/7.65.3
+&amp;gt; Content-Type: application/json
+&amp;gt; Accept: application/json
+...
+&amp;gt;
+...
+&amp;lt; HTTP/1.1 400 Bad Request
+&amp;lt; validation-exception: true
+&amp;lt; Content-Type: application/json
+...
+
+{
+  &quot;exception&quot;: null,
+  &quot;fieldViolations&quot;: [],
+  &quot;propertyViolations&quot;: [],
+  &quot;classViolations&quot;: [],
+  &quot;parameterViolations&quot;: [
+    {
+      &quot;constraintType&quot;: &quot;PARAMETER&quot;,
+      &quot;path&quot;: &quot;newRange.arg0.max&quot;,
+      &quot;message&quot;: &quot;must be greater than or equal to 1&quot;,
+      &quot;value&quot;: &quot;0&quot;
+    },
+    {
+      &quot;constraintType&quot;: &quot;PARAMETER&quot;,
+      &quot;path&quot;: &quot;newRange.arg0.min&quot;,
+      &quot;message&quot;: &quot;must be less than or equal to 1000&quot;,
+      &quot;value&quot;: &quot;1001&quot;
+    },
+    {
+      &quot;constraintType&quot;: &quot;PARAMETER&quot;,
+      &quot;path&quot;: &quot;newRange.arg0&quot;,
+      &quot;message&quot;: &quot;min must be less than or equal to max&quot;,
+      &quot;value&quot;: &quot;class Range {\n    min: 1001\n    max: 0\n}&quot;
+    }
+  ],
+  &quot;returnValueViolations&quot;: []
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The validation is complete, ie. all validation rules are checked, regardless of how they are activated, by annotation or XML deployment descriptor. The validation is entirely based on JSR 380 Bean Validation. Because of the good integration of Bean Validation with JAX/RS, the requested response format is also considered, for example:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/bean-validation/range -d &apos;{ &quot;min&quot;: 1001, &quot;max&quot;: 0 }&apos; \
+       -H &quot;Content-Type: application/json&quot; -H &quot;Accept: application/xml&quot; -o - -v \
+     | xmllint --format -
+...
+&amp;gt; POST /bean-validation/range HTTP/1.1
+&amp;gt; Host: localhost:8080
+&amp;gt; User-Agent: curl/7.65.3
+&amp;gt; Content-Type: application/json
+&amp;gt; Accept: application/xml
+...
+&amp;lt; HTTP/1.1 400 Bad Request
+&amp;lt; validation-exception: true
+&amp;lt; Content-Type: application/xml;charset=UTF-8
+...
+
+&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&amp;gt;
+&amp;lt;violationReport&amp;gt;
+  &amp;lt;parameterViolations&amp;gt;
+    &amp;lt;constraintType&amp;gt;PARAMETER&amp;lt;/constraintType&amp;gt;
+    &amp;lt;path&amp;gt;newRange.arg0&amp;lt;/path&amp;gt;
+    &amp;lt;message&amp;gt;min must be less than or equal to max&amp;lt;/message&amp;gt;
+    &amp;lt;value&amp;gt;class Range {
+    min: 1001
+    max: 0
+}&amp;lt;/value&amp;gt;
+  &amp;lt;/parameterViolations&amp;gt;
+  &amp;lt;parameterViolations&amp;gt;
+    &amp;lt;constraintType&amp;gt;PARAMETER&amp;lt;/constraintType&amp;gt;
+    &amp;lt;path&amp;gt;newRange.arg0.max&amp;lt;/path&amp;gt;
+    &amp;lt;message&amp;gt;must be greater than or equal to 1&amp;lt;/message&amp;gt;
+    &amp;lt;value&amp;gt;0&amp;lt;/value&amp;gt;
+  &amp;lt;/parameterViolations&amp;gt;
+  &amp;lt;parameterViolations&amp;gt;
+    &amp;lt;constraintType&amp;gt;PARAMETER&amp;lt;/constraintType&amp;gt;
+    &amp;lt;path&amp;gt;newRange.arg0.min&amp;lt;/path&amp;gt;
+    &amp;lt;message&amp;gt;must be less than or equal to 1000&amp;lt;/message&amp;gt;
+    &amp;lt;value&amp;gt;1001&amp;lt;/value&amp;gt;
+  &amp;lt;/parameterViolations&amp;gt;
+&amp;lt;/violationReport&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;admonitionblock note&quot;&gt; 
+   &lt;table&gt; 
+    &lt;tbody&gt;
+     &lt;tr&gt; 
+      &lt;td class=&quot;icon&quot;&gt; &lt;i class=&quot;fa icon-note&quot; title=&quot;Note&quot;&gt;&lt;/i&gt; &lt;/td&gt; 
+      &lt;td class=&quot;content&quot;&gt; I’ve found XML descriptors also useful in other use cases, when the concerned objects/beans are third-party and not owned by the application project’s team. This is not only true for Bean Validation, but many other Jakarta EE standards. &lt;/td&gt; 
+     &lt;/tr&gt; 
+    &lt;/tbody&gt;
+   &lt;/table&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_conclusion&quot;&gt;Conclusion&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Any serious application requires the validation of input data. That’s also true for REST APIs, which need to validate the received request objects. The team JAX/RS and Bean Validation offers a lot of possibilities, when it comes to validate the input of REST APIs. Even if the JAX/RS resources and API model classes are generated - in our example with OpenAPI generators - this article demonstrated options to apply mentioned Jakarta EE standards.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;While the CDI based, Java code only solution works well and offers sufficient results for many projects, the solution applying XML deployment descriptors is best from an API’s user point of view. IMHO, there’s rarely a need to mix business code with validation logic and worsen the usability of the API.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>OpenApi generated JAX/RS Service: JAX/RS Context</title>
       <link>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-context.html</link>
@@ -514,7 +1034,7 @@ end legend
 	</description>
     </item>
     <item>
-      <title>OpenApi generated JAX/RS Service: Binary Encoding</title>
+      <title>OpenAPI generated JAX/RS Service: Binary Encoding</title>
       <link>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-encoding-configuration.html</link>
       <pubDate>Mon, 24 Feb 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/openapi-jaxrs-encoding-configuration.html</guid>
