@@ -6,9 +6,120 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sun, 19 Apr 2020 13:28:55 +0200</pubDate>
-    <lastBuildDate>Sun, 19 Apr 2020 13:28:55 +0200</lastBuildDate>
+    <pubDate>Sun, 17 May 2020 11:55:58 +0200</pubDate>
+    <lastBuildDate>Sun, 17 May 2020 11:55:58 +0200</lastBuildDate>
 
+    <item>
+      <title>Cloud-native Java</title>
+      <link>https://guntherrotsch.github.io/blog_2020/containerized-java-app.html</link>
+      <pubDate>Sun, 17 May 2020 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2020/containerized-java-app.html</guid>
+      	<description>
+	&lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;&amp;nbsp;&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Migrating to the cloud by just replacing machines of the own data-center by virtual machines in the cloud, does not provide much benefit, neither regarding costs nor in terms of administration effort. Therefor, the utilization of container orchestration platforms like Kubernetes or OpenShift is assumed in the following - if not even talking about FaaS or Serverless, the latest hype in cloud technologies.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Container orchestration platforms works best for MicroService architectures, ie. the shift to the cloud may have impact on the application architecture. Because this blog post wants to focus on the Java platform for cloud deployments, applications are assumed to be designed in a service-oriented way already.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_competitors&quot;&gt;Competitors&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;When making a technology decision for cloud-native applications, it’s worth to start with a look at the first-class citizen of cloud application, the Golang platform. The features that make Golang stand out are speed and size - speed in terms of start-up and execution, size in terms of image size and memory requirements at runtime.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The classical Java EE environments are typically based on an application server and optimized for long-running applications, running on large servers. For such deployments start-up time and memory requirements are not that important.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_building_images&quot;&gt;Building Images&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;One advice for building production-ready container images for Golang applications is to create the images &lt;code&gt;FROM scratch&lt;/code&gt;, ie. don’t base the image of a Linux distribution. The main reason for this is not to reduce the image size, but to reduce the attack surface, which greatly improves security.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Can we do the same for Java applications? Unfortunately not, because the JDK isn’t statically linked like Golang applications are, but dynamically linked against &lt;code&gt;glibc&lt;/code&gt; or &lt;code&gt;musl&lt;/code&gt; library. These libraries are typically part of a Linux distribution.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;For a small demo application, I used the &lt;a href=&quot;https://thorntail.io/generator/&quot;&gt;Thorntail generator&lt;/a&gt; and selected the technologies &lt;code&gt;JAX-RS + CDI + JSON-B&lt;/code&gt;. After extracting the downloaded ZIP file to a folder the application can be started locally with&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;mvn thorntail:run&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;When the application server is ready the application can be used:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;gunther@gunther-K501UQ:~/Downloads$ curl localhost:8080/hello -v
+*   Trying 127.0.0.1:8080...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&amp;gt; GET /hello HTTP/1.1
+&amp;gt; Host: localhost:8080
+&amp;gt; User-Agent: curl/7.68.0
+&amp;gt; Accept: */*
+&amp;gt;
+* Mark bundle as not supporting multiuse
+&amp;lt; HTTP/1.1 200 OK
+&amp;lt; Connection: keep-alive
+&amp;lt; Content-Type: text/plain;charset=UTF-8
+&amp;lt; Content-Length: 21
+&amp;lt; Date: Sat, 02 May 2020 13:36:50 GMT
+&amp;lt;
+* Connection #0 to host localhost left intact
+Hello from Thorntail!gunther@gunther-K501UQ:~/Downloads$
+gunther@gunther-K501UQ:~/Downloads$&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The best you can do to keep the image lean is to use the OpenJDK linked against the &lt;code&gt;musl&lt;/code&gt; library. That’s the case for Alpine Linux, a distribution tailored for cloud environments. After building the application with &lt;code&gt;mvn clean install&lt;/code&gt;, the demo application can be packaged into an image by using the following &lt;code&gt;Dockerfile&lt;/code&gt;:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;FROM openjdk:14-jdk-alpine
+
+COPY target/demo-thorntail.jar /app/demo-thorntail.jar
+
+EXPOSE 8080
+
+CMD [&quot;java&quot;, &quot;-Djava.net.preferIPv4Stack=true&quot;, &quot;-Djava.net.preferIPv4Addresses=true&quot;, &quot;-jar&quot;, &quot;/app/demo-thorntail.jar&quot;]&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The resulting image size is about 450 MB. The same application packaged into an image with a Wildfly application server gives a size of about 750 MB. That’s clearly shows, that application servers are not appropriate for containerized Java payload. However, compared to about 20 MB, which is the size of a Golang image with the same functionality, the Thorntail image cannot compete.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Additionally, the start-up time of the Java EE application takes - mostly because of classpath scanning and reflection to process JEE annotations - several seconds, while the Golang application is ready to use in some milliseconds.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Because classical Java EE applications are not a good fit for cloud-native platforms, several other options arise in the Java world at this time: Eclipse MicroProfile, alternative Java EE packaging like Hammock, Micro Frameworks like Micronaut, Helidon, Spring Fu, Javalin, Spark, Ratpack, Dropwizard or Akka, native images with GraalVM, etc. The approaches to evolve the Java platform to the future could fill books. It’s almost comparable to the situation of the JavaScript world a few years ago: Lots of different frameworks with unclear future. If you go for a framework today, you might end up with a unsupported platform in a few years. Eg. the Thorntail framework, although just about 4 years old (including the life-time of its successor Wildfly Swarm), is pretty much dead (see &lt;a href=&quot;https://thorntail.io/posts/thorntail-community-announcement-on-quarkus&quot;&gt;Thorntail Community Announcement on Quarkus&lt;/a&gt;).&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_conclusion&quot;&gt;Conclusion&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The situation today is a bit ambivalent: Java is the undisputed number one programming language and platform, but not well suited for cloud native runtime environments. On the other hand everybody moves from classical on-premises servers to cloud platforms.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Because of the diversity of Java frameworks future-proof technical decisions are hard today. The best you can do from my point of view is to stay as close to JEE standards as possible. That’s the reason I’ll surely have a look at Quarkus in the near future.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>OpenApi generated JAX/RS Service: Bean Validation</title>
       <link>https://guntherrotsch.github.io/blog_2020/openapi-bean-validation.html</link>
