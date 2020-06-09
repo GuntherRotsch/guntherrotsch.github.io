@@ -1,0 +1,155 @@
+= Sharing Host File with Container
+Gunther Rotsch
+2020-06-09
+:jbake-type: post
+:jbake-tags: java, eclipse-che, eclipse-theia, docker, docker-volume, container, cloud-native
+:jbake-status: published
+:jbake-summary: Developing Cloud-native environments fosters the trend to a new kind of development environments, which are also hosted in the cloud. Beside Github's Codespaces, Eclipse Che is one of the players at this ground. To get a first impression of the new type of IDE, I tried Eclipse Theia locally using the project's pre-defined Docker image. In doing so, I learned something interesting about sharing files with containers.
+
+&nbsp;
+
+Eclipse Theia is the code editor integrated into Eclipse Che, which calls itself
+as https://www.eclipse.org/che/[The Kubernetes-Native IDE for Developer Teams].
+There are different ways to execute Eclipse Theia independent of Eclipse Che
+as described by the article
+https://eclipsesource.com/de/blogs/2019/09/25/how-to-launch-eclipse-theia/[How to launch Eclipse Theia].
+
+
+== Sharing files between host and container
+
+Starting Eclipse Theia in a pre-configured Docker container prevents you from
+complex installation procedures. As mentioned on the Eclipse Theia IDE Github
+repository, executing the IDE is as easy as submitting the command:
+
+[source]
+----
+$ docker run -it --init -p 3000:3000 \
+             -v "$(pwd):/home/project:cached" \
+             theiaide/theia-java:next
+----
+
+[NOTE]
+As Java developer I went for the Java flavored IDE, but other languages
+are available, too.
+
+The `-v` option of the Docker run command maps the current working directory
+`$(pwd)` to the `/home/project` directory, where the IDE expects the workspace
+files.
+In this case, the host files are shared with the container, ie. we
+https://docs.docker.com/storage/bind-mounts/[use bind mounts]. Although,
+the preferred mechanism for persisting data with Docker is to
+https://docs.docker.com/storage/volumes/[use volumes], the utilization of
+bind mounts is fine here.
+
+When I started the Theia container from the root directory of an existing
+Maven project, the IDE can be opened in the Browser on `http://localhost:3000`:
+
+image::/assets/img/Eclipse_Theia.png[Image: Eclipse Theia Workspace]
+
+The terminal integrated in the IDE runs a shell in the container of the IDE.
+There the files of the workspace are listed using the `ls` command. The file's
+owner are reported as `node`. However, the Maven build in IDE's terminal
+fails with:
+
+[source]
+----
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-clean-plugin:3.1.0:clean (default-clean) on project bean-validation: Failed to clean project: Failed to delete /home/project/target/generated-test-sources/test-annotations -> [Help 1]: value
+----
+
+The Maven build cannot remove the `target` folder, because the container runs
+with the user `theia`, which is apparently not the owner of the files:
+
+[source]
+----
+theia@466d3953d9e1:/home/project$ id
+uid=1001(theia) gid=1001(theia) groups=1001(theia)
+----
+
+What's also a bit confusing at the first glance is that the shell on the
+host system reports the very same files to be owned by my personal
+user `gunther`:
+
+[source]
+----
+$ ls -al
+total 40
+drwxrwxr-x  5 gunther gunther 4096 Mai 24 12:04 .
+drwxrwxr-x  4 gunther gunther 4096 Mai 20 20:00 ..
+-rw-r--r--  1 gunther gunther 1504 Apr 10 13:53 .classpath
+-rw-rw-r--  1 gunther gunther 4680 Mai 24 12:04 pom.xml
+-rw-r--r--  1 gunther gunther  544 Apr 10 12:26 .project
+-rw-rw-r--  1 gunther gunther  261 Apr 13 12:43 README.txt
+drwxr-xr-x  2 gunther gunther 4096 Apr 10 12:26 .settings
+drwxrwxr-x  4 gunther gunther 4096 Dez 17 18:29 src
+drwxr-xr-x 10 gunther gunther 4096 Mai 24 11:49 target
+----
+
+To break things up: The file permission is checked by the Linux kernel.
+The kernel does not know anything about user names, but works with user IDs
+only. The `/etc/passwd` file or LDAP integration or a similar mechanism takes
+care of mapping the user IDs to names. That explains why the `ls` command
+reports different user names as owner of shared files inside and outside
+of the container. The user `gunther` on the host system does have the same
+ID as the user `node` in the Theia container:
+
+[source]
+----
+$ id
+uid=1000(gunther) gid=1000(gunther) groups=1000(gunther),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),118(lpadmin),129(sambashare),999(microk8s),1001(docker)
+----
+
+Another fact to keep is mind is that the Linux kernel is shared between the
+host and all containers. That's, by the way, one big difference to virtual
+machines.
+
+If we want to fix the permissions, so that user running the container owns
+the shared file of the workspace, we could add the `-u` option when starting
+the container as follows:
+
+[source]
+----
+docker run -it --rm --init -p 3000:3000 \
+           -u $UID:$(id -g) \
+           -v "$(pwd):/home/project:cached" \
+           theiaide/theia-java:next
+----
+
+Now the container runs with user ID `1000`, the same ID as the user `gunther`
+on the host system:
+
+[source]
+----
+node@11e14537a344:/home/project$ id
+uid=1000(node) gid=1000(node) groups=1000(node)
+----
+
+As mentioned before, the name of the user does not matter, only its ID
+counts. The Maven build in the IDE's terminal, ie. executed by the container,
+runs successful now.
+
+[WARNING]
+After changing the user ID of the container, Eclipse Theia IDE does not
+work properly anymore. Other files inside the container are not longer
+readable or writable. Though, changing the container's user is not a
+sustainable solution to share Theia workspaces with the host.
+
+== Conclusion
+
+File permissions are checked by the Linux kernel based on the user's id,
+never considering the name of the user which belongs to the ID. Starting
+containers with a certain user ID can fix file permission issues, but
+often cause issues when containers expect to run under a particular user
+ID.
+
+
+== Links
+
+https://github.com/eclipse-theia/theia[Github - Eclipse Theia]
+
+https://www.eclipse.org/che/[Project - Eclipse Che]
+
+https://docs.docker.com/storage/bind-mounts/[Docker - Use bind mounts]
+
+https://docs.docker.com/storage/volumes/[Docker - Use volumes]
+
+https://eclipsesource.com/de/blogs/2019/09/25/how-to-launch-eclipse-theia/[Blog Post - How to launch Eclipse Theia].
