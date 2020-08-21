@@ -1,0 +1,56 @@
+<!DOCTPYE html>
+<html lag="en">
+<head>
+	<meta>
+	<title>Chat App</title>
+</head>
+<body>
+	<h1>Chat App</h1>
+	
+	<div id="history">
+	</div>
+	
+	<textarea id="inputbox" name="inputbox">
+	</textarea>
+	<button id="submitButton">Submit</button>
+	
+	<script>
+  	const evtSource = new EventSource("/chat?name={name}");
+	evtSource.onmessage = function(event) {
+		console.log("Received event: ", event);
+  		const newElement = document.createElement("li");
+  		const historyList = document.getElementById("history");
+
+		newElement.innerHTML = "message: " + event.data;
+  		historyList.appendChild(newElement);
+	}
+	evtSource.onerror = function(event) {
+		console.error("EventSource error: ", event);
+	}
+	evtSource.onclose = function(event) {
+		console.log("EventSource close event: ", event);
+	}	
+	window.onunload = function() {
+		console.log("Window on unload: Going to close the EventSource");
+    	evtSource.close();
+	};
+	
+	console.log("EventSource registered: ", evtSource)
+	
+	
+	document.getElementById("submitButton").onclick = function() {
+   		const message = document.getElementById("inputbox").value;
+		console.log("Message to sent: ", message);
+
+	    var xhttp = new XMLHttpRequest();
+    	xhttp.onreadystatechange = function() {
+        	 if (this.readyState == 4 && this.status == 200) {
+            	 alert(this.responseText);
+         	}
+    	};
+    	xhttp.open("POST", "/chat", true);
+    	xhttp.setRequestHeader("Content-type", "text/plain");
+    	xhttp.send(message);
+	}
+</script>
+</body>
