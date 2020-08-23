@@ -30,7 +30,7 @@
 	  <#list tag.tagged_posts as post>
 	    <#assign tagged_post_title = post.title>
 			<#if tagged_post_title == content.title>
-			  <span><a href="${content.rootpath}${tag.uri}">${tag.name}</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="${content.rootpath}${tag.uri}">${tag.name}</a></span>
 			</#if>
 	</#list>
 	</#list>
