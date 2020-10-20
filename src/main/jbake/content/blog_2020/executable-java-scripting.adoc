@@ -1,0 +1,155 @@
+= Executable Scripts with Java
+Gunther Rotsch
+2020-10-20
+:jbake-type: post
+:jbake-tags: java, executable, shell, scripting
+:jbake-status: published
+:jbake-summary: The more recent versions of the JDK allow running Java code from source. This can be used to create a user experience close to scripting languages. This post demonstrate how to use it and explores in addition an option applicable for older versions of Java.
+
+== Running Java from Source
+
+Since Java 11 the `java` command does have the `--source` option, which allows
+running Java code which is given in source. For demonstration purposes I'm
+using a Java 13 installation, but the sample will work with all Java
+versions >11.
+
+....
+$ java -version
+openjdk version "13.0.1" 2019-10-15
+OpenJDK Runtime Environment (build 13.0.1+9)
+OpenJDK 64-Bit Server VM (build 13.0.1+9, mixed mode, sharing)
+....
+
+When the `--source` feature is combined with the
+https://en.wikipedia.org/wiki/Shebang_(Unix)[Shebang] of modern shells like so:
+
+....
+$ cat hellojava.sh
+#!/home/gunther/.jenv/shims/java --source 11
+public class App {
+    public static void main(String ...args){
+        System.out.println("Hello, Java!");
+    }
+}
+....
+
+the file - given Posix file attributes include execute permission - can be
+executed like a shell script:
+
+[source, ]
+----
+$ ./hellojava.sh
+Hello, Java!
+----
+
+Java is still a compiled language, ie. before the _script_ starts, the Java
+compiler still need to generate the byte-code to be executed. This impacts
+the startup time of large scripts - Java applications
+are in general not known for starting quickly. Nevertheless, the `--source`
+option allows more use cases implemented with Java.
+
+.jenv
+****
+The one or the other may be wondering about the java command of the _Shebang_
+definition. It actually points to the https://github.com/jenv/jenv[jenv] tool,
+which eases management of multiple Java installations in parallel. Generally,
+the _Shebang_ command should the absolute path printed out by the `which`
+command:
+
+....
+$ which java
+/home/gunther/.jenv/shims/java
+
+$ jenv version
+openjdk64-13.0.1 (set by /home/gunther/.jenv/version)
+....
+
+If you're looking for a more portable _Shebang_ definition, you could apply
+the `env` command as follows:
+
+....
+#!/usr/bin/env -S java --source 11
+...
+....
+
+This definition executes the Java installation (first) found in the `PATH`,
+ie. the default Java installation on the system, regardless the installation
+directory.
+
+****
+
+== Before Java Version 11
+
+It becomes less relevant with every day, but there are still organizations
+supporting legacy systems that run on Java 8. In such a environment the
+`--source` option is not available. Nevertheless, there's still a way to
+package Java applications into an executable file.
+
+Let's switch to Java 8 (thanks to `jenv` this is a piece of cake :-):
+....
+$ java -version
+openjdk version "1.8.0_222"
+OpenJDK Runtime Environment (AdoptOpenJDK)(build 1.8.0_222-b10)
+OpenJDK 64-Bit Server VM (AdoptOpenJDK)(build 25.222-b10, mixed mode)
+....
+
+The Java application is the same as before, just placed into a separate file
+which follows the Java naming convention, ie. file name equals class name.
+
+....
+$ cat HelloJava.java
+
+public class HelloJava {
+
+	public static void main(String[] args) {
+		System.out.println("Hello, Java!");
+	}
+}
+$ javac -version
+javac 1.8.0_222
+
+$ javac HelloJava.java
+....
+
+Note, that for sake of simplicity the Java source and class files are in the
+current working directory, ie. the class belongs to the default package. But
+the demonstrated approach will work for any Java package structure.
+
+In the next step the compiled class is packaged into a JAR file:
+
+....
+$ cat manifest.txt
+Main-Class: HelloJava
+$ jar cvfm hellojava.jar manifest.txt HelloJava.class
+added manifest
+adding: HelloJava.class(in = 424) (out= 287)(deflated 32%)
+....
+
+Note, that the JAR's manifest defines the `HelloJava` class as entry point
+for execution.
+
+Packaged the application as described, the executable can be created by
+the following commands:
+
+....
+$ echo '#!/home/gunther/.jenv/shims/java -jar' >hellojava8.sh
+$ cat hellojava.jar >>hellojava8.sh
+$ chmod +x hellojava8.sh
+$ ./hellojava8.sh
+Hello, Java!
+$
+....
+
+Instead of placing the source code into the body of the shell script, the JAR
+file itself is appended to the _Shebang_ line, on which the `--source`
+is replaced by the `-jar` option.
+
+Though, the steps to create the _executable_ Java application can be automated,
+the scripting experience gets partly lost by the need to explicitly compile and
+package the Java classes. On the other hand, the startup time is better compared
+to the source approach.
+
+
+== Links
+
+* https://github.com/jenv/jenv[jenv]
