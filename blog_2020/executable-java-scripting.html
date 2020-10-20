@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Executable Scripts with Java</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Executable Scripts with Java</h1>
+	</div>
+
+	<p><em>20 October 2020</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>The more recent versions of the JDK allow running Java code from source. This can be used to create a user experience close to scripting languages. This post demonstrate how to use it and explores in addition an option applicable for older versions of Java.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div class="sect1"> 
+ <h2 id="_running_java_from_source">Running Java from Source</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Since Java 11 the <code>java</code> command does have the <code>--source</code> option, which allows running Java code which is given in source. For demonstration purposes I’m using a Java 13 installation, but the sample will work with all Java versions &gt;11.</p> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>$ java -version
+openjdk version "13.0.1" 2019-10-15
+OpenJDK Runtime Environment (build 13.0.1+9)
+OpenJDK 64-Bit Server VM (build 13.0.1+9, mixed mode, sharing)</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>When the <code>--source</code> feature is combined with the <a href="https://en.wikipedia.org/wiki/Shebang_(Unix)">Shebang</a> of modern shells like so:</p> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>$ cat hellojava.sh
+#!/home/gunther/.jenv/shims/java --source 11
+public class App {
+    public static void main(String ...args){
+        System.out.println("Hello, Java!");
+    }
+}</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>the file - given Posix file attributes include execute permission - can be executed like a shell script:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code>$ ./hellojava.sh
+Hello, Java!</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Java is still a compiled language, ie. before the <em>script</em> starts, the Java compiler still need to generate the byte-code to be executed. This impacts the startup time of large scripts - Java applications are in general not known for starting quickly. Nevertheless, the <code>--source</code> option allows more use cases implemented with Java.</p> 
+  </div> 
+  <div class="sidebarblock"> 
+   <div class="content"> 
+    <div class="title">
+     jenv
+    </div> 
+    <div class="paragraph"> 
+     <p>The one or the other may be wondering about the java command of the <em>Shebang</em> definition. It actually points to the <a href="https://github.com/jenv/jenv">jenv</a> tool, which eases management of multiple Java installations in parallel. Generally, the <em>Shebang</em> command should the absolute path printed out by the <code>which</code> command:</p> 
+    </div> 
+    <div class="literalblock"> 
+     <div class="content"> 
+      <pre>$ which java
+/home/gunther/.jenv/shims/java
+
+$ jenv version
+openjdk64-13.0.1 (set by /home/gunther/.jenv/version)</pre> 
+     </div> 
+    </div> 
+    <div class="paragraph"> 
+     <p>If you’re looking for a more portable <em>Shebang</em> definition, you could apply the <code>env</code> command as follows:</p> 
+    </div> 
+    <div class="literalblock"> 
+     <div class="content"> 
+      <pre>#!/usr/bin/env -S java --source 11
+...</pre> 
+     </div> 
+    </div> 
+    <div class="paragraph"> 
+     <p>This definition executes the Java installation (first) found in the <code>PATH</code>, ie. the default Java installation on the system, regardless the installation directory.</p> 
+    </div> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_before_java_version_11">Before Java Version 11</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>It becomes less relevant with every day, but there are still organizations supporting legacy systems that run on Java 8. In such a environment the <code>--source</code> option is not available. Nevertheless, there’s still a way to package Java applications into an executable file.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Let’s switch to Java 8 (thanks to <code>jenv</code> this is a piece of cake :-):</p> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>$ java -version
+openjdk version "1.8.0_222"
+OpenJDK Runtime Environment (AdoptOpenJDK)(build 1.8.0_222-b10)
+OpenJDK 64-Bit Server VM (AdoptOpenJDK)(build 25.222-b10, mixed mode)</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The Java application is the same as before, just placed into a separate file which follows the Java naming convention, ie. file name equals class name.</p> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>$ cat HelloJava.java
+
+public class HelloJava {
+
+	public static void main(String[] args) {
+		System.out.println("Hello, Java!");
+	}
+}
+$ javac -version
+javac 1.8.0_222
+
+$ javac HelloJava.java</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Note, that for sake of simplicity the Java source and class files are in the current working directory, ie. the class belongs to the default package. But the demonstrated approach will work for any Java package structure.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>In the next step the compiled class is packaged into a JAR file:</p> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>$ cat manifest.txt
+Main-Class: HelloJava
+$ jar cvfm hellojava.jar manifest.txt HelloJava.class
+added manifest
+adding: HelloJava.class(in = 424) (out= 287)(deflated 32%)</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Note, that the JAR’s manifest defines the <code>HelloJava</code> class as entry point for execution.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Packaged the application as described, the executable can be created by the following commands:</p> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>$ echo '#!/home/gunther/.jenv/shims/java -jar' &gt;hellojava8.sh
+$ cat hellojava.jar &gt;&gt;hellojava8.sh
+$ chmod +x hellojava8.sh
+$ ./hellojava8.sh
+Hello, Java!
+$</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Instead of placing the source code into the body of the shell script, the JAR file itself is appended to the <em>Shebang</em> line, on which the <code>--source</code> is replaced by the <code>-jar</code> option.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Though, the steps to create the <em>executable</em> Java application can be automated, the scripting experience gets partly lost by the need to explicitly compile and package the Java classes. On the other hand, the startup time is better compared to the source approach.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_links">Links</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://github.com/jenv/jenv">jenv</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/shell.html">shell</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/executable.html">executable</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/scripting.html">scripting</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>

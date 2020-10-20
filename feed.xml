@@ -6,9 +6,175 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sun, 23 Aug 2020 19:26:15 +0200</pubDate>
-    <lastBuildDate>Sun, 23 Aug 2020 19:26:15 +0200</lastBuildDate>
+    <pubDate>Tue, 20 Oct 2020 19:03:29 +0200</pubDate>
+    <lastBuildDate>Tue, 20 Oct 2020 19:03:29 +0200</lastBuildDate>
 
+    <item>
+      <title>Executable Scripts with Java</title>
+      <link>https://guntherrotsch.github.io/blog_2020/executable-java-scripting.html</link>
+      <pubDate>Tue, 20 Oct 2020 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2020/executable-java-scripting.html</guid>
+      	<description>
+	&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_running_java_from_source&quot;&gt;Running Java from Source&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Since Java 11 the &lt;code&gt;java&lt;/code&gt; command does have the &lt;code&gt;--source&lt;/code&gt; option, which allows running Java code which is given in source. For demonstration purposes I’m using a Java 13 installation, but the sample will work with all Java versions &amp;gt;11.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;$ java -version
+openjdk version &quot;13.0.1&quot; 2019-10-15
+OpenJDK Runtime Environment (build 13.0.1+9)
+OpenJDK 64-Bit Server VM (build 13.0.1+9, mixed mode, sharing)&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;When the &lt;code&gt;--source&lt;/code&gt; feature is combined with the &lt;a href=&quot;https://en.wikipedia.org/wiki/Shebang_(Unix)&quot;&gt;Shebang&lt;/a&gt; of modern shells like so:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;$ cat hellojava.sh
+#!/home/gunther/.jenv/shims/java --source 11
+public class App {
+    public static void main(String ...args){
+        System.out.println(&quot;Hello, Java!&quot;);
+    }
+}&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;the file - given Posix file attributes include execute permission - can be executed like a shell script:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ ./hellojava.sh
+Hello, Java!&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Java is still a compiled language, ie. before the &lt;em&gt;script&lt;/em&gt; starts, the Java compiler still need to generate the byte-code to be executed. This impacts the startup time of large scripts - Java applications are in general not known for starting quickly. Nevertheless, the &lt;code&gt;--source&lt;/code&gt; option allows more use cases implemented with Java.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sidebarblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;div class=&quot;title&quot;&gt;
+     jenv
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;The one or the other may be wondering about the java command of the &lt;em&gt;Shebang&lt;/em&gt; definition. It actually points to the &lt;a href=&quot;https://github.com/jenv/jenv&quot;&gt;jenv&lt;/a&gt; tool, which eases management of multiple Java installations in parallel. Generally, the &lt;em&gt;Shebang&lt;/em&gt; command should the absolute path printed out by the &lt;code&gt;which&lt;/code&gt; command:&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;literalblock&quot;&gt; 
+     &lt;div class=&quot;content&quot;&gt; 
+      &lt;pre&gt;$ which java
+/home/gunther/.jenv/shims/java
+
+$ jenv version
+openjdk64-13.0.1 (set by /home/gunther/.jenv/version)&lt;/pre&gt; 
+     &lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;If you’re looking for a more portable &lt;em&gt;Shebang&lt;/em&gt; definition, you could apply the &lt;code&gt;env&lt;/code&gt; command as follows:&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;literalblock&quot;&gt; 
+     &lt;div class=&quot;content&quot;&gt; 
+      &lt;pre&gt;#!/usr/bin/env -S java --source 11
+...&lt;/pre&gt; 
+     &lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;This definition executes the Java installation (first) found in the &lt;code&gt;PATH&lt;/code&gt;, ie. the default Java installation on the system, regardless the installation directory.&lt;/p&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_before_java_version_11&quot;&gt;Before Java Version 11&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;It becomes less relevant with every day, but there are still organizations supporting legacy systems that run on Java 8. In such a environment the &lt;code&gt;--source&lt;/code&gt; option is not available. Nevertheless, there’s still a way to package Java applications into an executable file.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Let’s switch to Java 8 (thanks to &lt;code&gt;jenv&lt;/code&gt; this is a piece of cake :-):&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;$ java -version
+openjdk version &quot;1.8.0_222&quot;
+OpenJDK Runtime Environment (AdoptOpenJDK)(build 1.8.0_222-b10)
+OpenJDK 64-Bit Server VM (AdoptOpenJDK)(build 25.222-b10, mixed mode)&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Java application is the same as before, just placed into a separate file which follows the Java naming convention, ie. file name equals class name.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;$ cat HelloJava.java
+
+public class HelloJava {
+
+	public static void main(String[] args) {
+		System.out.println(&quot;Hello, Java!&quot;);
+	}
+}
+$ javac -version
+javac 1.8.0_222
+
+$ javac HelloJava.java&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Note, that for sake of simplicity the Java source and class files are in the current working directory, ie. the class belongs to the default package. But the demonstrated approach will work for any Java package structure.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;In the next step the compiled class is packaged into a JAR file:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;$ cat manifest.txt
+Main-Class: HelloJava
+$ jar cvfm hellojava.jar manifest.txt HelloJava.class
+added manifest
+adding: HelloJava.class(in = 424) (out= 287)(deflated 32%)&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Note, that the JAR’s manifest defines the &lt;code&gt;HelloJava&lt;/code&gt; class as entry point for execution.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Packaged the application as described, the executable can be created by the following commands:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;$ echo &apos;#!/home/gunther/.jenv/shims/java -jar&apos; &amp;gt;hellojava8.sh
+$ cat hellojava.jar &amp;gt;&amp;gt;hellojava8.sh
+$ chmod +x hellojava8.sh
+$ ./hellojava8.sh
+Hello, Java!
+$&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Instead of placing the source code into the body of the shell script, the JAR file itself is appended to the &lt;em&gt;Shebang&lt;/em&gt; line, on which the &lt;code&gt;--source&lt;/code&gt; is replaced by the &lt;code&gt;-jar&lt;/code&gt; option.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Though, the steps to create the &lt;em&gt;executable&lt;/em&gt; Java application can be automated, the scripting experience gets partly lost by the need to explicitly compile and package the Java classes. On the other hand, the startup time is better compared to the source approach.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://github.com/jenv/jenv&quot;&gt;jenv&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Cloud-native Java with Quarkus</title>
       <link>https://guntherrotsch.github.io/blog_2020/quarkus-first-steps.html</link>
