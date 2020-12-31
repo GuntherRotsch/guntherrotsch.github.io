@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Dependency Injection Without Framework</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Dependency Injection Without Framework</h1>
+	</div>
+
+	<p><em>31 December 2020</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>Dependency injection is often named in one breath with technologies like Spring or Jakarta EE's CDI. But dependency injection is a Software design principle, which is not equal to a particular technology.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div class="sect1"> 
+ <h2 id="_dependency_injection">Dependency Injection</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Dependency injection (DI) is a Software design principle that rules to provide dependencies of a component (a.k.a. collaborators) independent of the component’s business logic, i.e. there’s a clear separation of the concerns</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>business logic</p> </li> 
+    <li> <p>resolution of dependencies</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Dependency Injection also means, that the component is not responsible for the creation of components it depends on. Do get a better grip on these theoretical considerations, let’s look at some simplified sample code to illustrate the principle.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Without dependency injection a component could be defined like:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class Foo {
+
+   private A a;
+   private B b;
+
+   public Foo() {
+      this.a = new A();
+   }
+
+   public void bar() {
+      C c = new C();
+      c.doSomething();
+   }
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The component <code>Foo</code> depends on the components <code>A</code>, <code>B</code>, and <code>C</code>. These depending components are created in the constructor respectively the (business) method <code>bar</code>.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>When introducing dependency injection the component’s definition could look like:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class Foo {
+
+   private A a;
+   private B b;
+   private C c;
+
+   public Foo(A a, B b, C c) {
+      this.a = a;
+      this.b = b;
+      this.c = c;
+   }
+
+   public void bar() {
+      c.doSomething();
+   }
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The constructor takes instances of its collaborators, the business logic just relies on them. That separates behavior from dependency resolution. In simpler words, it allows the developer to define classes with specific functionality that depends on various collaborators, without having to define how reference to these collaborator will be obtained. In that way, decoupling among the various components is achieved and cleaner code is introduced in general.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Dependency injection also fosters the testability of the components. In particular, unit tests usually require that collaborators are mocked. With dependency injection as shown above, the mocked collaborators can be handed over to the constructor easily. In contrast, when the component creates its collaborators and hard-codes the dependencies, it’s nearly impossible to develop unit tests for the component.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_relation_to_inversion_of_control">Relation to Inversion of Control</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Often Dependency Injection (DI) and Inversion of Control (IoC) are named at once. Are DI and IoC just a different name for the same thing? well, that’s not the case.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>IoC is a much broader concept, which says that the flow of control is reversed. Frameworks designed according to IoC follows the <em>Hollywood Principle</em>, which is characterized by the statement "Don’t call us, we’ll call you": Application code does not call the framework (as it would when using libraries), but the framework calls the application code appropriately. This design concept assists in the development of code with high cohesion and low coupling that is easier to debug, maintain and test.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Dependency injection is just a specific form of inversion of control where the concern being inverted is the process of obtaining the needed dependency.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_dependency_injection_frameworks">Dependency Injection Frameworks</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>In the introduction the mixing of software design principle and implementing technology was mentioned. And it’s true that Spring, Guice, CDI (to name just the most prominent DI frameworks) are in widespread use in projects.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>However, every framework used by a project creates a dependency that might make maintenance and migration of the developed application to another platform harder. For that reason, for small projects it could be an option to resign usage of a DI framework entirely.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Typical business applications follow a <em>Boundary-Control-Entity (BCE)</em> design, in which case the boundary layer receives requests. In short, the boundary should host the assembling of all components that process the request. The assembled/created components gets their dependencies injected.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_types_of_dependency_injection">Types of Dependency Injection</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Constructor injection as shown above is just one way to implement dependency injection. Dependency injection frameworks usually offers various options to inject dependencies, which are</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>constructor</p> </li> 
+    <li> <p>field</p> </li> 
+    <li> <p>setter</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>injection.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Which one to use is often subject of heated debates. But I recommend constructor injection for several reasons:</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p>it’s the most natural way to provide dependencies in a Java SE environment, i.e. <strong>not</strong> using a framework</p> </li> 
+    <li> <p>required dependencies are communicated to the user of the component by means of the Java language</p> </li> 
+    <li> <p>it prevents collaborators from being left to <code>null</code> and getting <code>NullPointerException</code> at runtime (see link below)</p> </li> 
+    <li> <p>the number of arguments passed into the constructor signals if a component depends on <strong>too many</strong> collaborators (avoiding "God" classes) - can be easily checked by Sonarqube or other static code analysis tool</p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>But, regardless which DI type you decide to use in your project, it’s crucial to design software with dependency injection in mind. The maintainer of your software will appreciate it very much - please keep in mind that this could be you :-).</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_links">Links</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://www.martinfowler.com/articles/injection.html">Martin Fowler: Inversion of Control Containers and the Dependency Injection pattern</a></p> </li> 
+    <li> <p><a href="http://olivergierke.de/2013/11/why-field-injection-is-evil/">Oliver Gierke: Why field injection is evil</a> ​</p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/software-design.html">software-design</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/dependency-injection.html">dependency-injection</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>

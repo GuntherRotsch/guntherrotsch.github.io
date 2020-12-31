@@ -9,7 +9,11 @@
         <lastmod>2020-01-14</lastmod>
     </url>
     <url>
-        <loc>https://guntherrotsch.github.io/blog_2020/containerized-java-app.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/di-without-framework.html</loc>
+        <lastmod>2020-12-31</lastmod>
+    </url>
+    <url>
+        <loc>https://guntherrotsch.github.io/blog_2020/maven-classpath.html</loc>
         <lastmod>2020-11-22</lastmod>
     </url>
     <url>
@@ -25,7 +29,7 @@
         <lastmod>2020-06-09</lastmod>
     </url>
     <url>
-        <loc>https://guntherrotsch.github.io/blog_2020/maven-classpath.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/containerized-java-app.html</loc>
         <lastmod>2020-05-17</lastmod>
     </url>
     <url>
