@@ -1,0 +1,153 @@
+= Dependency Injection Without Framework
+Gunther Rotsch
+2020-12-31
+:jbake-type: post
+:jbake-tags: java, dependency-injection, software-design
+:jbake-status: published
+:jbake-summary: Dependency injection is often named in one breath with technologies like Spring or Jakarta EE's CDI. But dependency injection is a Software design principle, which is not equal to a particular technology.
+
+
+== Dependency Injection
+
+Dependency injection (DI) is a Software design principle that rules to provide
+dependencies of a component (a.k.a. collaborators) independent of the
+component's business logic, i.e. there's a clear separation of the concerns
+
+- business logic
+- resolution of dependencies
+
+Dependency Injection also means, that the component is not responsible for
+the creation of components it depends on. Do get a better grip on these
+theoretical considerations, let's look at some simplified sample code to
+illustrate the principle.
+
+Without dependency injection a component could be defined like:
+
+[source, java]
+----
+public class Foo {
+
+   private A a;
+   private B b;
+
+   public Foo() {
+      this.a = new A();
+   }
+
+   public void bar() {
+      C c = new C();
+      c.doSomething();
+   }
+}
+----
+
+The component `Foo` depends on the components `A`, `B`, and `C`. These
+depending components are created in the constructor respectively the (business)
+method `bar`.
+
+When introducing dependency injection the component's definition could look like:
+
+[source, java]
+----
+public class Foo {
+
+   private A a;
+   private B b;
+   private C c;
+
+   public Foo(A a, B b, C c) {
+      this.a = a;
+      this.b = b;
+      this.c = c;
+   }
+
+   public void bar() {
+      c.doSomething();
+   }
+}
+----
+
+The constructor takes instances of its collaborators, the business logic just
+relies on them. That separates behavior from dependency resolution. In simpler
+words, it allows the developer to define classes with specific functionality
+that depends on various collaborators, without having to define how reference
+to these collaborator will be obtained. In that way, decoupling among the
+various components is achieved and cleaner code is introduced in general.
+
+Dependency injection also fosters the testability of the components. In
+particular, unit tests usually require that collaborators are mocked. With
+dependency injection as shown above, the mocked collaborators can be handed
+over to the constructor easily. In contrast, when the component creates its
+collaborators and hard-codes the dependencies, it's nearly impossible to
+develop unit tests for the component.
+
+== Relation to Inversion of Control
+
+Often Dependency Injection (DI) and Inversion of Control (IoC) are named at
+once. Are DI and IoC just a different name for the same thing? well, that's
+not the case.
+
+IoC is a much broader concept, which says that the flow of control is reversed.
+Frameworks designed according to IoC follows the _Hollywood Principle_, which
+is characterized by the statement "Don't call us, we'll call you": Application
+code does not call the framework (as it would when using libraries), but the
+framework calls the application code appropriately. This design concept assists
+in the development of code with high cohesion and low coupling that is easier
+to debug, maintain and test.
+
+Dependency injection is just a specific form of inversion of control where
+the concern being inverted is the process of obtaining the needed dependency.
+
+== Dependency Injection Frameworks
+
+In the introduction the mixing of software design principle and implementing
+technology was mentioned. And it's true that Spring, Guice, CDI (to name
+just the most prominent DI frameworks) are in widespread use in projects.
+
+However, every framework used by a project creates a dependency that might
+make maintenance and migration of the developed application to another
+platform harder. For that reason, for small projects it could be an option
+to resign usage of a DI framework entirely.
+
+Typical business applications follow a _Boundary-Control-Entity (BCE)_ design,
+in which case the boundary layer receives requests. In short, the boundary
+should host the assembling of all components that process the request. The
+assembled/created components gets their dependencies injected.
+
+== Types of Dependency Injection
+
+Constructor injection as shown above is just one way to implement dependency
+injection. Dependency injection frameworks usually offers various options to
+inject dependencies, which are
+
+- constructor
+- field
+- setter
+
+injection.
+
+Which one to use is often subject of heated debates. But I recommend
+constructor injection for several reasons:
+
+- it's the most natural way to provide dependencies in a Java SE environment,
+i.e. *not* using a framework
+- required dependencies are communicated to the user of the component by
+means of the Java language
+- it prevents collaborators from being left to `null` and getting
+`NullPointerException` at runtime (see link below)
+- the number of arguments passed into the constructor signals if a component
+depends on *too many* collaborators (avoiding "God" classes) - can be easily
+checked by Sonarqube or other static code analysis tool
+
+But, regardless which DI type you decide to use in your project, it's crucial
+to design software with dependency injection in mind. The maintainer of your
+software will appreciate it very much - please keep in mind that this could
+be you :-).
+
+== Links
+
+- https://www.martinfowler.com/articles/injection.html[Martin Fowler: Inversion
+of Control Containers and the Dependency Injection pattern]
+- http://olivergierke.de/2013/11/why-field-injection-is-evil/[Oliver Gierke: Why
+field injection is evil]
+​
