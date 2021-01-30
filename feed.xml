@@ -6,9 +6,276 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Thu, 31 Dec 2020 11:51:52 +0100</pubDate>
-    <lastBuildDate>Thu, 31 Dec 2020 11:51:52 +0100</lastBuildDate>
+    <pubDate>Sat, 30 Jan 2021 17:28:25 +0100</pubDate>
+    <lastBuildDate>Sat, 30 Jan 2021 17:28:25 +0100</lastBuildDate>
 
+    <item>
+      <title>Wildfly Bootable JAR</title>
+      <link>https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar.html</link>
+      <pubDate>Sat, 30 Jan 2021 00:00:00 +0100</pubDate>
+      <guid isPermaLink="false">blog_2021/wildfly-bootable-jar.html</guid>
+      	<description>
+	&lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;&amp;nbsp;&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Wildfly does not even implement the Jakarta EE standard, but also supports Eclipse Microprofile, which benefits developments for the cloud. In the last months the project also introduced a way to package a WildFly application as a bootable JAR (also known as a &quot;fat JAR&quot;). Bootable JAR packaging is well suited for microservices to be run on cloud and bare metal.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The packaging as single JAR allows to create a &lt;em&gt;just enough&lt;/em&gt; application server, that contains only the features required by the application. This server is then bundled together with the application into a single JAR. The &lt;a href=&quot;https://docs.wildfly.org/galleon/&quot;&gt;Galleon&lt;/a&gt; technology with server trimming capabilities have made a bootable JAR for WildFly a valid solution. WildFly defines a set of Galleon layers that can be combined to tailor the server to your application needs.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_maven_plugin_setup&quot;&gt;Maven Plugin Setup&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Wildfly JAR Maven Plugin is the easiest way to apply the new technology. A basic configuration for a simple REST API server of the plugin combines the predefined Wildfly layers &lt;code&gt;jaxrs&lt;/code&gt; and &lt;code&gt;management&lt;/code&gt; for example:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;build&amp;gt;
+    ...
+    &amp;lt;plugins&amp;gt;
+        &amp;lt;plugin&amp;gt;
+            &amp;lt;groupId&amp;gt;org.wildfly.plugins&amp;lt;/groupId&amp;gt;
+            &amp;lt;artifactId&amp;gt;wildfly-jar-maven-plugin&amp;lt;/artifactId&amp;gt;
+            &amp;lt;configuration&amp;gt;
+                &amp;lt;feature-pack-location&amp;gt;wildfly@maven(org.jboss.universe:community-universe)#${version.server.bom}&amp;lt;/feature-pack-location&amp;gt;
+                &amp;lt;layers&amp;gt;
+                    &amp;lt;layer&amp;gt;jaxrs&amp;lt;/layer&amp;gt;
+                    &amp;lt;layer&amp;gt;management&amp;lt;/layer&amp;gt;
+                &amp;lt;/layers&amp;gt;
+                &amp;lt;excluded-layers&amp;gt;
+                    &amp;lt;layer&amp;gt;deployment-scanner&amp;lt;/layer&amp;gt;
+                &amp;lt;/excluded-layers&amp;gt;
+            &amp;lt;/configuration&amp;gt;
+            &amp;lt;executions&amp;gt;
+                &amp;lt;execution&amp;gt;
+                    &amp;lt;goals&amp;gt;
+                        &amp;lt;goal&amp;gt;package&amp;lt;/goal&amp;gt;
+                    &amp;lt;/goals&amp;gt;
+                &amp;lt;/execution&amp;gt;
+            &amp;lt;/executions&amp;gt;
+        &amp;lt;/plugin&amp;gt;
+    &amp;lt;/plugins&amp;gt;
+&amp;lt;/build&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The &lt;code&gt;feature-pack-location&lt;/code&gt; element defines where the feature can be fetched from, in this case the plugin retrieves the features from a Maven repository. But locations in local file system are also possible for custom features.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;You can find a sample Maven project of a simple JAX/RS server on my &lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-jar&quot;&gt;Github repository&lt;/a&gt;. After starting the application submitting &lt;code&gt;mvn wildfly-jar:run&lt;/code&gt;, you can test it from another shell with:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/hello
+Hello from Wildfly JAR&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Please note, that the single Fat JAR deployment works without context path. The application server’s port &lt;code&gt;8080&lt;/code&gt; is the default. The bootable JAR created by the plugin supports the main WildFly standalone server startup arguments, e.g. for changing the server port.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Maven plugin offers a lot of functionality and options to configure the packaged artifact, e.g.:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;Supports WildFly Galleon layers to create a use-case tailored bootable JAR.&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Supports WildFly CLI script execution to fine tune your server during build (configure security, logging, …​).&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Supports the ability to package extra content inside the bootable JAR (e.g.: a keystore)&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Supports the creation of a &quot;hollow&quot; JAR (a JAR containing only the WildFly server, the application to deploy being provided at runtime).&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Offers a &quot;dev&quot; mode to speed-up development by skipping the bootable JAR re-build.&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Offers goals to start and shutdown a bootable JAR.&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Some of the feature are examined in the following.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_development_mode&quot;&gt;Development Mode&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;In order to create a nice developer experience many frameworks and tools nowadays provide a development mode of some kind, e.g. Quarkus allows to start the application and supports &lt;em&gt;hot code replacement&lt;/em&gt; during development. The development mode of the Wildfly JAR Plugin behaves almost the same. It can be started with:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ mvn wildfly-jar:dev-watch
+
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -------------------&amp;lt; net.gunther.wildfly:jaxrs-jar &amp;gt;--------------------
+[INFO] Building jaxrs-jar 1.0-SNAPSHOT
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO]
+[INFO] --- wildfly-jar-maven-plugin:3.0.2.Final:dev-watch (default-cli) @ jaxrs-jar ---
+[INFO] Dev mode, adding layer management to ensure dev mode can be operated
+[INFO] Provisioning server configuration based on the set of configured layers
+[INFO] Building server based on [[wildfly@maven(org.jboss.universe:community-universe)#22.0.0.Final inherit-packages=false inheritConfigs=false]] galleon feature-packs
+[INFO] Found boot artifact org.wildfly.core:wildfly-jar-boot:jar:14.0.0.Final:provided in wildfly-core@maven(org.jboss.universe:community-universe):current#14.0.0.Final
+Jan 28, 2021 7:53:07 PM org.wildfly.core.embedded.LoggerContext$JBossLoggingModuleLogger greeting
+INFO: JBoss Modules version 1.11.0.Final
+Jan 28, 2021 7:53:07 PM org.jboss.msc.service.ServiceContainerImpl &amp;lt;clinit&amp;gt;
+INFO: JBoss MSC version 1.4.12.Final
+Jan 28, 2021 7:53:07 PM org.jboss.threads.Version &amp;lt;clinit&amp;gt;
+INFO: JBoss Threads version 2.3.2.Final
+Jan 28, 2021 7:53:07 PM org.jboss.as.server.ApplicationServerService start
+INFO: WFLYSRV0049: WildFly Full 22.0.0.Final (WildFly Core 14.0.0.Final) starting
+...&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;When a change of some sources is detected by the plugin, a re-deployment is initiated. In that case you’ll find logged output like the following on the console:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;...
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 2 source files to /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/classes
+[INFO] Exploding webapp
+[INFO] Assembling webapp [jaxrs-jar] in [/home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/deployments/ROOT.war]
+[INFO] Processing war project
+[INFO] Webapp assembled in [5 msecs]
+...&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The development mode creates a nice user experience, increases productivity and can easily replace custom tools like &lt;a href=&quot;https://github.com/AdamBien/wad&quot;&gt;&quot;Watch and Deploy&quot; by Adam Bien&lt;/a&gt;.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_hollow_jar&quot;&gt;Hollow JAR&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Wildfly JAR Maven Plugin assembles, depending on its configuration, different artifact packages. By default a single Fat JAR containing the server features as well as the application classes is created. But for containerized deployments it can be beneficial to separate the server parts from the application. The idea behind is that the server does not change very often, but during development the application classes do. Keeping the server in an image layer and putting the application on top of that in a separate layer, usually improves the performance of building the application image.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Configuring the Wildfly JAR plugin to create a so-called Hollow JAR is as easy as adding the following to the plugin configuration:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;    &amp;lt;hollow-jar&amp;gt;true&amp;lt;/hollow-jar&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Hollow JAR configuration creates two artifacts, the server’s Hollow JAR and the application WAR.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;While the application packaged as single Fat JAR can be started by&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;$ java -jar target/wildfly-bootable.jar&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;the Hollow JAR application is started by&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;$ java -jar target/wildfly-bootable.jar --deployment=target/wildfly.war&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;In the case of the Hollow JAR the application is deployed with context path, which need to be provided when testing the application:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/wildfly/hello
+Hello from Wildfly JAR&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;To get rid of the context path when using Hollow JAR, the application need to be provided as &lt;code&gt;ROOT.war&lt;/code&gt;.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_server_configuration&quot;&gt;Server Configuration&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Wildfly application server gets the configuration from a &lt;code&gt;standalone.xml&lt;/code&gt; file in &lt;code&gt;$JBOSS_HOME/standalone/configuration&lt;/code&gt; directory. Manually modifying this file was never a good idea (and in addition requires to stop the server). If you’ve worked (as recommended) with JBoss CLI scripts so far, then you migration to Wildfly bootable JAR is pretty easy: The Wildfly JAR Maven Plugin supports CLI scripts to be executed during the packaging of the JAR. You just need to add references to CLI properties and script files to the plugin’s configuration. For example:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;    &amp;lt;cli-sessions&amp;gt;
+        &amp;lt;cli-session&amp;gt;
+            &amp;lt;script-files&amp;gt;
+                &amp;lt;script&amp;gt;scripts/logging.cli&amp;lt;/script&amp;gt;
+            &amp;lt;/script-files&amp;gt;
+            &amp;lt;properties-file&amp;gt;scripts/cli.properties&amp;lt;/properties-file&amp;gt;
+            &amp;lt;resolve-expressions&amp;gt;true&amp;lt;/resolve-expressions&amp;gt;
+        &amp;lt;/cli-session&amp;gt;
+    &amp;lt;/cli-sessions&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The CLI properties (&lt;code&gt;cli.properties&lt;/code&gt;) are for example:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;keystore.path=/etc/wf-secrets/keystore.jks
+keystore.password=password
+undertow.server=default-server
+config.path=/etc/config
+config.ordinal=200&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;And CLI commands to configure the logging subsystem (&lt;code&gt;logging.cli&lt;/code&gt;) are for example:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;/subsystem=logging/logger=net.gunther.wildfly.demo:add(level=ALL)
+/subsystem=logging/json-formatter=json-formatter:add(exception-output-type=formatted, pretty-print=false, meta-data={version=&quot;1&quot;}, key-overrides={timestamp=&quot;@timestamp&quot;})
+/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=ALL)
+/subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter, value=json-formatter)&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;After re-building the application the messages are logged in JSON format:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;...
+{&quot;@timestamp&quot;:&quot;2021-01-28T19:45:13.323+01:00&quot;,&quot;sequence&quot;:34,&quot;loggerClassName&quot;:&quot;org.slf4j.impl.Slf4jLogger&quot;,&quot;loggerName&quot;:&quot;net.gunther.wildfly.demo.app.HelloResource&quot;,&quot;level&quot;:&quot;DEBUG&quot;,&quot;message&quot;:&quot;GET HelloResource called.&quot;,&quot;threadName&quot;:&quot;default task-1&quot;,&quot;threadId&quot;:65,&quot;mdc&quot;:{},&quot;ndc&quot;:&quot;&quot;,&quot;hostName&quot;:&quot;gunther-k501uq&quot;,&quot;processName&quot;:&quot;wildfly-bootable.jar&quot;,&quot;processId&quot;:32887,&quot;version&quot;:&quot;1&quot;}
+...&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_summary&quot;&gt;Summary&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Wildfly Bootable JAR offers a great option when you are on the course of moving applications into the cloud. The fact that the entire ecosystem of the Wildfly technology can be used (e.g. CLI configuration) in combination with a packaging more appropriate for cloud deployments, makes it in particular interesting for teams already working with Wildfly.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://docs.wildfly.org/bootablejar/&quot;&gt;WildFly Bootable JAR Documentation&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://docs.wildfly.org/22/Bootable_Guide.html&quot;&gt;Wildfly Bootable JAR Guide&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://docs.wildfly.org/galleon/&quot;&gt;Galleon Documentation&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://github.com/AdamBien/wad&quot;&gt;&quot;Watch and Deploy&quot; Tool by Adam Bien&lt;/a&gt;.&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;​&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Dependency Injection Without Framework</title>
       <link>https://guntherrotsch.github.io/blog_2020/di-without-framework.html</link>
