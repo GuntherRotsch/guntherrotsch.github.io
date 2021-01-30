@@ -1,0 +1,265 @@
+= Wildfly Bootable JAR
+Gunther Rotsch
+2021-01-30
+:jbake-type: post
+:jbake-tags: java, jakarta-ee, maven, wildfly, microprofile, cloud-native
+:jbake-status: published
+:jbake-summary: The JBoss/Wildfly ecosystem is very rich and popular in enterprise computing. But targeting cloud platforms the application server approach is not appropriate. Single (FAT) JAR packaging is much more common for containerized deployments. After the end of Thorntail the Wildfly project offers with "Wildfly Bootable JAR" a new deployment option of this kind.
+
+&nbsp;
+
+Wildfly does not even implement the Jakarta EE standard, but also supports
+Eclipse Microprofile, which benefits developments for the cloud. In the last
+months the project also introduced a way to package a WildFly application as a
+bootable JAR (also known as a "fat JAR"). Bootable JAR packaging is well suited
+for microservices to be run on cloud and bare metal.
+
+The packaging as single JAR allows to create a _just enough_ application
+server, that contains only the features required by the application. This
+server is then bundled together with the application into a single JAR.
+The https://docs.wildfly.org/galleon/[Galleon] technology with server trimming
+capabilities have made a bootable JAR for WildFly a valid solution.
+WildFly defines a set of Galleon layers that can be combined to tailor the
+server to your application needs.
+
+== Maven Plugin Setup
+
+The Wildfly JAR Maven Plugin is the easiest way to apply the new technology.
+A basic configuration for a simple REST API server of the plugin combines
+the predefined Wildfly layers `jaxrs` and `management` for example:
+
+[source, xml]
+----
+<build>
+    ...
+    <plugins>
+        <plugin>
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-jar-maven-plugin</artifactId>
+            <configuration>
+                <feature-pack-location>wildfly@maven(org.jboss.universe:community-universe)#${version.server.bom}</feature-pack-location>
+                <layers>
+                    <layer>jaxrs</layer>
+                    <layer>management</layer>
+                </layers>
+                <excluded-layers>
+                    <layer>deployment-scanner</layer>
+                </excluded-layers>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>package</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+----
+
+The `feature-pack-location` element defines where the feature can be fetched
+from, in this case the plugin retrieves the features from a Maven repository.
+But locations in local file system are also possible for custom features.
+
+You can find a sample Maven project of a simple JAX/RS server on my
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-jar[Github repository].
+After starting the application submitting `mvn wildfly-jar:run`, you can test
+it from another shell with:
+
+[source,]
+----
+$ curl localhost:8080/hello
+Hello from Wildfly JAR
+----
+
+Please note, that the single Fat JAR deployment works without context path.
+The application server's port `8080` is the default. The bootable JAR created
+by the plugin supports the main WildFly standalone server startup arguments,
+e.g. for changing the server port.
+
+The Maven plugin offers a lot of functionality and options to configure the
+packaged artifact, e.g.:
+
+* Supports WildFly Galleon layers to create a use-case tailored bootable JAR.
+* Supports WildFly CLI script execution to fine tune your server during build
+(configure security, logging, …​).
+* Supports the ability to package extra content inside the bootable JAR
+(e.g.: a keystore)
+* Supports the creation of a "hollow" JAR (a JAR containing only the WildFly
+    server, the application to deploy being provided at runtime).
+* Offers a "dev" mode to speed-up development by skipping the bootable JAR
+re-build.
+* Offers goals to start and shutdown a bootable JAR.
+
+Some of the feature are examined in the following.
+
+== Development Mode
+
+In order to create a nice developer experience many frameworks and tools
+nowadays provide a development mode of some kind, e.g. Quarkus allows to start
+the application and supports _hot code replacement_ during development. The
+development mode of the Wildfly JAR Plugin behaves almost the same. It can
+be started with:
+
+[source,]
+----
+$ mvn wildfly-jar:dev-watch
+
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -------------------< net.gunther.wildfly:jaxrs-jar >--------------------
+[INFO] Building jaxrs-jar 1.0-SNAPSHOT
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO]
+[INFO] --- wildfly-jar-maven-plugin:3.0.2.Final:dev-watch (default-cli) @ jaxrs-jar ---
+[INFO] Dev mode, adding layer management to ensure dev mode can be operated
+[INFO] Provisioning server configuration based on the set of configured layers
+[INFO] Building server based on [[wildfly@maven(org.jboss.universe:community-universe)#22.0.0.Final inherit-packages=false inheritConfigs=false]] galleon feature-packs
+[INFO] Found boot artifact org.wildfly.core:wildfly-jar-boot:jar:14.0.0.Final:provided in wildfly-core@maven(org.jboss.universe:community-universe):current#14.0.0.Final
+Jan 28, 2021 7:53:07 PM org.wildfly.core.embedded.LoggerContext$JBossLoggingModuleLogger greeting
+INFO: JBoss Modules version 1.11.0.Final
+Jan 28, 2021 7:53:07 PM org.jboss.msc.service.ServiceContainerImpl <clinit>
+INFO: JBoss MSC version 1.4.12.Final
+Jan 28, 2021 7:53:07 PM org.jboss.threads.Version <clinit>
+INFO: JBoss Threads version 2.3.2.Final
+Jan 28, 2021 7:53:07 PM org.jboss.as.server.ApplicationServerService start
+INFO: WFLYSRV0049: WildFly Full 22.0.0.Final (WildFly Core 14.0.0.Final) starting
+...
+----
+
+When a change of some sources is detected by the plugin, a re-deployment is
+initiated. In that case you'll find logged output like the following on the
+console:
+
+[source,]
+----
+...
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 2 source files to /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/classes
+[INFO] Exploding webapp
+[INFO] Assembling webapp [jaxrs-jar] in [/home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/deployments/ROOT.war]
+[INFO] Processing war project
+[INFO] Webapp assembled in [5 msecs]
+...
+----
+
+The development mode creates a nice user experience, increases productivity and
+can easily replace custom tools like
+https://github.com/AdamBien/wad["Watch and Deploy" by Adam Bien].
+
+== Hollow JAR
+
+The Wildfly JAR Maven Plugin assembles, depending on its configuration,
+different artifact packages. By default a single Fat JAR containing the
+server features as well as the application classes is created. But for
+containerized deployments it can be beneficial to separate the
+server parts from the application. The idea behind is that the server
+does not change very often, but during development the application classes do.
+Keeping the server in an image layer and putting the application on top of
+that in a separate layer, usually improves the performance of building the
+application image.
+
+Configuring the Wildfly JAR plugin to create a so-called Hollow JAR is as
+easy as adding the following to the plugin configuration:
+
+[source, xml]
+----
+    <hollow-jar>true</hollow-jar>
+----
+
+The Hollow JAR configuration creates two artifacts, the server's Hollow JAR
+and the application WAR.
+
+While the application packaged as single Fat JAR can be started by
+
+    $ java -jar target/wildfly-bootable.jar
+
+the Hollow JAR application is started by
+
+    $ java -jar target/wildfly-bootable.jar --deployment=target/wildfly.war
+
+In the case of the Hollow JAR the application is deployed with context path,
+which need to be provided when testing the application:
+
+[source,]
+----
+$ curl localhost:8080/wildfly/hello
+Hello from Wildfly JAR
+----
+
+To get rid of the context path when using Hollow JAR, the application need
+to be provided as `ROOT.war`.
+
+== Server Configuration
+
+The Wildfly application server gets the configuration from a `standalone.xml`
+file in `$JBOSS_HOME/standalone/configuration` directory. Manually modifying
+this file was never a good idea (and in addition requires to stop the server).
+If you've worked (as recommended) with JBoss CLI scripts so far, then you
+migration to Wildfly bootable JAR is pretty easy: The Wildfly JAR Maven
+Plugin supports CLI scripts to be executed during the packaging of the JAR.
+You just need to add references to CLI properties and script files to the
+plugin's configuration. For example:
+
+[source, xml]
+----
+    <cli-sessions>
+        <cli-session>
+            <script-files>
+                <script>scripts/logging.cli</script>
+            </script-files>
+            <properties-file>scripts/cli.properties</properties-file>
+            <resolve-expressions>true</resolve-expressions>
+        </cli-session>
+    </cli-sessions>
+----
+
+The CLI properties (`cli.properties`) are for example:
+
+[source]
+----
+keystore.path=/etc/wf-secrets/keystore.jks
+keystore.password=password
+undertow.server=default-server
+config.path=/etc/config
+config.ordinal=200
+----
+
+And CLI commands to configure the logging subsystem (`logging.cli`)
+are for example:
+
+[source]
+----
+/subsystem=logging/logger=net.gunther.wildfly.demo:add(level=ALL)
+/subsystem=logging/json-formatter=json-formatter:add(exception-output-type=formatted, pretty-print=false, meta-data={version="1"}, key-overrides={timestamp="@timestamp"})
+/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=ALL)
+/subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter, value=json-formatter)
+----
+
+After re-building the application the messages are logged in JSON format:
+
+[source]
+----
+...
+{"@timestamp":"2021-01-28T19:45:13.323+01:00","sequence":34,"loggerClassName":"org.slf4j.impl.Slf4jLogger","loggerName":"net.gunther.wildfly.demo.app.HelloResource","level":"DEBUG","message":"GET HelloResource called.","threadName":"default task-1","threadId":65,"mdc":{},"ndc":"","hostName":"gunther-k501uq","processName":"wildfly-bootable.jar","processId":32887,"version":"1"}
+...
+----
+
+== Summary
+
+The Wildfly Bootable JAR offers a great option when you are on the course of
+moving applications into the cloud. The fact that the entire ecosystem of the
+Wildfly technology can be used (e.g. CLI configuration) in combination with
+a packaging more appropriate for cloud deployments, makes it in particular
+interesting for teams already working with Wildfly.
+
+== Links
+
+- https://docs.wildfly.org/bootablejar/[WildFly Bootable JAR Documentation]
+- https://docs.wildfly.org/22/Bootable_Guide.html[Wildfly Bootable JAR Guide]
+- https://docs.wildfly.org/galleon/[Galleon Documentation]
+- https://github.com/AdamBien/wad["Watch and Deploy" Tool by Adam Bien].
+
+
+​
