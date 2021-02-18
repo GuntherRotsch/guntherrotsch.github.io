@@ -1,0 +1,4 @@
+/subsystem=logging/logger=net.gunther.wildfly.demo:add(level=ALL)
+/subsystem=logging/json-formatter=json-formatter:add(exception-output-type=formatted, pretty-print=false, meta-data={version="1"}, key-overrides={timestamp="@timestamp"})
+/subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=ALL)
+/subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter, value=json-formatter)

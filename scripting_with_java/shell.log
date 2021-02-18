@@ -1,0 +1,59 @@
+--- Java >=11 ---
+
+$ java -version
+openjdk version "13.0.1" 2019-10-15
+OpenJDK Runtime Environment (build 13.0.1+9)
+OpenJDK 64-Bit Server VM (build 13.0.1+9, mixed mode, sharing)
+$ cat hellojava.sh 
+#!/home/gunther/.jenv/shims/java --source 11
+public class App{
+    public static void main(String ...args){
+        System.out.println("Hello, Java!");
+    }
+}
+
+$ ./hellojava.sh
+Hello, Java!
+$
+
+--- Java 8 ---
+
+$ java -version
+openjdk version "1.8.0_222"
+OpenJDK Runtime Environment (AdoptOpenJDK)(build 1.8.0_222-b10)
+OpenJDK 64-Bit Server VM (AdoptOpenJDK)(build 25.222-b10, mixed mode)
+$ javac -version
+javac 1.8.0_222
+$ cat HelloJava.java
+
+public class HelloJava {
+
+	public static void main(String[] args) {
+		System.out.println("Hello, Java!");
+	}
+}
+
+$ javac HelloJava.java 
+$ ll
+total 36
+drwxrwxr-x 2 gunther gunther 4096 Okt 18 11:48 ./
+drwxrwxr-x 6 gunther gunther 4096 Okt 18 11:18 ../
+-rwxrwxr-x 1 gunther gunther  811 Okt 18 11:46 hellojava8.sh*
+-rw-rw-r-- 1 gunther gunther  424 Okt 18 11:49 HelloJava.class
+-rw-rw-r-- 1 gunther gunther  773 Okt 18 11:45 hellojava.jar
+-rw-rw-r-- 1 gunther gunther  113 Okt 18 11:42 HelloJava.java
+-rwxrwxr-x 1 gunther gunther  161 Okt 18 11:23 hellojava.sh*
+-rw-rw-r-- 1 gunther gunther   20 Okt 18 11:48 .java-version
+-rw-rw-r-- 1 gunther gunther   22 Okt 18 11:45 manifest.txt
+$ cat manifest.txt 
+Main-Class: HelloJava
+$ jar cvfm hellojava.jar manifest.txt HelloJava.class
+added manifest
+adding: HelloJava.class(in = 424) (out= 287)(deflated 32%)
+$ echo '#!/home/gunther/.jenv/shims/java -jar' >hellojava8.sh
+$ cat hellojava.jar >>hellojava8.sh
+$ chmod +x hellojava8.sh 
+$ ./hellojava8.sh 
+Hello, Java!
+$ 
+
