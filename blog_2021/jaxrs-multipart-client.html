@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>JAXRS Multipart Client</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>JAXRS Multipart Client</h1>
+	</div>
+
+	<p><em>22 February 2021</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>Jakarta EE standards do not support HTTP multipart messages very well. This may be the reason that multipart endpoints are rarely seen in REST APIs. However, sometimes we find the multipart/form-data content type used to upload files. This Blog demonstrates an approach on how such endpoints can be utilized by standard JAXRS Clients.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>&nbsp;</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The JAXRS <code>Client</code> class is a convenient way to consume REST APIs, because marshalling and unmarshalling of Java objects from transfer formats like JSON or XML is done automatically. But HTTP messages of content type <code>multipart-form-data</code> are not supported by the standard out of the box.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>To overcome the deficiency of multipart messages often particular JAXRS implementations like RestEasy or Jersey are applied. Those implementations provide proprietary solutions for submitting HTTP multipart messages. But the solutions also defeat the most valuable benefit of a standard like JAXRS, which is portability. Therefor a standard compliant solution is presented in the follows.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_html_form">HTML Form</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Before diving into the details of the implementation, let’s have a look into the origins and anatomy of HTTP requests of content type <code>multipart/form-data</code>. Such HTTP requests are typically submitted by HTML forms like the following:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;h2&gt;File Upload Example&lt;/h2&gt;
+&lt;form action="form" method="post" enctype="multipart/form-data"&gt;
+       &lt;p&gt;Select a file : &lt;input type="file" name="file" /&gt;
+       &lt;p&gt;Input your name: &lt;input type="string" name="name" /&gt;
+       &lt;p&gt;Input your age: &lt;input type="number" name="age" /&gt;
+       &lt;p&gt;&lt;input type="submit" value="Submit" /&gt;
+&lt;/form&gt;</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The <code>enctype="multipart/form-data"</code> cause the submission of the mentioned content type. An alternative encoding is <code>application/x-www-form-urlencoded</code>, which is appropriate only for text fields and cannot be used to transfer binary files.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The above HTML document renders in a Browser without any styling to:</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="http://localhost:8080/assets/img/File_Upload_Form.png" alt="File Upload Form"> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_http_multipart_message">HTTP Multipart Message</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>On submission of a HTTP message the following content will be send to the server:</p> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>-----------------------------397924929223145234582961090009
+Content-Disposition: form-data; name="file"; filename="duke.png"
+Content-Type: image/png</pre> 
+   </div> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>...binary content of PNG image...
+-----------------------------397924929223145234582961090009
+Content-Disposition: form-data; name="name"</pre> 
+   </div> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>Gunther
+-----------------------------397924929223145234582961090009
+Content-Disposition: form-data; name="age"</pre> 
+   </div> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>55
+-----------------------------397924929223145234582961090009--</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The different parts, an uploaded file, a field named <code>name</code> and a field named <code>age</code> are transmitted in three parts which are delimited by a so-called boundary. The boundary can change from one request to the next. The RFC 7578 <a href="https://tools.ietf.org/html/rfc7578">Returning Values from Forms: multipart/form-data</a> describes the details of the message type.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_jaxrs_client">JAXRS Client</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>The standard JAXRS Client doesn’t support multipart messages. However, when we imagine a smooth integration of <code>multipart/form-data</code> messages, we might think of an API like the following:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">Client client = ClientBuilder.newBuilder()
+                             .register(MultipartMessageBodyWriter.class)
+                             .build(); <i class="conum" data-value="1"></i><b>(1)</b>
+
+MultiPartMessage multiPartMessage = new MultiPartMessage(); <i class="conum" data-value="2"></i><b>(2)</b>
+multiPartMessage.addPart(FilePart.of("duke.png", new File("duke.png"))); <i class="conum" data-value="3"></i><b>(3)</b>
+multiPartMessage.addPart(FieldPart.of("name", "Gunther")); <i class="conum" data-value="4"></i><b>(4)</b>
+multiPartMessage.addPart(FieldPart.of("age", "55"));
+LOGGER.info("Posting form data as multi-part message: {}", multiPartMessage);
+
+try (Response response = <i class="conum" data-value="5"></i><b>(5)</b>
+        client.target("http://localhost:8080/form")
+              .request()
+              .post(Entity.entity(multiPartMessage, MULTIPART_FORM_DATA))) {
+
+    LOGGER.info("Response on POST to Form-Data POST: {}", response.getStatusInfo());
+    if (response.getStatus() != HttpStatus.SC_NO_CONTENT) {
+        LOGGER.info("Response Body: {}", response.readEntity(String.class));
+    }
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="colist arabic"> 
+   <table> 
+    <tbody>
+     <tr> 
+      <td><i class="conum" data-value="1"></i><b>1</b></td> 
+      <td>On the creation of the JAXRS Client a <code>Provider</code> to write mutlipart messages is registerd.</td> 
+     </tr> 
+     <tr> 
+      <td><i class="conum" data-value="2"></i><b>2</b></td> 
+      <td>Instances of the class <code>MultiPartMessage</code> represent the form data, which is going to transmitted as HTTP message of <code>multipart/form-data</code> content type.</td> 
+     </tr> 
+     <tr> 
+      <td><i class="conum" data-value="3"></i><b>3</b></td> 
+      <td>A <code>FilePart</code> which represents a file to be uploaded is added to the multipart message.</td> 
+     </tr> 
+     <tr> 
+      <td><i class="conum" data-value="4"></i><b>4</b></td> 
+      <td>Field parts are added to the message.</td> 
+     </tr> 
+     <tr> 
+      <td><i class="conum" data-value="5"></i><b>5</b></td> 
+      <td>Posting the request sends the multipart message to the server. The <code>MUTLIPART_FORM_DATA</code> media type of the entity triggers the <code>Provider</code> registered on creation of the <code>Client</code>.</td> 
+     </tr> 
+    </tbody>
+   </table> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The API looks simple and straight forward to use. While the <code>MultiPartMessage</code>, <code>FilePart</code> and <code>FieldPart</code> are simple model classes representing the message data, the crucial encoding logic is implemented by the JAXRS provider class, the custom <code>MessageBodyWriter</code> for multipart messages.</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_api_model_classes">API Model Classes</h3> 
+   <div class="paragraph"> 
+    <p>The model classes represent the form data in a straight forward way. The multipart message is basically a list of parts:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MultiPartMessage {
+
+	private List&lt;Part&gt; parts = new ArrayList&lt;&gt;();
+
+	public void addPart(Part part) {
+		parts.add(part);
+	}
+
+	public List&lt;Part&gt; getParts() {
+		return new ArrayList&lt;&gt;(parts);
+	}
+
+    ...
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>The different kinds of message parts implement the following <code>Part</code> interface:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface Part {
+
+	List&lt;String&gt; getContentHeaders();
+
+	Supplier&lt;InputStream&gt; getContentStream();
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>This interface ensures that the different kinds of parts (field or file) can be processed by the <code>MessageBodyWriter</code> in a uniform way, i.e. the parts implement polymorphic message encoding logic.</p> 
+   </div> 
+   <div class="paragraph"> 
+    <p>The part implementation classes for fields and files look slightly simplified like:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class FieldPart implements Part {
+
+	private String name;
+	private String value;
+
+	public FieldPart(String name, String value) {
+		this.name = name;
+		this.value = value;
+	}
+
+	@Override
+	public List&lt;String&gt; getContentHeaders() {
+		return Arrays.asList(new String[] { "Content-Disposition: form-data; name=\"" + name + "\"" });
+	}
+
+	@Override
+	public Supplier&lt;InputStream&gt; getContentStream() {
+		return () -&gt; new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8));
+	}
+
+    ...
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class FilePart implements Part {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(FilePart.class);
+
+	private String name;
+	private File file;
+
+	public FilePart(String name, File file) {
+		this.name = name;
+		this.file = file;
+	}
+
+	@Override
+	public List&lt;String&gt; getContentHeaders() {
+		String contentDisposition = "Content-Disposition: form-data; name=\"" + name + "\"; filename=\""
+				+ file.getName() + "\"";
+		String contentType = "Content-Type: " + getMimeType().orElse("application/octet-stream");
+
+		return Arrays.asList(new String[] { contentDisposition, contentType });
+	}
+
+	private Optional&lt;String&gt; getMimeType() {
+		String mimeType = null;
+		try {
+			mimeType = Files.probeContentType(file.toPath());
+		} catch (IOException e) {
+			LOGGER.warn("Exception while probing content type of file: {}, exception: {}", file, e);
+		}
+		if (mimeType == null) {
+			mimeType = URLConnection.guessContentTypeFromName(file.getName());
+		}
+		return Optional.ofNullable(mimeType);
+	}
+
+	@Override
+	public Supplier&lt;InputStream&gt; getContentStream() {
+		return () -&gt; createInputStreamFromFile();
+	}
+
+	private FileInputStream createInputStreamFromFile() {
+		try {
+			return new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+    ...
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>Now, it’s becomes clear why the <code>Part#getContentStream</code> method operates with streams: That way the field parts as well as the file parts can be efficiently retrieved and transferred to the message body. In addition, there’s no need to read the entire file into memory during message encoding. The reason for the <code>Supplier</code> of input stream is that the message body writer will then open and close the stream, which can (and should) placed into a try-resource block to avoid resource leaking:</p> 
+   </div> 
+   <div class="listingblock"> 
+    <div class="content"> 
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MultipartMessageBodyWriter implements MessageBodyWriter&lt;MultiPartMessage&gt; {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MultipartMessageBodyWriter.class);
+
+	private static final String HTTP_LINE_DELIMITER = "\r\n";
+
+	@Override
+	public boolean isWriteable(Class&lt;?&gt; type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+		return MultiPartMessage.class.isAssignableFrom(type) &amp;&amp; MULTIPART_FORM_DATA_TYPE.equals(mediaType);
+	}
+
+	@Override
+	public void writeTo(MultiPartMessage t, Class&lt;?&gt; type, Type genericType, Annotation[] annotations,
+			MediaType mediaType, MultivaluedMap&lt;String, Object&gt; httpHeaders, OutputStream entityStream)
+			throws IOException, WebApplicationException {
+
+		String boundary = "-----------" + UUID.randomUUID().toString().replace("-", "");
+		LOGGER.debug("Boundary: {}", boundary);
+
+		List&lt;Object&gt; contentTypeHeader = new ArrayList&lt;&gt;();
+		contentTypeHeader.add(MediaType.MULTIPART_FORM_DATA + "; boundary=\"" + boundary + "\"");
+		httpHeaders.put("Content-type", contentTypeHeader);
+
+		for (Part part : t.getParts()) {
+			writePart(boundary, entityStream, part);
+			LOGGER.debug("Part written: {}", part);
+		}
+		String endBoundary = "--" + boundary + "--" + HTTP_LINE_DELIMITER;
+		print(entityStream, endBoundary);
+	}
+
+	private void writePart(String boundary, OutputStream entityStream, Part part) throws IOException {
+		String startBoundary = "--" + boundary + HTTP_LINE_DELIMITER;
+
+		print(entityStream, startBoundary);
+		for (String contentHeader : part.getContentHeaders()) {
+			print(entityStream, contentHeader + HTTP_LINE_DELIMITER);
+		}
+		print(entityStream, HTTP_LINE_DELIMITER);
+
+		try (InputStream contentStream = part.getContentStream().get()) {
+			contentStream.transferTo(entityStream);
+		}
+		print(entityStream, HTTP_LINE_DELIMITER);
+	}
+
+	private void print(OutputStream stream, String str) throws IOException {
+		stream.write(str.getBytes(StandardCharsets.US_ASCII));
+	}
+}</code></pre> 
+    </div> 
+   </div> 
+   <div class="paragraph"> 
+    <p>That are the major classes of a standard compliant solution to submit messages of content type <code>multipart/form-data</code> to a server. You can find the <a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart/client"> source code</a> of the Multipart/Form-Data support on Github.</p> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_summary">Summary</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>As demonstrated, it’s not to difficult to consume multipart form endpoint of a REST API using a standard JAXRS client. The workaround of proprietary solutions based on RestEasy or Jersey can easily avoided. Actually, I don’t understand why the JAXRS standard does not fully support the processing of multipart messages…​</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_links">Links</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart/client"> Source Code of Multipart/Form-Data Client Support</a></p> </li> 
+    <li> <p><a href="https://tools.ietf.org/html/rfc7578">RFC 7578 - Returning Values from Forms: multipart/form-data</a></p> </li> 
+    <li> <p><a href="https://docs.jboss.org/resteasy/docs/4.6.0.Final/userguide/html/RESTEasy_Client_Framework.html">RestEasy Client API</a></p> </li> 
+    <li> <p><a href="https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest/client.html">Jersey Client API</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/multipart-form.html">multipart-form</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jaxrs.html">jaxrs</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jaxrs-client.html">jaxrs-client</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jakarta-ee.html">jakarta-ee</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>
