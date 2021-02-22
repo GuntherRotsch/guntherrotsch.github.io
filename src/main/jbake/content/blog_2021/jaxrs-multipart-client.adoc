@@ -1,0 +1,324 @@
+= JAXRS Multipart Client
+Gunther Rotsch
+2021-02-22
+:jbake-type: post
+:jbake-tags: java, jakarta-ee, jaxrs, jaxrs-client, multipart-form
+:jbake-status: published
+:jbake-summary: Jakarta EE standards do not support HTTP multipart messages very well. This may be the reason that multipart endpoints are rarely seen in REST APIs. However, sometimes we find the multipart/form-data content type used to upload files. This Blog demonstrates an approach on how such endpoints can be utilized by standard JAXRS Clients.
+
+&nbsp;
+
+The JAXRS `Client` class is a convenient way to consume REST APIs, because
+marshalling and unmarshalling of Java objects from transfer formats like
+JSON or XML is done automatically. But HTTP messages of content type
+`multipart-form-data` are not supported by the standard out of the box.
+
+To overcome the deficiency of multipart messages often particular JAXRS
+implementations like RestEasy or Jersey are applied. Those implementations
+provide proprietary solutions for submitting HTTP multipart messages. But
+the solutions also defeat the most valuable benefit of a standard like
+JAXRS, which is portability. Therefor a standard compliant solution is
+presented in the follows.
+
+== HTML Form
+
+Before diving into the details of the implementation, let's have a look into
+the origins and anatomy of HTTP requests of content type `multipart/form-data`.
+Such HTTP requests are typically submitted by HTML forms like the following:
+
+[source, xml]
+----
+<h2>File Upload Example</h2>
+<form action="form" method="post" enctype="multipart/form-data">
+       <p>Select a file : <input type="file" name="file" />
+       <p>Input your name: <input type="string" name="name" />
+       <p>Input your age: <input type="number" name="age" />
+       <p><input type="submit" value="Submit" />
+</form>
+----
+
+The `enctype="multipart/form-data"` cause the submission of the mentioned
+content type. An alternative encoding is `application/x-www-form-urlencoded`,
+which is appropriate only for text fields and cannot be used to transfer
+binary files.
+
+The above HTML document renders in a Browser without any styling to:
+
+image::File_Upload_Form.png[File Upload Form]
+
+== HTTP Multipart Message
+
+On submission of a HTTP message the following content will be send to the
+server:
+
+  -----------------------------397924929223145234582961090009
+  Content-Disposition: form-data; name="file"; filename="duke.png"
+  Content-Type: image/png
+
+  ...binary content of PNG image...
+  -----------------------------397924929223145234582961090009
+  Content-Disposition: form-data; name="name"
+
+  Gunther
+  -----------------------------397924929223145234582961090009
+  Content-Disposition: form-data; name="age"
+
+  55
+  -----------------------------397924929223145234582961090009--
+
+The different parts, an uploaded file, a field named `name` and a field
+named `age` are transmitted in three parts which are delimited by a so-called
+boundary. The boundary can change from one request to the next.
+The RFC 7578 https://tools.ietf.org/html/rfc7578[Returning Values from Forms:
+multipart/form-data] describes the details of the message type.
+
+== JAXRS Client
+
+The standard JAXRS Client doesn't support multipart messages. However, when
+we imagine a smooth integration of `multipart/form-data` messages, we might
+think of an API like the following:
+
+[source, java]
+----
+Client client = ClientBuilder.newBuilder()
+                             .register(MultipartMessageBodyWriter.class)
+                             .build(); // <1>
+
+MultiPartMessage multiPartMessage = new MultiPartMessage(); // <2>
+multiPartMessage.addPart(FilePart.of("duke.png", new File("duke.png"))); // <3>
+multiPartMessage.addPart(FieldPart.of("name", "Gunther")); // <4>
+multiPartMessage.addPart(FieldPart.of("age", "55"));
+LOGGER.info("Posting form data as multi-part message: {}", multiPartMessage);
+
+try (Response response = // <5>
+        client.target("http://localhost:8080/form")
+              .request()
+              .post(Entity.entity(multiPartMessage, MULTIPART_FORM_DATA))) {
+
+    LOGGER.info("Response on POST to Form-Data POST: {}", response.getStatusInfo());
+    if (response.getStatus() != HttpStatus.SC_NO_CONTENT) {
+        LOGGER.info("Response Body: {}", response.readEntity(String.class));
+    }
+}
+----
+
+<1> On the creation of the JAXRS Client a `Provider` to write mutlipart
+messages is registerd.
+<2> Instances of the class `MultiPartMessage` represent the form data, which
+is going to transmitted as HTTP message of `multipart/form-data` content type.
+<3> A `FilePart` which represents a file to be uploaded is added to the
+multipart message.
+<4> Field parts are added to the message.
+<5> Posting the request sends the multipart message to the server. The
+`MUTLIPART_FORM_DATA` media type of the entity triggers the `Provider`
+registered on creation of the `Client`.
+
+The API looks simple and straight forward to use. While the `MultiPartMessage`,
+`FilePart` and `FieldPart` are simple model classes representing the message
+data, the crucial encoding logic is implemented by the JAXRS provider class,
+the custom `MessageBodyWriter` for multipart messages.
+
+=== API Model Classes
+
+The model classes represent the form data in a straight forward way. The
+multipart message is basically a list of parts:
+
+[source, java]
+----
+public class MultiPartMessage {
+
+	private List<Part> parts = new ArrayList<>();
+
+	public void addPart(Part part) {
+		parts.add(part);
+	}
+
+	public List<Part> getParts() {
+		return new ArrayList<>(parts);
+	}
+
+    ...
+}
+----
+
+The different kinds of message parts implement the following `Part` interface:
+
+[source, java]
+----
+public interface Part {
+
+	List<String> getContentHeaders();
+
+	Supplier<InputStream> getContentStream();
+}
+----
+
+This interface ensures that the different kinds of parts (field or file) can
+be processed by the `MessageBodyWriter` in a uniform way, i.e. the parts
+implement polymorphic message encoding logic.
+
+The part implementation classes for fields and files look slightly simplified
+like:
+
+[source, java]
+----
+public class FieldPart implements Part {
+
+	private String name;
+	private String value;
+
+	public FieldPart(String name, String value) {
+		this.name = name;
+		this.value = value;
+	}
+
+	@Override
+	public List<String> getContentHeaders() {
+		return Arrays.asList(new String[] { "Content-Disposition: form-data; name=\"" + name + "\"" });
+	}
+
+	@Override
+	public Supplier<InputStream> getContentStream() {
+		return () -> new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8));
+	}
+
+    ...
+}
+----
+
+
+[source, java]
+----
+public class FilePart implements Part {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(FilePart.class);
+
+	private String name;
+	private File file;
+
+	public FilePart(String name, File file) {
+		this.name = name;
+		this.file = file;
+	}
+
+	@Override
+	public List<String> getContentHeaders() {
+		String contentDisposition = "Content-Disposition: form-data; name=\"" + name + "\"; filename=\""
+				+ file.getName() + "\"";
+		String contentType = "Content-Type: " + getMimeType().orElse("application/octet-stream");
+
+		return Arrays.asList(new String[] { contentDisposition, contentType });
+	}
+
+	private Optional<String> getMimeType() {
+		String mimeType = null;
+		try {
+			mimeType = Files.probeContentType(file.toPath());
+		} catch (IOException e) {
+			LOGGER.warn("Exception while probing content type of file: {}, exception: {}", file, e);
+		}
+		if (mimeType == null) {
+			mimeType = URLConnection.guessContentTypeFromName(file.getName());
+		}
+		return Optional.ofNullable(mimeType);
+	}
+
+	@Override
+	public Supplier<InputStream> getContentStream() {
+		return () -> createInputStreamFromFile();
+	}
+
+	private FileInputStream createInputStreamFromFile() {
+		try {
+			return new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+    ...
+}
+----
+
+Now, it's becomes clear why the `Part#getContentStream` method operates with
+streams: That way the field parts as well as the file parts can be efficiently
+retrieved and transferred to the message body. In addition, there's no need
+to read the entire file into memory during message encoding. The reason for
+the `Supplier` of input stream is that the message body writer will then open
+and close the stream, which can (and  should) placed into a try-resource block
+to avoid resource leaking:
+
+[source, java]
+----
+public class MultipartMessageBodyWriter implements MessageBodyWriter<MultiPartMessage> {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MultipartMessageBodyWriter.class);
+
+	private static final String HTTP_LINE_DELIMITER = "\r\n";
+
+	@Override
+	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+		return MultiPartMessage.class.isAssignableFrom(type) && MULTIPART_FORM_DATA_TYPE.equals(mediaType);
+	}
+
+	@Override
+	public void writeTo(MultiPartMessage t, Class<?> type, Type genericType, Annotation[] annotations,
+			MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
+			throws IOException, WebApplicationException {
+
+		String boundary = "-----------" + UUID.randomUUID().toString().replace("-", "");
+		LOGGER.debug("Boundary: {}", boundary);
+
+		List<Object> contentTypeHeader = new ArrayList<>();
+		contentTypeHeader.add(MediaType.MULTIPART_FORM_DATA + "; boundary=\"" + boundary + "\"");
+		httpHeaders.put("Content-type", contentTypeHeader);
+
+		for (Part part : t.getParts()) {
+			writePart(boundary, entityStream, part);
+			LOGGER.debug("Part written: {}", part);
+		}
+		String endBoundary = "--" + boundary + "--" + HTTP_LINE_DELIMITER;
+		print(entityStream, endBoundary);
+	}
+
+	private void writePart(String boundary, OutputStream entityStream, Part part) throws IOException {
+		String startBoundary = "--" + boundary + HTTP_LINE_DELIMITER;
+
+		print(entityStream, startBoundary);
+		for (String contentHeader : part.getContentHeaders()) {
+			print(entityStream, contentHeader + HTTP_LINE_DELIMITER);
+		}
+		print(entityStream, HTTP_LINE_DELIMITER);
+
+		try (InputStream contentStream = part.getContentStream().get()) {
+			contentStream.transferTo(entityStream);
+		}
+		print(entityStream, HTTP_LINE_DELIMITER);
+	}
+
+	private void print(OutputStream stream, String str) throws IOException {
+		stream.write(str.getBytes(StandardCharsets.US_ASCII));
+	}
+}
+----
+
+That are the major classes of a standard compliant solution to submit messages
+of content type `multipart/form-data` to a server. You can find the
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart/client[
+source code] of the Multipart/Form-Data support on Github.
+
+== Summary
+
+As demonstrated, it's not to difficult to consume multipart form endpoint of a
+REST API using a standard JAXRS client. The workaround of proprietary solutions
+based on RestEasy or Jersey can easily avoided. Actually, I don't understand
+why the JAXRS standard does not fully support the processing of multipart
+messages...
+
+== Links
+
+- https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart/client[
+Source Code of Multipart/Form-Data Client Support]
+- https://tools.ietf.org/html/rfc7578[RFC 7578 - Returning Values from Forms:
+multipart/form-data]
+- https://docs.jboss.org/resteasy/docs/4.6.0.Final/userguide/html/RESTEasy_Client_Framework.html[RestEasy Client API]
+- https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest/client.html[Jersey Client API]
