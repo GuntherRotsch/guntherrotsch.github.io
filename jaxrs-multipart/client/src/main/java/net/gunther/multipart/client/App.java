@@ -21,7 +21,7 @@ public class App {
 
 	public static void main(String[] args) {
 
-		Client client = ClientBuilder.newBuilder().register(MultipartMessageBodyWriter.class).build();
+		Client client = ClientBuilder.newBuilder().register(MultiPartMessageBodyWriter.class).build();
 
 		MultiPartMessage multiPartMessage = new MultiPartMessage();
 		multiPartMessage.addPart(FilePart.of("duke.png", new File("duke.png")));

@@ -20,9 +20,9 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultipartMessageBodyWriter implements MessageBodyWriter<MultiPartMessage> {
+public class MultiPartMessageBodyWriter implements MessageBodyWriter<MultiPartMessage> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MultipartMessageBodyWriter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MultiPartMessageBodyWriter.class);
 
 	private static final String HTTP_LINE_DELIMITER = "\r\n";
 

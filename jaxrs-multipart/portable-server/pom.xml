@@ -8,10 +8,10 @@
 		<artifactId>jaxrs-multipart</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>jaxrs-multipart-resteasy-server</artifactId>
+	<artifactId>jaxrs-multipart-portable-server</artifactId>
 	<packaging>war</packaging>
 
-	<name>jaxrs-multipart-resteasy-server</name>
+	<name>jaxrs-multipart-portable-server</name>
 
 	<properties>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
@@ -43,14 +43,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-multipart-provider</artifactId>
-			<scope>provided</scope>
+			<groupId>net.gunther.jaxrs</groupId>
+			<artifactId>jaxrs-multipart-api</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 
 		<!-- TEST DEPENDENCIES -->
@@ -67,7 +62,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>resteasy-multipart-server</finalName>
+		<finalName>portable-multipart-server</finalName>
 
 		<plugins>
 			<plugin>

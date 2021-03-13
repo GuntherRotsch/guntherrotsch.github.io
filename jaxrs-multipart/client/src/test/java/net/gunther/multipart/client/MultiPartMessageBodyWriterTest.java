@@ -16,9 +16,9 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit test of MultipartMessageBodyWriter class.
  */
-public class MultipartMessageBodyWriterTest {
+public class MultiPartMessageBodyWriterTest {
 
-	MultipartMessageBodyWriter testee = new MultipartMessageBodyWriter();
+	MultiPartMessageBodyWriter testee = new MultiPartMessageBodyWriter();
 
 	@Test
 	public void isWritableForMultiPartMessageAndMultipartFormDataMime() {
