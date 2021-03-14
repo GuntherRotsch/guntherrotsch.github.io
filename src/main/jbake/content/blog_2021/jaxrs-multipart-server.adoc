@@ -1,0 +1,229 @@
+= JAXRS Multipart Server
+Gunther Rotsch
+2021-03-13
+:jbake-type: post
+:jbake-tags: java, jakarta-ee, jaxrs, multipart-form
+:jbake-status: published
+:jbake-summary: Multipart form-data messages are a standard format when submitting HTML forms by web applications. If you want to learn more about the processing of such requests by Jakarta EE JAXRS servers this Blog post might be interesting for you.
+
+&nbsp;
+
+In the recent Blog post
+https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-client.html[JAXR
+Multipart Client] I had a look on multipart form-data messages from the
+perspective of a client. The situation on the server-side is not less difficult.
+
+One might say, that multipart form-data messages are usually used in web
+applications while JAXRS targets to implement APIs - that might also be the
+reasoning behind leaving multipart messages out of the JAXRS standard. But
+you'll likely find multipart form-data messages in APIs when it comes to file
+uploads. Furthermore, the coming Jakarta EE 9 standard includes MVC, an action
+based web application framework, which is build on top of JAXRS. In the context
+of MVC I'd expect multipart form-data messages as typical use case.
+
+There are several options to process multipart form-data messages by a JAXRS
+server.
+
+== Proprietary Solutions
+
+As always, if the standard does not cover a generally used feature, proprietary
+solutions are present. Every supplier of a JAXRS implemention provides support
+of multipart messages. For example JBoss comes with
+https://docs.jboss.org/resteasy/docs/4.6.0.Final/userguide/html/Multipart.html[
+RestEasy Multipart Providers]. The API looks simple and straight-forward:
+
+[source,java]
+----
+@POST
+@Consumes("multipart/form-data")
+public Response postForm(MultipartFormDataInput input) {
+    ...
+}
+----
+
+The RestEasy `Provider` for `multipart/form-data` messages takes care of the
+de-marshalling of the HTTP message body and converts them to the Java object
+`MultipartFormDataInput` representation.
+
+However, as always, proprietary solutions defeat the most valuable benefit of
+standards like JAXRS, which is portability. But there are other options to
+process multipart messages.
+
+== Servlet API
+
+The Servlet API supports the processing of multipart messages since version 3.0.
+Because Servlet requests can be injected into JAXRS resources as context
+objects, the integration of the APIs is very easy:
+
+[source,java]
+----
+@POST
+@Consumes("multipart/form-data")
+public Response formPost(@Context javax.servlet.http.HttpServletRequest request) {
+    ...
+}
+----
+
+Calling the `getParts` method on the injected `request` object returns a
+collection of `javax.servlet.http.Part` objects.
+
+I don't want to go into any detail of such an implementation, but the Blog post
+https://nofluffjuststuff.com/blog/jason_lee1/2014/05/file_uploads_with_jax_rs_2[
+File Uploads with JAX-RS 2 by Jason Lee] describes a sample implementation of
+this approach.
+
+Because the Servlet API is rather low-level compared to JAXRS, more application
+code is typically required. Nevertheless, because of the standard compliance
+and the plus of portability, I'd prefer the Servlet API approach over
+proprietary solutions.
+
+== JAXRS Solution
+
+If you're read my Blog post
+https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-client.html[JAXR
+Multipart Client], you might remember the custom `MessageBodyWriter` approach
+presented there. Analogous, we could implement a `MessageBodyReader` on the
+server-side. The JAXRS resource would as follows:
+
+[source,java]
+----
+@POST
+@Consumes("multipart/form-data")
+public Response postFormData(MultiPartMessage message) {
+    ...
+}
+----
+
+Objects of type `MultiPartMessage` are Pojos representing multipart messages,
+the same as used on the client-side.
+
+Because parsing multipart messages is more difficult than creating them, the
+implementation of `MultiPartMessageBodyReader` is more challenging than the
+`MultiPartMessageBodyWriter` of the client has been.
+
+=== Implementation
+
+I won't list the entire implementation here, but give you enough information
+understand the code, you'll find in the `portable-server` module of the
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart[
+Multipart/Form-Data Project].
+
+==== MultiPartMessageBodyReader Class
+
+The `MessageBodyReader` is the entry point of JAXRS integration:
+
+[source, java]
+----
+@Provider
+@Consumes("multipart/form-data")
+public class MultiPartMessageBodyReader implements MessageBodyReader<MultiPartMessage> {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MultiPartMessageBodyReader.class);
+
+	@Override
+	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+		LOGGER.info("isReadable called with type: {} and mediaType: {}", type, mediaType);
+		return MultiPartMessage.class.isAssignableFrom(type)
+				&& mediaType.toString().toLowerCase().startsWith("multipart/form-data");
+	}
+
+	@Override
+	public MultiPartMessage readFrom(Class<MultiPartMessage> type, Type genericType, Annotation[] annotations,
+			MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
+            throws IOException, WebApplicationException {
+        ...
+    }
+]
+----
+
+The `@Provider` annotation declares the class to JAXRS, which calls this reader
+when the de-marshalling of messages of content type `multipart/from-data` is
+required.
+
+The challenging task of the `readFrom` method is the parsing of the
+message given as input stream. While the `MultiPartMessageBodyReader` parses
+individual parts, the separating of the parts of the input stream is delegated
+to the `PartInputStream`. The following diagram show the principle behind:
+
+image::Multipart_Message_Parsing.png[Multi-part Message Input Streams]
+
+The `InputStream` is wrapped by a `PartInputStream`, which returns bytes until
+the boundary is reached. The `InputStream` can then be wrapped by another
+`PartInputStream`, which returns the end-of-file indicator when the next
+boundary is reached. This goes on till all parts are consumed from the
+input stream.
+
+==== PartInputStream Class
+
+Before going into the nifty details of the implementation of the boundary
+detection, let's re-cap the structure of the messages, which look for example
+like:
+
+  -----------------------------397924929223145234582961090009
+  Content-Disposition: form-data; name="file"; filename="duke.png"
+  Content-Type: image/png
+
+  ...binary content of PNG image...
+  -----------------------------397924929223145234582961090009
+  Content-Disposition: form-data; name="name"
+
+  Gunther
+  -----------------------------397924929223145234582961090009
+  Content-Disposition: form-data; name="age"
+
+  55
+  -----------------------------397924929223145234582961090009--
+
+The parts of the message are delimited by the boundary string. Also note,
+that the content can (partially) be binary. You'll find the details of
+message format in RFC 7578 https://tools.ietf.org/html/rfc7578[Returning Values from Forms:
+multipart/form-data].
+
+To detect the boundary, but not consume bytes if some message content looks
+like the beginning of the boundary, a kind of read-ahead is required. The
+simplest way to implement such a read-ahead is to use the methods
+`InputStream#mark` and `InputStream#reset`. Therefor, the input stream is
+wrapped into a `BufferedInputStream` on demand:
+
+[source,java]
+----
+if (!entityStream.markSupported()) {
+    LOGGER.debug("Wrap entity input stream to buffered input stream to support mark and reset operations.");
+    return new BufferedInputStream(inputStream);
+} else {
+    return inputStream;
+}
+----
+
+The boundary detection in the method `PartInputStream#read` relies on the
+mark/reset mechanism which allows to read-ahead some content and rewind the
+read position if required.
+
+In addition, the `PartInputStream` class contains the detection if the last
+part has been reached.
+
+The implementation does actually have some complexity, but gives the best API
+user experience.
+
+== Summary
+
+When it comes to processing of multipart form-data messages by JAXRS
+servers, it depends on the general condition of the project and the team,
+which route to go. But because there are alternatives to the proprietary
+solutions, I'd in almost all cases avoid a non-portable approach.
+
+While the Servlet approach requires code of less complexity, the JAXRS solution
+is more general and gives a nicer and simpler API for the application
+developer. Both are viable solutions and choosing one of them is a matter
+of project circumstances and may be taste.
+
+== Links
+
+- https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart[
+Source Code of Multipart/Form-Data Project]
+- https://docs.jboss.org/resteasy/docs/4.6.0.Final/userguide/html/Multipart.html[
+RestEasy Multipart Providers]
+- https://nofluffjuststuff.com/blog/jason_lee1/2014/05/file_uploads_with_jax_rs_2[
+File Uploads with JAX-RS 2 by Jason Lee]
+- https://tools.ietf.org/html/rfc7578[RFC 7578 - Returning Values from Forms:
+multipart/form-data]
