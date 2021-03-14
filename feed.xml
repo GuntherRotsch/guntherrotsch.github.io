@@ -2,16 +2,244 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>JBake</title>
-    <link>http://localhost:8080</link>
-    <atom:link href="http://localhost:8080/feed.xml" rel="self" type="application/rss+xml" />
+    <link>https://guntherrotsch.github.io</link>
+    <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Mon, 22 Feb 2021 19:10:32 +0100</pubDate>
-    <lastBuildDate>Mon, 22 Feb 2021 19:10:32 +0100</lastBuildDate>
+    <pubDate>Sun, 14 Mar 2021 13:23:56 +0100</pubDate>
+    <lastBuildDate>Sun, 14 Mar 2021 13:23:56 +0100</lastBuildDate>
 
     <item>
+      <title>JAXRS Multipart Server</title>
+      <link>https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-server.html</link>
+      <pubDate>Sat, 13 Mar 2021 00:00:00 +0100</pubDate>
+      <guid isPermaLink="false">blog_2021/jaxrs-multipart-server.html</guid>
+      	<description>
+	&lt;div id=&quot;preamble&quot;&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;&amp;nbsp;&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;In the recent Blog post &lt;a href=&quot;https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-client.html&quot;&gt;JAXR Multipart Client&lt;/a&gt; I had a look on multipart form-data messages from the perspective of a client. The situation on the server-side is not less difficult.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;One might say, that multipart form-data messages are usually used in web applications while JAXRS targets to implement APIs - that might also be the reasoning behind leaving multipart messages out of the JAXRS standard. But you’ll likely find multipart form-data messages in APIs when it comes to file uploads. Furthermore, the coming Jakarta EE 9 standard includes MVC, an action based web application framework, which is build on top of JAXRS. In the context of MVC I’d expect multipart form-data messages as typical use case.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;There are several options to process multipart form-data messages by a JAXRS server.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_proprietary_solutions&quot;&gt;Proprietary Solutions&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;As always, if the standard does not cover a generally used feature, proprietary solutions are present. Every supplier of a JAXRS implemention provides support of multipart messages. For example JBoss comes with &lt;a href=&quot;https://docs.jboss.org/resteasy/docs/4.6.0.Final/userguide/html/Multipart.html&quot;&gt; RestEasy Multipart Providers&lt;/a&gt;. The API looks simple and straight-forward:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@POST
+@Consumes(&quot;multipart/form-data&quot;)
+public Response postForm(MultipartFormDataInput input) {
+    ...
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The RestEasy &lt;code&gt;Provider&lt;/code&gt; for &lt;code&gt;multipart/form-data&lt;/code&gt; messages takes care of the de-marshalling of the HTTP message body and converts them to the Java object &lt;code&gt;MultipartFormDataInput&lt;/code&gt; representation.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;However, as always, proprietary solutions defeat the most valuable benefit of standards like JAXRS, which is portability. But there are other options to process multipart messages.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_servlet_api&quot;&gt;Servlet API&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Servlet API supports the processing of multipart messages since version 3.0. Because Servlet requests can be injected into JAXRS resources as context objects, the integration of the APIs is very easy:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@POST
+@Consumes(&quot;multipart/form-data&quot;)
+public Response formPost(@Context javax.servlet.http.HttpServletRequest request) {
+    ...
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Calling the &lt;code&gt;getParts&lt;/code&gt; method on the injected &lt;code&gt;request&lt;/code&gt; object returns a collection of &lt;code&gt;javax.servlet.http.Part&lt;/code&gt; objects.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;I don’t want to go into any detail of such an implementation, but the Blog post &lt;a href=&quot;https://nofluffjuststuff.com/blog/jason_lee1/2014/05/file_uploads_with_jax_rs_2&quot;&gt; File Uploads with JAX-RS 2 by Jason Lee&lt;/a&gt; describes a sample implementation of this approach.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Because the Servlet API is rather low-level compared to JAXRS, more application code is typically required. Nevertheless, because of the standard compliance and the plus of portability, I’d prefer the Servlet API approach over proprietary solutions.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_jaxrs_solution&quot;&gt;JAXRS Solution&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;If you’re read my Blog post &lt;a href=&quot;https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-client.html&quot;&gt;JAXR Multipart Client&lt;/a&gt;, you might remember the custom &lt;code&gt;MessageBodyWriter&lt;/code&gt; approach presented there. Analogous, we could implement a &lt;code&gt;MessageBodyReader&lt;/code&gt; on the server-side. The JAXRS resource would as follows:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@POST
+@Consumes(&quot;multipart/form-data&quot;)
+public Response postFormData(MultiPartMessage message) {
+    ...
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Objects of type &lt;code&gt;MultiPartMessage&lt;/code&gt; are Pojos representing multipart messages, the same as used on the client-side.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Because parsing multipart messages is more difficult than creating them, the implementation of &lt;code&gt;MultiPartMessageBodyReader&lt;/code&gt; is more challenging than the &lt;code&gt;MultiPartMessageBodyWriter&lt;/code&gt; of the client has been.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;sect2&quot;&gt; 
+   &lt;h3 id=&quot;_implementation&quot;&gt;Implementation&lt;/h3&gt; 
+   &lt;div class=&quot;paragraph&quot;&gt; 
+    &lt;p&gt;I won’t list the entire implementation here, but give you enough information understand the code, you’ll find in the &lt;code&gt;portable-server&lt;/code&gt; module of the &lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart&quot;&gt; Multipart/Form-Data Project&lt;/a&gt;.&lt;/p&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;sect3&quot;&gt; 
+    &lt;h4 id=&quot;_multipartmessagebodyreader_class&quot;&gt;MultiPartMessageBodyReader Class&lt;/h4&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;The &lt;code&gt;MessageBodyReader&lt;/code&gt; is the entry point of JAXRS integration:&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;listingblock&quot;&gt; 
+     &lt;div class=&quot;content&quot;&gt; 
+      &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@Provider
+@Consumes(&quot;multipart/form-data&quot;)
+public class MultiPartMessageBodyReader implements MessageBodyReader&amp;lt;MultiPartMessage&amp;gt; {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MultiPartMessageBodyReader.class);
+
+	@Override
+	public boolean isReadable(Class&amp;lt;?&amp;gt; type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+		LOGGER.info(&quot;isReadable called with type: {} and mediaType: {}&quot;, type, mediaType);
+		return MultiPartMessage.class.isAssignableFrom(type)
+				&amp;amp;&amp;amp; mediaType.toString().toLowerCase().startsWith(&quot;multipart/form-data&quot;);
+	}
+
+	@Override
+	public MultiPartMessage readFrom(Class&amp;lt;MultiPartMessage&amp;gt; type, Type genericType, Annotation[] annotations,
+			MediaType mediaType, MultivaluedMap&amp;lt;String, String&amp;gt; httpHeaders, InputStream entityStream)
+            throws IOException, WebApplicationException {
+        ...
+    }
+]&lt;/code&gt;&lt;/pre&gt; 
+     &lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;The &lt;code&gt;@Provider&lt;/code&gt; annotation declares the class to JAXRS, which calls this reader when the de-marshalling of messages of content type &lt;code&gt;multipart/from-data&lt;/code&gt; is required.&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;The challenging task of the &lt;code&gt;readFrom&lt;/code&gt; method is the parsing of the message given as input stream. While the &lt;code&gt;MultiPartMessageBodyReader&lt;/code&gt; parses individual parts, the separating of the parts of the input stream is delegated to the &lt;code&gt;PartInputStream&lt;/code&gt;. The following diagram show the principle behind:&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;imageblock&quot;&gt; 
+     &lt;div class=&quot;content&quot;&gt; 
+      &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/Multipart_Message_Parsing.png&quot; alt=&quot;Multi-part Message Input Streams&quot;&gt; 
+     &lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;The &lt;code&gt;InputStream&lt;/code&gt; is wrapped by a &lt;code&gt;PartInputStream&lt;/code&gt;, which returns bytes until the boundary is reached. The &lt;code&gt;InputStream&lt;/code&gt; can then be wrapped by another &lt;code&gt;PartInputStream&lt;/code&gt;, which returns the end-of-file indicator when the next boundary is reached. This goes on till all parts are consumed from the input stream.&lt;/p&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+   &lt;div class=&quot;sect3&quot;&gt; 
+    &lt;h4 id=&quot;_partinputstream_class&quot;&gt;PartInputStream Class&lt;/h4&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;Before going into the nifty details of the implementation of the boundary detection, let’s re-cap the structure of the messages, which look for example like:&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;literalblock&quot;&gt; 
+     &lt;div class=&quot;content&quot;&gt; 
+      &lt;pre&gt;-----------------------------397924929223145234582961090009
+Content-Disposition: form-data; name=&quot;file&quot;; filename=&quot;duke.png&quot;
+Content-Type: image/png&lt;/pre&gt; 
+     &lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;literalblock&quot;&gt; 
+     &lt;div class=&quot;content&quot;&gt; 
+      &lt;pre&gt;...binary content of PNG image...
+-----------------------------397924929223145234582961090009
+Content-Disposition: form-data; name=&quot;name&quot;&lt;/pre&gt; 
+     &lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;literalblock&quot;&gt; 
+     &lt;div class=&quot;content&quot;&gt; 
+      &lt;pre&gt;Gunther
+-----------------------------397924929223145234582961090009
+Content-Disposition: form-data; name=&quot;age&quot;&lt;/pre&gt; 
+     &lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;literalblock&quot;&gt; 
+     &lt;div class=&quot;content&quot;&gt; 
+      &lt;pre&gt;55
+-----------------------------397924929223145234582961090009--&lt;/pre&gt; 
+     &lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;The parts of the message are delimited by the boundary string. Also note, that the content can (partially) be binary. You’ll find the details of message format in RFC 7578 &lt;a href=&quot;https://tools.ietf.org/html/rfc7578&quot;&gt;Returning Values from Forms: multipart/form-data&lt;/a&gt;.&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;To detect the boundary, but not consume bytes if some message content looks like the beginning of the boundary, a kind of read-ahead is required. The simplest way to implement such a read-ahead is to use the methods &lt;code&gt;InputStream#mark&lt;/code&gt; and &lt;code&gt;InputStream#reset&lt;/code&gt;. Therefor, the input stream is wrapped into a &lt;code&gt;BufferedInputStream&lt;/code&gt; on demand:&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;listingblock&quot;&gt; 
+     &lt;div class=&quot;content&quot;&gt; 
+      &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;if (!entityStream.markSupported()) {
+    LOGGER.debug(&quot;Wrap entity input stream to buffered input stream to support mark and reset operations.&quot;);
+    return new BufferedInputStream(inputStream);
+} else {
+    return inputStream;
+}&lt;/code&gt;&lt;/pre&gt; 
+     &lt;/div&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;The boundary detection in the method &lt;code&gt;PartInputStream#read&lt;/code&gt; relies on the mark/reset mechanism which allows to read-ahead some content and rewind the read position if required.&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;In addition, the &lt;code&gt;PartInputStream&lt;/code&gt; class contains the detection if the last part has been reached.&lt;/p&gt; 
+    &lt;/div&gt; 
+    &lt;div class=&quot;paragraph&quot;&gt; 
+     &lt;p&gt;The implementation does actually have some complexity, but gives the best API user experience.&lt;/p&gt; 
+    &lt;/div&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_summary&quot;&gt;Summary&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;When it comes to processing of multipart form-data messages by JAXRS servers, it depends on the general condition of the project and the team, which route to go. But because there are alternatives to the proprietary solutions, I’d in almost all cases avoid a non-portable approach.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;While the Servlet approach requires code of less complexity, the JAXRS solution is more general and gives a nicer and simpler API for the application developer. Both are viable solutions and choosing one of them is a matter of project circumstances and may be taste.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart&quot;&gt; Source Code of Multipart/Form-Data Project&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://docs.jboss.org/resteasy/docs/4.6.0.Final/userguide/html/Multipart.html&quot;&gt; RestEasy Multipart Providers&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://nofluffjuststuff.com/blog/jason_lee1/2014/05/file_uploads_with_jax_rs_2&quot;&gt; File Uploads with JAX-RS 2 by Jason Lee&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://tools.ietf.org/html/rfc7578&quot;&gt;RFC 7578 - Returning Values from Forms: multipart/form-data&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
+    <item>
       <title>JAXRS Multipart Client</title>
-      <link>http://localhost:8080/blog_2021/jaxrs-multipart-client.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-client.html</link>
       <pubDate>Mon, 22 Feb 2021 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2021/jaxrs-multipart-client.html</guid>
       	<description>
@@ -53,7 +281,7 @@
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8080/assets/img/File_Upload_Form.png&quot; alt=&quot;File Upload Form&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/File_Upload_Form.png&quot; alt=&quot;File Upload Form&quot;&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
@@ -363,7 +591,7 @@ try (Response response = &lt;i class=&quot;conum&quot; data-value=&quot;5&quot;&
     </item>
     <item>
       <title>Wildfly Bootable JAR</title>
-      <link>http://localhost:8080/blog_2021/wildfly-bootable-jar.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar.html</link>
       <pubDate>Sat, 30 Jan 2021 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2021/wildfly-bootable-jar.html</guid>
       	<description>
@@ -630,7 +858,7 @@ config.ordinal=200&lt;/code&gt;&lt;/pre&gt;
     </item>
     <item>
       <title>Dependency Injection Without Framework</title>
-      <link>http://localhost:8080/blog_2020/di-without-framework.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/di-without-framework.html</link>
       <pubDate>Thu, 31 Dec 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/di-without-framework.html</guid>
       	<description>
@@ -779,7 +1007,7 @@ config.ordinal=200&lt;/code&gt;&lt;/pre&gt;
     </item>
     <item>
       <title>Maven And The Classpath</title>
-      <link>http://localhost:8080/blog_2020/maven-classpath.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/maven-classpath.html</link>
       <pubDate>Sun, 22 Nov 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/maven-classpath.html</guid>
       	<description>
@@ -971,7 +1199,7 @@ config.ordinal=200&lt;/code&gt;&lt;/pre&gt;
     </item>
     <item>
       <title>Executable Scripts with Java</title>
-      <link>http://localhost:8080/blog_2020/executable-java-scripting.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/executable-java-scripting.html</link>
       <pubDate>Tue, 20 Oct 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/executable-java-scripting.html</guid>
       	<description>
@@ -1137,7 +1365,7 @@ $&lt;/pre&gt;
     </item>
     <item>
       <title>Cloud-native Java with Quarkus</title>
-      <link>http://localhost:8080/blog_2020/quarkus-first-steps.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/quarkus-first-steps.html</link>
       <pubDate>Fri, 21 Aug 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/quarkus-first-steps.html</guid>
       	<description>
@@ -1539,7 +1767,7 @@ gunther/quarkus-chat-sse                                           0-SNAPSHOT   
     </item>
     <item>
       <title>Sharing Host File with Container</title>
-      <link>http://localhost:8080/blog_2020/file-sharing-with-container.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/file-sharing-with-container.html</link>
       <pubDate>Tue, 9 Jun 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/file-sharing-with-container.html</guid>
       	<description>
@@ -1584,7 +1812,7 @@ gunther/quarkus-chat-sse                                           0-SNAPSHOT   
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8080/assets/img/Eclipse_Theia.png&quot; alt=&quot;Image: Eclipse Theia Workspace&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/Eclipse_Theia.png&quot; alt=&quot;Image: Eclipse Theia Workspace&quot;&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -1701,7 +1929,7 @@ uid=1000(node) gid=1000(node) groups=1000(node)&lt;/code&gt;&lt;/pre&gt;
     </item>
     <item>
       <title>Cloud-native Java</title>
-      <link>http://localhost:8080/blog_2020/containerized-java-app.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/containerized-java-app.html</link>
       <pubDate>Sun, 17 May 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/containerized-java-app.html</guid>
       	<description>
@@ -1812,7 +2040,7 @@ CMD [&quot;java&quot;, &quot;-Djava.net.preferIPv4Stack=true&quot;, &quot;-Djava
     </item>
     <item>
       <title>OpenApi generated JAX/RS Service: Bean Validation</title>
-      <link>http://localhost:8080/blog_2020/openapi-bean-validation.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/openapi-bean-validation.html</link>
       <pubDate>Sun, 19 Apr 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/openapi-bean-validation.html</guid>
       	<description>
@@ -2332,7 +2560,7 @@ public @interface CheckMinLessOrEqualMax {
     </item>
     <item>
       <title>OpenApi generated JAX/RS Service: JAX/RS Context</title>
-      <link>http://localhost:8080/blog_2020/openapi-jaxrs-context.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-context.html</link>
       <pubDate>Mon, 23 Mar 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/openapi-jaxrs-context.html</guid>
       	<description>
@@ -2724,7 +2952,7 @@ public class JAXRSContext {
     </item>
     <item>
       <title>JBake, Asciidoc and PlantUML</title>
-      <link>http://localhost:8080/blog_2020/jbake-asciidoctor-plantuml.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/jbake-asciidoctor-plantuml.html</link>
       <pubDate>Sat, 29 Feb 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/jbake-asciidoctor-plantuml.html</guid>
       	<description>
@@ -2793,7 +3021,7 @@ Alice &amp;lt;-- Bob: another authentication Response
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8080/assets/img/asciidoctor-sequence-diagram.png&quot; alt=&quot;asciidoctor sequence diagram&quot; width=&quot;298&quot; height=&quot;214&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/asciidoctor-sequence-diagram.png&quot; alt=&quot;asciidoctor sequence diagram&quot; width=&quot;298&quot; height=&quot;214&quot;&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
   &lt;div class=&quot;paragraph&quot;&gt; 
@@ -2827,7 +3055,7 @@ end legend
   &lt;/div&gt; 
   &lt;div class=&quot;imageblock&quot;&gt; 
    &lt;div class=&quot;content&quot;&gt; 
-    &lt;img src=&quot;http://localhost:8080/assets/img/file-system-tree.png&quot; alt=&quot;file system tree&quot; width=&quot;164&quot; height=&quot;196&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/file-system-tree.png&quot; alt=&quot;file system tree&quot; width=&quot;164&quot; height=&quot;196&quot;&gt; 
    &lt;/div&gt; 
   &lt;/div&gt; 
  &lt;/div&gt; 
@@ -2836,7 +3064,7 @@ end legend
     </item>
     <item>
       <title>OpenAPI generated JAX/RS Service: Binary Encoding</title>
-      <link>http://localhost:8080/blog_2020/openapi-jaxrs-encoding-configuration.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-encoding-configuration.html</link>
       <pubDate>Mon, 24 Feb 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/openapi-jaxrs-encoding-configuration.html</guid>
       	<description>
@@ -2906,7 +3134,7 @@ public class JsonbConfigurator implements ContextResolver&amp;lt;Jsonb&amp;gt; {
     </item>
     <item>
       <title>Maven Dependecy Analyzis Plugin</title>
-      <link>http://localhost:8080/blog_2020/maven-dependency-analysis-plugin.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/maven-dependency-analysis-plugin.html</link>
       <pubDate>Wed, 12 Feb 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/maven-dependency-analysis-plugin.html</guid>
       	<description>
@@ -2950,7 +3178,7 @@ public class JsonbConfigurator implements ContextResolver&amp;lt;Jsonb&amp;gt; {
     </item>
     <item>
       <title>Non-Jekyll Github Pages</title>
-      <link>http://localhost:8080/blog_2020/non-jekyll-github-pages.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/non-jekyll-github-pages.html</link>
       <pubDate>Sat, 1 Feb 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/non-jekyll-github-pages.html</guid>
       	<description>
@@ -3032,7 +3260,7 @@ public class JsonbConfigurator implements ContextResolver&amp;lt;Jsonb&amp;gt; {
     </item>
     <item>
       <title>JBake Blog with Maven Plugin</title>
-      <link>http://localhost:8080/blog_2020/jbake-blog-with-maven.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/jbake-blog-with-maven.html</link>
       <pubDate>Tue, 21 Jan 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/jbake-blog-with-maven.html</guid>
       	<description>
@@ -3068,7 +3296,7 @@ public class JsonbConfigurator implements ContextResolver&amp;lt;Jsonb&amp;gt; {
    &lt;/div&gt; 
    &lt;div class=&quot;imageblock&quot;&gt; 
     &lt;div class=&quot;content&quot;&gt; 
-     &lt;img src=&quot;http://localhost:8080/assets/img/Github_Pages_Setting_Blog.png&quot; alt=&quot;Image: Github Pages Setting&quot;&gt; 
+     &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/Github_Pages_Setting_Blog.png&quot; alt=&quot;Image: Github Pages Setting&quot;&gt; 
     &lt;/div&gt; 
    &lt;/div&gt; 
    &lt;div class=&quot;paragraph&quot;&gt; 

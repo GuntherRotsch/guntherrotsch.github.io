@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>JAXRS Multipart Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>JAXRS Multipart Server</h1>
+	</div>
+
+	<p><em>13 March 2021</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>Multipart form-data messages are a standard format when submitting HTML forms by web applications. If you want to learn more about the processing of such requests by Jakarta EE JAXRS servers this Blog post might be interesting for you.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div id="preamble"> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>&nbsp;</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>In the recent Blog post <a href="https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-client.html">JAXR Multipart Client</a> I had a look on multipart form-data messages from the perspective of a client. The situation on the server-side is not less difficult.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>One might say, that multipart form-data messages are usually used in web applications while JAXRS targets to implement APIs - that might also be the reasoning behind leaving multipart messages out of the JAXRS standard. But you’ll likely find multipart form-data messages in APIs when it comes to file uploads. Furthermore, the coming Jakarta EE 9 standard includes MVC, an action based web application framework, which is build on top of JAXRS. In the context of MVC I’d expect multipart form-data messages as typical use case.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>There are several options to process multipart form-data messages by a JAXRS server.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_proprietary_solutions">Proprietary Solutions</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>As always, if the standard does not cover a generally used feature, proprietary solutions are present. Every supplier of a JAXRS implemention provides support of multipart messages. For example JBoss comes with <a href="https://docs.jboss.org/resteasy/docs/4.6.0.Final/userguide/html/Multipart.html"> RestEasy Multipart Providers</a>. The API looks simple and straight-forward:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@POST
+@Consumes("multipart/form-data")
+public Response postForm(MultipartFormDataInput input) {
+    ...
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The RestEasy <code>Provider</code> for <code>multipart/form-data</code> messages takes care of the de-marshalling of the HTTP message body and converts them to the Java object <code>MultipartFormDataInput</code> representation.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>However, as always, proprietary solutions defeat the most valuable benefit of standards like JAXRS, which is portability. But there are other options to process multipart messages.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_servlet_api">Servlet API</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>The Servlet API supports the processing of multipart messages since version 3.0. Because Servlet requests can be injected into JAXRS resources as context objects, the integration of the APIs is very easy:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@POST
+@Consumes("multipart/form-data")
+public Response formPost(@Context javax.servlet.http.HttpServletRequest request) {
+    ...
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Calling the <code>getParts</code> method on the injected <code>request</code> object returns a collection of <code>javax.servlet.http.Part</code> objects.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>I don’t want to go into any detail of such an implementation, but the Blog post <a href="https://nofluffjuststuff.com/blog/jason_lee1/2014/05/file_uploads_with_jax_rs_2"> File Uploads with JAX-RS 2 by Jason Lee</a> describes a sample implementation of this approach.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Because the Servlet API is rather low-level compared to JAXRS, more application code is typically required. Nevertheless, because of the standard compliance and the plus of portability, I’d prefer the Servlet API approach over proprietary solutions.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_jaxrs_solution">JAXRS Solution</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>If you’re read my Blog post <a href="https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-client.html">JAXR Multipart Client</a>, you might remember the custom <code>MessageBodyWriter</code> approach presented there. Analogous, we could implement a <code>MessageBodyReader</code> on the server-side. The JAXRS resource would as follows:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@POST
+@Consumes("multipart/form-data")
+public Response postFormData(MultiPartMessage message) {
+    ...
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Objects of type <code>MultiPartMessage</code> are Pojos representing multipart messages, the same as used on the client-side.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Because parsing multipart messages is more difficult than creating them, the implementation of <code>MultiPartMessageBodyReader</code> is more challenging than the <code>MultiPartMessageBodyWriter</code> of the client has been.</p> 
+  </div> 
+  <div class="sect2"> 
+   <h3 id="_implementation">Implementation</h3> 
+   <div class="paragraph"> 
+    <p>I won’t list the entire implementation here, but give you enough information understand the code, you’ll find in the <code>portable-server</code> module of the <a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart"> Multipart/Form-Data Project</a>.</p> 
+   </div> 
+   <div class="sect3"> 
+    <h4 id="_multipartmessagebodyreader_class">MultiPartMessageBodyReader Class</h4> 
+    <div class="paragraph"> 
+     <p>The <code>MessageBodyReader</code> is the entry point of JAXRS integration:</p> 
+    </div> 
+    <div class="listingblock"> 
+     <div class="content"> 
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Provider
+@Consumes("multipart/form-data")
+public class MultiPartMessageBodyReader implements MessageBodyReader&lt;MultiPartMessage&gt; {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MultiPartMessageBodyReader.class);
+
+	@Override
+	public boolean isReadable(Class&lt;?&gt; type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+		LOGGER.info("isReadable called with type: {} and mediaType: {}", type, mediaType);
+		return MultiPartMessage.class.isAssignableFrom(type)
+				&amp;&amp; mediaType.toString().toLowerCase().startsWith("multipart/form-data");
+	}
+
+	@Override
+	public MultiPartMessage readFrom(Class&lt;MultiPartMessage&gt; type, Type genericType, Annotation[] annotations,
+			MediaType mediaType, MultivaluedMap&lt;String, String&gt; httpHeaders, InputStream entityStream)
+            throws IOException, WebApplicationException {
+        ...
+    }
+]</code></pre> 
+     </div> 
+    </div> 
+    <div class="paragraph"> 
+     <p>The <code>@Provider</code> annotation declares the class to JAXRS, which calls this reader when the de-marshalling of messages of content type <code>multipart/from-data</code> is required.</p> 
+    </div> 
+    <div class="paragraph"> 
+     <p>The challenging task of the <code>readFrom</code> method is the parsing of the message given as input stream. While the <code>MultiPartMessageBodyReader</code> parses individual parts, the separating of the parts of the input stream is delegated to the <code>PartInputStream</code>. The following diagram show the principle behind:</p> 
+    </div> 
+    <div class="imageblock"> 
+     <div class="content"> 
+      <img src="https://guntherrotsch.github.io/assets/img/Multipart_Message_Parsing.png" alt="Multi-part Message Input Streams"> 
+     </div> 
+    </div> 
+    <div class="paragraph"> 
+     <p>The <code>InputStream</code> is wrapped by a <code>PartInputStream</code>, which returns bytes until the boundary is reached. The <code>InputStream</code> can then be wrapped by another <code>PartInputStream</code>, which returns the end-of-file indicator when the next boundary is reached. This goes on till all parts are consumed from the input stream.</p> 
+    </div> 
+   </div> 
+   <div class="sect3"> 
+    <h4 id="_partinputstream_class">PartInputStream Class</h4> 
+    <div class="paragraph"> 
+     <p>Before going into the nifty details of the implementation of the boundary detection, let’s re-cap the structure of the messages, which look for example like:</p> 
+    </div> 
+    <div class="literalblock"> 
+     <div class="content"> 
+      <pre>-----------------------------397924929223145234582961090009
+Content-Disposition: form-data; name="file"; filename="duke.png"
+Content-Type: image/png</pre> 
+     </div> 
+    </div> 
+    <div class="literalblock"> 
+     <div class="content"> 
+      <pre>...binary content of PNG image...
+-----------------------------397924929223145234582961090009
+Content-Disposition: form-data; name="name"</pre> 
+     </div> 
+    </div> 
+    <div class="literalblock"> 
+     <div class="content"> 
+      <pre>Gunther
+-----------------------------397924929223145234582961090009
+Content-Disposition: form-data; name="age"</pre> 
+     </div> 
+    </div> 
+    <div class="literalblock"> 
+     <div class="content"> 
+      <pre>55
+-----------------------------397924929223145234582961090009--</pre> 
+     </div> 
+    </div> 
+    <div class="paragraph"> 
+     <p>The parts of the message are delimited by the boundary string. Also note, that the content can (partially) be binary. You’ll find the details of message format in RFC 7578 <a href="https://tools.ietf.org/html/rfc7578">Returning Values from Forms: multipart/form-data</a>.</p> 
+    </div> 
+    <div class="paragraph"> 
+     <p>To detect the boundary, but not consume bytes if some message content looks like the beginning of the boundary, a kind of read-ahead is required. The simplest way to implement such a read-ahead is to use the methods <code>InputStream#mark</code> and <code>InputStream#reset</code>. Therefor, the input stream is wrapped into a <code>BufferedInputStream</code> on demand:</p> 
+    </div> 
+    <div class="listingblock"> 
+     <div class="content"> 
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">if (!entityStream.markSupported()) {
+    LOGGER.debug("Wrap entity input stream to buffered input stream to support mark and reset operations.");
+    return new BufferedInputStream(inputStream);
+} else {
+    return inputStream;
+}</code></pre> 
+     </div> 
+    </div> 
+    <div class="paragraph"> 
+     <p>The boundary detection in the method <code>PartInputStream#read</code> relies on the mark/reset mechanism which allows to read-ahead some content and rewind the read position if required.</p> 
+    </div> 
+    <div class="paragraph"> 
+     <p>In addition, the <code>PartInputStream</code> class contains the detection if the last part has been reached.</p> 
+    </div> 
+    <div class="paragraph"> 
+     <p>The implementation does actually have some complexity, but gives the best API user experience.</p> 
+    </div> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_summary">Summary</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>When it comes to processing of multipart form-data messages by JAXRS servers, it depends on the general condition of the project and the team, which route to go. But because there are alternatives to the proprietary solutions, I’d in almost all cases avoid a non-portable approach.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>While the Servlet approach requires code of less complexity, the JAXRS solution is more general and gives a nicer and simpler API for the application developer. Both are viable solutions and choosing one of them is a matter of project circumstances and may be taste.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_links">Links</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-multipart"> Source Code of Multipart/Form-Data Project</a></p> </li> 
+    <li> <p><a href="https://docs.jboss.org/resteasy/docs/4.6.0.Final/userguide/html/Multipart.html"> RestEasy Multipart Providers</a></p> </li> 
+    <li> <p><a href="https://nofluffjuststuff.com/blog/jason_lee1/2014/05/file_uploads_with_jax_rs_2"> File Uploads with JAX-RS 2 by Jason Lee</a></p> </li> 
+    <li> <p><a href="https://tools.ietf.org/html/rfc7578">RFC 7578 - Returning Values from Forms: multipart/form-data</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/multipart-form.html">multipart-form</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jaxrs.html">jaxrs</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jakarta-ee.html">jakarta-ee</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2020 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>

@@ -1,71 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
-        <loc>http://localhost:8080/contact.html</loc>
+        <loc>https://guntherrotsch.github.io/contact.html</loc>
         <lastmod>2020-01-21</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/about.html</loc>
+        <loc>https://guntherrotsch.github.io/about.html</loc>
         <lastmod>2020-01-14</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2021/jaxrs-multipart-client.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-server.html</loc>
+        <lastmod>2021-03-13</lastmod>
+    </url>
+    <url>
+        <loc>https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-client.html</loc>
         <lastmod>2021-02-22</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2021/wildfly-bootable-jar.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar.html</loc>
         <lastmod>2021-01-30</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/di-without-framework.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/di-without-framework.html</loc>
         <lastmod>2020-12-31</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/maven-classpath.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/maven-classpath.html</loc>
         <lastmod>2020-11-22</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/executable-java-scripting.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/executable-java-scripting.html</loc>
         <lastmod>2020-10-20</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/quarkus-first-steps.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/quarkus-first-steps.html</loc>
         <lastmod>2020-08-21</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/file-sharing-with-container.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/file-sharing-with-container.html</loc>
         <lastmod>2020-06-09</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/containerized-java-app.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/containerized-java-app.html</loc>
         <lastmod>2020-05-17</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/openapi-bean-validation.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/openapi-bean-validation.html</loc>
         <lastmod>2020-04-19</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/openapi-jaxrs-context.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-context.html</loc>
         <lastmod>2020-03-23</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/jbake-asciidoctor-plantuml.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/jbake-asciidoctor-plantuml.html</loc>
         <lastmod>2020-02-29</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/openapi-jaxrs-encoding-configuration.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-encoding-configuration.html</loc>
         <lastmod>2020-02-24</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/maven-dependency-analysis-plugin.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/maven-dependency-analysis-plugin.html</loc>
         <lastmod>2020-02-12</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/non-jekyll-github-pages.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/non-jekyll-github-pages.html</loc>
         <lastmod>2020-02-01</lastmod>
     </url>
     <url>
-        <loc>http://localhost:8080/blog_2020/jbake-blog-with-maven.html</loc>
+        <loc>https://guntherrotsch.github.io/blog_2020/jbake-blog-with-maven.html</loc>
         <lastmod>2020-01-21</lastmod>
     </url>
 </urlset>
