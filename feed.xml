@@ -6,9 +6,124 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sun, 14 Mar 2021 13:23:56 +0100</pubDate>
-    <lastBuildDate>Sun, 14 Mar 2021 13:23:56 +0100</lastBuildDate>
+    <pubDate>Fri, 26 Mar 2021 10:09:28 +0100</pubDate>
+    <lastBuildDate>Fri, 26 Mar 2021 10:09:28 +0100</lastBuildDate>
 
+    <item>
+      <title>Wildfly Bootable JAR Starter</title>
+      <link>https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar-starter.html</link>
+      <pubDate>Fri, 26 Mar 2021 00:00:00 +0100</pubDate>
+      <guid isPermaLink="false">blog_2021/wildfly-bootable-jar-starter.html</guid>
+      	<description>
+	&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_microprofile_starter&quot;&gt;Microprofile Starter&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The &lt;a href=&quot;https://start.microprofile.io/&quot;&gt;Microprofile Starter Page&lt;/a&gt; lists Wildfly as supported runtime:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/Microprofile_Starter.png&quot; alt=&quot;Microprofile Starter Page&quot;&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;After extracting the downloaded project package, you’ll happily notice that a Wildfly Bootable JAR project is setup. The configured Galleon layers are configured according to the selected MP specifications.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The setup project can already be build by &lt;code&gt;mvn package&lt;/code&gt; and the application executed. Although, you’re ready to add the business logic to your application, I recommend to upgrade the Wildfly Bootable JAR plugin and the Wildfly application server, both are not up to date in the &lt;em&gt;MicroProfile Starter&lt;/em&gt; setup.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_upgrade_wildfly_bootable_jar_plugin&quot;&gt;Upgrade Wildfly Bootable Jar Plugin&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The Maven plugin is defined in the &lt;code&gt;&amp;lt;build&amp;gt;&lt;/code&gt; section of the project’s POM, apparently. You’ll find the latest plugin on &lt;a href=&quot;https://search.maven.org/artifact/org.wildfly.plugins/wildfly-jar-maven-plugin&quot;&gt; Maven Central&lt;/a&gt;. At the time of writing the latest released version is &lt;code&gt;4.0.1.Final&lt;/code&gt;.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_upgrade_wildfly_application_server&quot;&gt;Upgrade Wildfly Application Server&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The version of the Wildfly application server is also defined in the project’s POM. In this case the &lt;code&gt;&amp;lt;properties&amp;gt;&lt;/code&gt; section contains the configuration:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;properties&amp;gt;
+  &amp;lt;maven.compiler.target&amp;gt;11&amp;lt;/maven.compiler.target&amp;gt;
+  &amp;lt;version.wildfly&amp;gt;22.0.1.Final&amp;lt;/version.wildfly&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
+  &amp;lt;failOnMissingWebXml&amp;gt;false&amp;lt;/failOnMissingWebXml&amp;gt;
+  &amp;lt;maven.compiler.source&amp;gt;11&amp;lt;/maven.compiler.source&amp;gt;
+  &amp;lt;final.name&amp;gt;wildfly-starter&amp;lt;/final.name&amp;gt;
+&amp;lt;/properties&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;colist arabic&quot;&gt; 
+   &lt;table&gt; 
+    &lt;tbody&gt;
+     &lt;tr&gt; 
+      &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;1&lt;/b&gt;&lt;/td&gt; 
+      &lt;td&gt;The version of the Wildfly application server.&lt;/td&gt; 
+     &lt;/tr&gt; 
+    &lt;/tbody&gt;
+   &lt;/table&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The available versions are listed on the &lt;a href=&quot;https://www.wildfly.org/downloads/&quot;&gt;Wildfly Download Page&lt;/a&gt;.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_development&quot;&gt;Development&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The command &lt;code&gt;mvn clean package&lt;/code&gt; builds the application. By submitting the command &lt;code&gt;java -jar target/wildfly-starter-bootable.jar&lt;/code&gt; the application can be started from the command line. The application server logs to the console. In order to test the application, &lt;code&gt;cURL&lt;/code&gt; can be used in another shell:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-shell hljs&quot; data-lang=&quot;shell&quot;&gt;$ curl localhost:8080/data/hello -v
+*   Trying 127.0.0.1:8080...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&amp;gt; GET /data/hello HTTP/1.1
+&amp;gt; Host: localhost:8080
+&amp;gt; User-Agent: curl/7.68.0
+&amp;gt; Accept: */*
+&amp;gt;
+* Mark bundle as not supporting multiuse
+&amp;lt; HTTP/1.1 200 OK
+&amp;lt; Connection: keep-alive
+&amp;lt; Content-Type: application/octet-stream
+&amp;lt; Content-Length: 11
+&amp;lt; Date: Sun, 21 Mar 2021 15:57:06 GMT
+&amp;lt;
+* Connection #0 to host localhost left intact
+Hello World&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;That’s it, very easy and straight forward. Happy MicroProfiling with Wildfly Bootable JAR…​&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://docs.wildfly.org/bootablejar/&quot;&gt;WildFly Bootable JAR Documentation&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://start.microprofile.io/&quot;&gt;Microprofile Starter Page&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://www.wildfly.org/downloads/&quot;&gt;Wildfly Download Page&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;​&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>JAXRS Multipart Server</title>
       <link>https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-server.html</link>
