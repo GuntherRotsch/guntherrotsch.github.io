@@ -1,0 +1,221 @@
+= Jakarta MVC with FreeMarker
+Gunther Rotsch
+2021-04-22
+:jbake-type: post
+:jbake-tags: java, jakarta-ee, mvc, freemarker
+:jbake-status: published
+:jbake-summary: Jakarta MVC is the coming web UI framework under the hood of Jakarta EE. One exceptional feature of Jakarta MVC is the pluggable view engine architecture, which allows to integrate different template engines. This Blog post is about the integration of FreeMarker Template Engine with Jakarta MVC.
+
+== Jakarta MVC
+
+Action-based frameworks like Spring MVC, Grails, Struts, or Ruby on Rails are
+due their simplicity and ease of use very popular. The listed frameworks put the
+HTTP request/response cycle into the center of interest and avoid unnecessary
+abstractions. However, Jakarta EE (and its predecessor Java EE) provided only
+the component-based JSF framework for a long time. Because of the high level
+of abstractions JSF has a very steep learning curve.
+
+The https://jakarta.ee/specifications/mvc/[Jakarta MVC specification] describes
+how MVC is built on top of JAXRS, which makes MVC easily accessible for
+backend developers with JAXRS know how.
+The https://projects.eclipse.org/proposals/eclipse-krazo[Eclipse Krazo Project]
+is the reference implementation of Jakarta MVC.
+
+Because of the difficulties of the hand-over of Java EE from Oracle to the
+Open Source Community, Jakarta MVC missed the release train of Jakarta EE 8.
+Nevertheless, the reference implementation is compatible and available for
+most popular Jakarta EE 8 compliant application servers. For the sample
+project below I used Wildfly 22.0.1.Final packaged as Bootable Jar in
+combination with Eclipse Krazo 1.1.
+Anyhow, in Jakarta EE 9 the MVC standard is finally included.
+
+
+== MVC View Engine
+
+The template engine of the view component of Jakarta MVC can be freely chosen,
+whereby standard-compliant MVC implementations must provide JSP and JSF as
+view technology out of the box.  The two classes
+
+* `org.eclipse.krazo.engine.JspViewEngine`
+* `org.eclipse.krazo.engine.FaceletsViewEngine`
+
+are part of Eclipse Krazo and implement the view engines required by the
+standard.
+
+With the intended integration of
+https://freemarker.apache.org/[FreeMarker Java Template Engine] it should
+be possible, to define a controller like the following:
+
+[source]
+----
+@Path("hello")
+@Controller
+@RequestScoped
+public class GreetController {
+
+	private Models models;
+
+	public GreetController() {
+		// no-arg constructor required by CDI
+	}
+
+	@Inject
+	public GreetController(Models models) {
+		this.models = models;
+	}
+
+	@GET
+	public Viewable greet(@QueryParam("name") String name) {
+		models.put("visitor", name);
+		return new Viewable("greeting.ftl");
+	}
+}
+----
+
+The entire controller bean is pretty much standard, except that the template
+of the returned `Viewable` object points to a FreeMarker template. Given the
+template file `greeting.ftl` as:
+
+[source, xml]
+----
+<html>
+<head>
+  <title>Welcome!</title>
+</head>
+<body>
+  <h1>Hello, ${visitor}!</h1>
+</body>
+</html>
+----
+
+The application should render as follows when visited by a user:
+
+image::JakartaMvcApp_Hello.png[Jakarta MVC sample application]
+
+The visitor's name, which has been placed into the Jakarta MVC `Models` object,
+ends up in the processed FreeMarker template.
+
+== FreeMarker Integration
+
+In technical terms, view technologies are provided by implementing the interface
+`javax.mvc.engine.ViewEngine` - with Jakarta EE 9 the package name changes
+to `jakarta.mvc.engine.ViewEngine`. That means, that the integration of
+FreeMarker template engine requires the implementation of the `ViewEngine`
+interface:
+
+[source]
+----
+@ApplicationScoped
+@Priority(ViewEngine.PRIORITY_APPLICATION)
+public class FreeMarkerViewEngine implements ViewEngine {
+
+	// FreeMarker configuration is initialized lazily
+	private volatile Configuration cfg;
+
+	@Override
+	public boolean supports(String view) {
+		return view.endsWith(".ftl");
+	}
+
+	@Override
+	public void processView(ViewEngineContext context) throws ViewEngineException {
+		ensureInit(context);
+
+		Models models = context.getModels();
+		try {
+			Template temp = cfg.getTemplate(context.getView());
+			/* Merge data-model with template */
+			Writer out = new OutputStreamWriter(context.getOutputStream());
+			temp.process(models, out);
+		} catch (IOException | TemplateException e) {
+			throw new ViewEngineException(e);
+		}
+	}
+
+	private void ensureInit(ViewEngineContext context) {
+		if (cfg == null) {
+			synchronized (FreeMarkerViewEngine.class) {
+				if (cfg == null) {
+					HttpServletRequest httpRequest = context.getRequest(HttpServletRequest.class);
+					Map<String, Object> appConfig = context.getConfiguration().getProperties();
+					Object viewFolderConfig = appConfig.get(ViewEngine.VIEW_FOLDER);
+					String viewFolder = viewFolderConfig != null ? viewFolderConfig.toString() : DEFAULT_VIEW_FOLDER;
+
+					// Create your Configuration instance, and specify if up to what FreeMarker
+					// version (here 2.3.29) do you want to apply the fixes that are not 100%
+					// backward-compatible. See the Configuration JavaDoc for details.
+					cfg = new Configuration(Configuration.VERSION_2_3_29);
+
+					// Specify the source where the template files come from. Here I set a
+					// plain directory for it, but non-file-system sources are possible too:
+					cfg.setServletContextForTemplateLoading(httpRequest.getServletContext(), viewFolder);
+
+					// From here we will set the settings recommended for new projects. These
+					// aren't the defaults for backward compatibility.
+
+					// Set the preferred charset template files are stored in. UTF-8 is
+					// a good choice in most applications:
+					cfg.setDefaultEncoding("UTF-8");
+
+					// Sets how errors will appear.
+					// During web page *development* TemplateExceptionHandler.HTML_DEBUG_HANDLER is
+					// better.
+					cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+
+					// Don't log exceptions inside FreeMarker that it will thrown at you anyway:
+					cfg.setLogTemplateExceptions(false);
+
+					// Wrap unchecked exceptions thrown during template processing into
+					// TemplateException-s:
+					cfg.setWrapUncheckedExceptions(true);
+
+					// Do not fall back to higher scopes when reading a null loop variable:
+					cfg.setFallbackOnNullLoopVariable(false);
+				}
+			}
+		}
+	}
+}
+----
+
+Because view engines are CDI beans, `FreeMarkerViewEngine` is automatically
+picked up by Jakarta MVC as candidate for rendering views. Whether this engine
+is requested to render views at runtime is a matter of the priority (annotation)
+and the result of the `supports(String view)` method call. The standard explains
+the the selection mechanism in detail.
+
+The configuration of the FreeMarker template engine defines the location to
+load templates, which requires the Servlet context. Because the Servlet context
+becomes available with an HTTP request, the lazy initialization of FreeMarker's
+`Configuration` is delayed till the first rendering request arrives. The lazy
+initialization also makes synchronization and the application of the
+double-checked locking pattern necessary.
+
+[NOTE]
+FreeMarker's `Configuration` is thread-safe after the last configuration setting
+is done.
+
+When stripping off the setup and configuration of the template engine, the
+actual integration into Jakarta MVC boils down to the lines:
+
+[source]
+----
+   Writer out = new OutputStreamWriter(context.getOutputStream());
+   temp.process(models, out);
+----
+
+Beside the stream output writer, which eventually wraps the output stream
+of the HTTP request, the MVC model mappings need to be adapted to the
+template engine. Because MVC `Models` implements Java's `Map` interface, this
+object can be passed directly as model object into the FreeMarker template
+engine.
+
+The demo project shows the ease of use of the Jakarta MVC view technology and
+the simplicity of integrating different template engines.
+
+== Links
+
+- https://jakarta.ee/specifications/mvc/[Jakarta MVC]
+- https://projects.eclipse.org/proposals/eclipse-krazo[Eclipse Krazo -
+Jakarta MVC Reference Implementation]
+- https://freemarker.apache.org/[FreeMarker Java Template Engine]
