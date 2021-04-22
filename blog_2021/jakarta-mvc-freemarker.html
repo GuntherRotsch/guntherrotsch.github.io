@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Jakarta MVC with FreeMarker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Jakarta MVC with FreeMarker</h1>
+	</div>
+
+	<p><em>22 April 2021</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>Jakarta MVC is the coming web UI framework under the hood of Jakarta EE. One exceptional feature of Jakarta MVC is the pluggable view engine architecture, which allows to integrate different template engines. This Blog post is about the integration of FreeMarker Template Engine with Jakarta MVC.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div class="sect1"> 
+ <h2 id="_jakarta_mvc">Jakarta MVC</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Action-based frameworks like Spring MVC, Grails, Struts, or Ruby on Rails are due their simplicity and ease of use very popular. The listed frameworks put the HTTP request/response cycle into the center of interest and avoid unnecessary abstractions. However, Jakarta EE (and its predecessor Java EE) provided only the component-based JSF framework for a long time. Because of the high level of abstractions JSF has a very steep learning curve.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The <a href="https://jakarta.ee/specifications/mvc/">Jakarta MVC specification</a> describes how MVC is built on top of JAXRS, which makes MVC easily accessible for backend developers with JAXRS know how. The <a href="https://projects.eclipse.org/proposals/eclipse-krazo">Eclipse Krazo Project</a> is the reference implementation of Jakarta MVC.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Because of the difficulties of the hand-over of Java EE from Oracle to the Open Source Community, Jakarta MVC missed the release train of Jakarta EE 8. Nevertheless, the reference implementation is compatible and available for most popular Jakarta EE 8 compliant application servers. For the sample project below I used Wildfly 22.0.1.Final packaged as Bootable Jar in combination with Eclipse Krazo 1.1. Anyhow, in Jakarta EE 9 the MVC standard is finally included.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_mvc_view_engine">MVC View Engine</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>The template engine of the view component of Jakarta MVC can be freely chosen, whereby standard-compliant MVC implementations must provide JSP and JSF as view technology out of the box. The two classes</p> 
+  </div> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><code>org.eclipse.krazo.engine.JspViewEngine</code></p> </li> 
+    <li> <p><code>org.eclipse.krazo.engine.FaceletsViewEngine</code></p> </li> 
+   </ul> 
+  </div> 
+  <div class="paragraph"> 
+   <p>are part of Eclipse Krazo and implement the view engines required by the standard.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>With the intended integration of <a href="https://freemarker.apache.org/">FreeMarker Java Template Engine</a> it should be possible, to define a controller like the following:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code>@Path("hello")
+@Controller
+@RequestScoped
+public class GreetController {
+
+	private Models models;
+
+	public GreetController() {
+		// no-arg constructor required by CDI
+	}
+
+	@Inject
+	public GreetController(Models models) {
+		this.models = models;
+	}
+
+	@GET
+	public Viewable greet(@QueryParam("name") String name) {
+		models.put("visitor", name);
+		return new Viewable("greeting.ftl");
+	}
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The entire controller bean is pretty much standard, except that the template of the returned <code>Viewable</code> object points to a FreeMarker template. Given the template file <code>greeting.ftl</code> as:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Welcome!&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello, ${visitor}!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The application should render as follows when visited by a user:</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://guntherrotsch.github.io/assets/img/JakartaMvcApp_Hello.png" alt="Jakarta MVC sample application"> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The visitor’s name, which has been placed into the Jakarta MVC <code>Models</code> object, ends up in the processed FreeMarker template.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_freemarker_integration">FreeMarker Integration</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>In technical terms, view technologies are provided by implementing the interface <code>javax.mvc.engine.ViewEngine</code> - with Jakarta EE 9 the package name changes to <code>jakarta.mvc.engine.ViewEngine</code>. That means, that the integration of FreeMarker template engine requires the implementation of the <code>ViewEngine</code> interface:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code>@ApplicationScoped
+@Priority(ViewEngine.PRIORITY_APPLICATION)
+public class FreeMarkerViewEngine implements ViewEngine {
+
+	// FreeMarker configuration is initialized lazily
+	private volatile Configuration cfg;
+
+	@Override
+	public boolean supports(String view) {
+		return view.endsWith(".ftl");
+	}
+
+	@Override
+	public void processView(ViewEngineContext context) throws ViewEngineException {
+		ensureInit(context);
+
+		Models models = context.getModels();
+		try {
+			Template temp = cfg.getTemplate(context.getView());
+			/* Merge data-model with template */
+			Writer out = new OutputStreamWriter(context.getOutputStream());
+			temp.process(models, out);
+		} catch (IOException | TemplateException e) {
+			throw new ViewEngineException(e);
+		}
+	}
+
+	private void ensureInit(ViewEngineContext context) {
+		if (cfg == null) {
+			synchronized (FreeMarkerViewEngine.class) {
+				if (cfg == null) {
+					HttpServletRequest httpRequest = context.getRequest(HttpServletRequest.class);
+					Map&lt;String, Object&gt; appConfig = context.getConfiguration().getProperties();
+					Object viewFolderConfig = appConfig.get(ViewEngine.VIEW_FOLDER);
+					String viewFolder = viewFolderConfig != null ? viewFolderConfig.toString() : DEFAULT_VIEW_FOLDER;
+
+					// Create your Configuration instance, and specify if up to what FreeMarker
+					// version (here 2.3.29) do you want to apply the fixes that are not 100%
+					// backward-compatible. See the Configuration JavaDoc for details.
+					cfg = new Configuration(Configuration.VERSION_2_3_29);
+
+					// Specify the source where the template files come from. Here I set a
+					// plain directory for it, but non-file-system sources are possible too:
+					cfg.setServletContextForTemplateLoading(httpRequest.getServletContext(), viewFolder);
+
+					// From here we will set the settings recommended for new projects. These
+					// aren't the defaults for backward compatibility.
+
+					// Set the preferred charset template files are stored in. UTF-8 is
+					// a good choice in most applications:
+					cfg.setDefaultEncoding("UTF-8");
+
+					// Sets how errors will appear.
+					// During web page *development* TemplateExceptionHandler.HTML_DEBUG_HANDLER is
+					// better.
+					cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+
+					// Don't log exceptions inside FreeMarker that it will thrown at you anyway:
+					cfg.setLogTemplateExceptions(false);
+
+					// Wrap unchecked exceptions thrown during template processing into
+					// TemplateException-s:
+					cfg.setWrapUncheckedExceptions(true);
+
+					// Do not fall back to higher scopes when reading a null loop variable:
+					cfg.setFallbackOnNullLoopVariable(false);
+				}
+			}
+		}
+	}
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Because view engines are CDI beans, <code>FreeMarkerViewEngine</code> is automatically picked up by Jakarta MVC as candidate for rendering views. Whether this engine is requested to render views at runtime is a matter of the priority (annotation) and the result of the <code>supports(String view)</code> method call. The standard explains the the selection mechanism in detail.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The configuration of the FreeMarker template engine defines the location to load templates, which requires the Servlet context. Because the Servlet context becomes available with an HTTP request, the lazy initialization of FreeMarker’s <code>Configuration</code> is delayed till the first rendering request arrives. The lazy initialization also makes synchronization and the application of the double-checked locking pattern necessary.</p> 
+  </div> 
+  <div class="admonitionblock note"> 
+   <table> 
+    <tbody>
+     <tr> 
+      <td class="icon"> <i class="fa icon-note" title="Note"></i> </td> 
+      <td class="content"> FreeMarker’s <code>Configuration</code> is thread-safe after the last configuration setting is done. </td> 
+     </tr> 
+    </tbody>
+   </table> 
+  </div> 
+  <div class="paragraph"> 
+   <p>When stripping off the setup and configuration of the template engine, the actual integration into Jakarta MVC boils down to the lines:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code>   Writer out = new OutputStreamWriter(context.getOutputStream());
+   temp.process(models, out);</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Beside the stream output writer, which eventually wraps the output stream of the HTTP request, the MVC model mappings need to be adapted to the template engine. Because MVC <code>Models</code> implements Java’s <code>Map</code> interface, this object can be passed directly as model object into the FreeMarker template engine.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The demo project shows the ease of use of the Jakarta MVC view technology and the simplicity of integrating different template engines.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_links">Links</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://jakarta.ee/specifications/mvc/">Jakarta MVC</a></p> </li> 
+    <li> <p><a href="https://projects.eclipse.org/proposals/eclipse-krazo">Eclipse Krazo - Jakarta MVC Reference Implementation</a></p> </li> 
+    <li> <p><a href="https://freemarker.apache.org/">FreeMarker Java Template Engine</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/mvc.html">mvc</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/freemarker.html">freemarker</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jakarta-ee.html">jakarta-ee</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>
