@@ -6,9 +6,281 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Thu, 22 Apr 2021 20:32:45 +0200</pubDate>
-    <lastBuildDate>Thu, 22 Apr 2021 20:32:45 +0200</lastBuildDate>
+    <pubDate>Wed, 12 May 2021 19:12:56 +0200</pubDate>
+    <lastBuildDate>Wed, 12 May 2021 19:12:56 +0200</lastBuildDate>
 
+    <item>
+      <title>Wildfly Bootable JAR and Static Content</title>
+      <link>https://guntherrotsch.github.io/blog_2021/wildfly-bootable-static-content.html</link>
+      <pubDate>Wed, 12 May 2021 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2021/wildfly-bootable-static-content.html</guid>
+      	<description>
+	&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_welcome_page&quot;&gt;Welcome Page&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Users of JBoss/Wildfly know the welcome page, which is returned when navigating to the application server’s root.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/JBoss_Welcome_Page.png&quot; alt=&quot;JBoss Welcome Page&quot;&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The shown page is actually static content hosted in the file &lt;code&gt;$JBOSS_HOME/welcome-content/index.html&lt;/code&gt;. The last two lines displayed on the page explain how to replace the content or get entirely rid of it. The referenced configuration of the Undertow subsystem is part of the application server’s &lt;code&gt;standalone.xml&lt;/code&gt; (stripped down to the crucial parts):&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;subsystem xmlns=&quot;urn:jboss:domain:undertow:3.0&quot;&amp;gt;
+    &amp;lt;buffer-cache name=&quot;default&quot;/&amp;gt;
+    &amp;lt;server name=&quot;default-server&quot;&amp;gt;
+        &amp;lt;http-listener name=&quot;default&quot; redirect-socket=&quot;https&quot; socket-binding=&quot;http&quot;/&amp;gt;
+        &amp;lt;host name=&quot;default-host&quot; alias=&quot;localhost&quot;&amp;gt;
+            &amp;lt;location name=&quot;/&quot; handler=&quot;welcome-content&quot;/&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
+            ...
+        &amp;lt;/host&amp;gt;
+    &amp;lt;/server&amp;gt;
+    ...
+    &amp;lt;handlers&amp;gt;
+        &amp;lt;file name=&quot;welcome-content&quot; path=&quot;${jboss.home.dir}/welcome-content&quot;/&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;
+        ...
+    &amp;lt;/handlers&amp;gt;
+    &amp;lt;filters&amp;gt;
+        ...
+    &amp;lt;/filters&amp;gt;
+&amp;lt;/subsystem&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;colist arabic&quot;&gt; 
+   &lt;table&gt; 
+    &lt;tbody&gt;
+     &lt;tr&gt; 
+      &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;1&lt;/b&gt;&lt;/td&gt; 
+      &lt;td&gt;The &lt;code&gt;name&lt;/code&gt; of the &lt;code&gt;location&lt;/code&gt; element defines the application server’s context, i.e. how users can reach the content.&lt;/td&gt; 
+     &lt;/tr&gt; 
+     &lt;tr&gt; 
+      &lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;2&lt;/b&gt;&lt;/td&gt; 
+      &lt;td&gt;The referenced &lt;code&gt;handler&lt;/code&gt; of type &lt;code&gt;file&lt;/code&gt; specifies where in the file system the content is hosted.&lt;/td&gt; 
+     &lt;/tr&gt; 
+    &lt;/tbody&gt;
+   &lt;/table&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;After having a look at the configuration of the web container of Wildfly/JBoss, nothing other is the Undertow subsystem, we go into the details of the packaging as Bootable JAR.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_handler_configuration&quot;&gt;Handler Configuration&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Wildfly Bootable JAR packaged applications (Single Fat JAR) are deployed to the root context of the application server. Therefor there cannot be a welcome page at the same location. But it’s still possible to define static content handler on a different (no-root) context.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;admonitionblock note&quot;&gt; 
+   &lt;table&gt; 
+    &lt;tbody&gt;
+     &lt;tr&gt; 
+      &lt;td class=&quot;icon&quot;&gt; &lt;i class=&quot;fa icon-note&quot; title=&quot;Note&quot;&gt;&lt;/i&gt; &lt;/td&gt; 
+      &lt;td class=&quot;content&quot;&gt; For demonstration purposes, the static content configuration has been added to the &lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo&quot;&gt; Jakarta MVC Demo application&lt;/a&gt;. So, if you prefer to study a complete example, then grab the linked repository (&lt;code&gt;code&lt;/code&gt; branch of Github repository of this Blog project). &lt;/td&gt; 
+     &lt;/tr&gt; 
+    &lt;/tbody&gt;
+   &lt;/table&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;To demonstrate let’s first define some content to be published. These files go into the project’s &lt;code&gt;extra-content&lt;/code&gt; directory:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;imageblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;img src=&quot;https://guntherrotsch.github.io/assets/img/file-system-tree.png&quot; alt=&quot;file system tree&quot; width=&quot;131&quot; height=&quot;98&quot;&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The &lt;code&gt;index.html&lt;/code&gt; contains just a simple &lt;em&gt;hello world&lt;/em&gt; page:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-html hljs&quot; data-lang=&quot;html&quot;&gt;&amp;lt;!DOCTYPE html&amp;gt;
+&amp;lt;html lang=&quot;en&quot;&amp;gt;
+&amp;lt;head&amp;gt;
+  &amp;lt;meta charset=&quot;utf-8&quot; /&amp;gt;
+  &amp;lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&amp;gt;
+
+  &amp;lt;title&amp;gt;Wildfly Web Content&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+  &amp;lt;h1&amp;gt;Hello world!&amp;lt;/h1&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Furthermore, the JBoss CLI to define the handler of static content is required. The CLI scripts are hosted in &lt;code&gt;scripts/setup.cli&lt;/code&gt; file:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;/subsystem=undertow/configuration=handler/file=public-content:add(path=&quot;${jboss.home.dir}/web-root&quot;)
+/subsystem=undertow/server=default-server/host=default-host/location=&quot;/public&quot;:add(handler=&quot;public-content&quot;)&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;In this case, the location, from which users can fetch the static content, is hosted below the &lt;code&gt;public&lt;/code&gt; context path.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The &lt;code&gt;extra-content&lt;/code&gt; and CLI scripts eventually need to be configured for the Wildfly Bootable JAR packaging by the Maven plugin:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;title&quot;&gt;
+    Maven pom.xml:
+   &lt;/div&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;...
+&amp;lt;build&amp;gt;
+    ...
+    &amp;lt;plugins&amp;gt;
+        &amp;lt;plugin&amp;gt;
+            &amp;lt;groupId&amp;gt;org.wildfly.plugins&amp;lt;/groupId&amp;gt;
+            &amp;lt;artifactId&amp;gt;wildfly-jar-maven-plugin&amp;lt;/artifactId&amp;gt;
+            &amp;lt;configuration&amp;gt;
+                &amp;lt;feature-pack-location&amp;gt;wildfly@maven(org.jboss.universe:community-universe)#22.0.1.Final&amp;lt;/feature-pack-location&amp;gt;
+                &amp;lt;layers&amp;gt;
+                    &amp;lt;layer&amp;gt;web-server&amp;lt;/layer&amp;gt;
+                    &amp;lt;layer&amp;gt;jaxrs&amp;lt;/layer&amp;gt;
+                    &amp;lt;layer&amp;gt;management&amp;lt;/layer&amp;gt;
+                &amp;lt;/layers&amp;gt;
+                &amp;lt;excluded-layers&amp;gt;
+                    &amp;lt;layer&amp;gt;deployment-scanner&amp;lt;/layer&amp;gt;
+                &amp;lt;/excluded-layers&amp;gt;
+                &amp;lt;cli-sessions&amp;gt;
+                    &amp;lt;cli-session&amp;gt;
+                        &amp;lt;script-files&amp;gt;
+                            &amp;lt;script&amp;gt;scripts/setup.cli&amp;lt;/script&amp;gt;
+                        &amp;lt;/script-files&amp;gt;
+                        &amp;lt;resolve-expressions&amp;gt;true&amp;lt;/resolve-expressions&amp;gt;
+                    &amp;lt;/cli-session&amp;gt;
+                &amp;lt;/cli-sessions&amp;gt;
+                &amp;lt;extra-server-content-dirs&amp;gt;
+                    &amp;lt;extra-server-content-dir&amp;gt;extra-content&amp;lt;/extra-server-content-dir&amp;gt;
+                &amp;lt;/extra-server-content-dirs&amp;gt;
+            &amp;lt;/configuration&amp;gt;
+            &amp;lt;executions&amp;gt;
+                &amp;lt;execution&amp;gt;
+                    &amp;lt;goals&amp;gt;
+                        &amp;lt;goal&amp;gt;package&amp;lt;/goal&amp;gt;
+                    &amp;lt;/goals&amp;gt;
+                &amp;lt;/execution&amp;gt;
+            &amp;lt;/executions&amp;gt;
+        &amp;lt;/plugin&amp;gt;
+    &amp;lt;/plugins&amp;gt;
+&amp;lt;/build&amp;gt;
+...&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;In order to test the setup, submit the following commands in a terminal:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-shell hljs&quot; data-lang=&quot;shell&quot;&gt;# build and execute the application
+$ mvn clean package
+...
+$ java -jar target/mvc-demo-bootable.jar
+...
+
+# while application is running in another terminal
+$ curl localhost:8080/public/index.html
+&amp;lt;!DOCTYPE html&amp;gt;
+&amp;lt;html lang=&quot;en&quot;&amp;gt;
+&amp;lt;head&amp;gt;
+  &amp;lt;meta charset=&quot;utf-8&quot; /&amp;gt;
+  &amp;lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&amp;gt;
+
+  &amp;lt;title&amp;gt;Wildfly Web Content&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+  &amp;lt;h1&amp;gt;Hello world!&amp;lt;/h1&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+$&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_hollow_jar&quot;&gt;Hollow JAR&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Hollow JAR packaged applications do not contain/provide the welcome page, although the application is typically not deployed to the root context (except the application’s &lt;code&gt;&amp;lt;finalName&amp;gt;&lt;/code&gt; is equal to &lt;code&gt;ROOT&lt;/code&gt;).&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;To get the application packaged as Hollow JAR, i.e. a Bootable JAR for the plain vanilla application server and a WAR file containing the application, the Maven plugin configuration of the Wildfly Bootable JAR need to be amended with:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;&amp;lt;hollowJar&amp;gt;true&amp;lt;/hollowJar&amp;gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;In addition, the file handler is configured with the location &lt;code&gt;/&lt;/code&gt; as follows:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;/subsystem=undertow/configuration=handler/file=public-content:add(path=&quot;${jboss.home.dir}/web-root&quot;)
+/subsystem=undertow/server=default-server/host=default-host/location=&quot;/&quot;:add(handler=&quot;public-content&quot;)&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The user can now retrieve static content from the root context, just like the pre-defined welcome page of the classical Wildfly application server:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-shell hljs&quot; data-lang=&quot;shell&quot;&gt;# build and execute the application
+$ mvn clean package
+...
+$ java -jar target/mvc-demo-bootable.jar --deployment=target/mvc-demo.war
+...
+
+# while application is running in another terminal
+$ curl localhost:8080/index.html
+# or just: $ curl localhost:8080
+&amp;lt;!DOCTYPE html&amp;gt;
+&amp;lt;html lang=&quot;en&quot;&amp;gt;
+&amp;lt;head&amp;gt;
+  &amp;lt;meta charset=&quot;utf-8&quot; /&amp;gt;
+  &amp;lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&amp;gt;
+
+  &amp;lt;title&amp;gt;Wildfly Web Content&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+  &amp;lt;h1&amp;gt;Hello world!&amp;lt;/h1&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+$&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_summary&quot;&gt;Summary&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;I already mentioned that the welcome page is not pre-configured for Bootable JAR packages Wildfly applications, because the root context is usually occupied by the application itself, at least for Single FAT JAR builds. Another reason might be, that Wildfly Bootable JAR follows the philosophy of creating a &lt;em&gt;just-enough-application-server&lt;/em&gt;, i.e. containing just the features required by the application. If your application requires to serve static content, you have to define accordingly. However, as shown in this Blog Post, this is not a big deal.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo&quot;&gt;MVC Demo Application&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://docs.wildfly.org/bootablejar/&quot;&gt;WildFly Bootable JAR Documentation&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://docs.wildfly.org/23/Bootable_Guide.html&quot;&gt;Wildfly Bootable JAR Guide&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Jakarta MVC with FreeMarker</title>
       <link>https://guntherrotsch.github.io/blog_2021/jakarta-mvc-freemarker.html</link>

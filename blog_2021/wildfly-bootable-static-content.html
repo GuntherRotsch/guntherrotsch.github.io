@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Wildfly Bootable JAR and Static Content</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Wildfly Bootable JAR and Static Content</h1>
+	</div>
+
+	<p><em>12 May 2021</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>Web applications often serve static content alongside with dynamically generated HTML pages. If the static content is not hosted on a CDN, the application server should provide this kind of content, too. In this Blog post I'll show how to configure Wildfly Bootable JAR packaged servers to do this job.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div class="sect1"> 
+ <h2 id="_welcome_page">Welcome Page</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Users of JBoss/Wildfly know the welcome page, which is returned when navigating to the application server’s root.</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://guntherrotsch.github.io/assets/img/JBoss_Welcome_Page.png" alt="JBoss Welcome Page"> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The shown page is actually static content hosted in the file <code>$JBOSS_HOME/welcome-content/index.html</code>. The last two lines displayed on the page explain how to replace the content or get entirely rid of it. The referenced configuration of the Undertow subsystem is part of the application server’s <code>standalone.xml</code> (stripped down to the crucial parts):</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;subsystem xmlns="urn:jboss:domain:undertow:3.0"&gt;
+    &lt;buffer-cache name="default"/&gt;
+    &lt;server name="default-server"&gt;
+        &lt;http-listener name="default" redirect-socket="https" socket-binding="http"/&gt;
+        &lt;host name="default-host" alias="localhost"&gt;
+            &lt;location name="/" handler="welcome-content"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+            ...
+        &lt;/host&gt;
+    &lt;/server&gt;
+    ...
+    &lt;handlers&gt;
+        &lt;file name="welcome-content" path="${jboss.home.dir}/welcome-content"/&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+        ...
+    &lt;/handlers&gt;
+    &lt;filters&gt;
+        ...
+    &lt;/filters&gt;
+&lt;/subsystem&gt;</code></pre> 
+   </div> 
+  </div> 
+  <div class="colist arabic"> 
+   <table> 
+    <tbody>
+     <tr> 
+      <td><i class="conum" data-value="1"></i><b>1</b></td> 
+      <td>The <code>name</code> of the <code>location</code> element defines the application server’s context, i.e. how users can reach the content.</td> 
+     </tr> 
+     <tr> 
+      <td><i class="conum" data-value="2"></i><b>2</b></td> 
+      <td>The referenced <code>handler</code> of type <code>file</code> specifies where in the file system the content is hosted.</td> 
+     </tr> 
+    </tbody>
+   </table> 
+  </div> 
+  <div class="paragraph"> 
+   <p>After having a look at the configuration of the web container of Wildfly/JBoss, nothing other is the Undertow subsystem, we go into the details of the packaging as Bootable JAR.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_handler_configuration">Handler Configuration</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Wildfly Bootable JAR packaged applications (Single Fat JAR) are deployed to the root context of the application server. Therefor there cannot be a welcome page at the same location. But it’s still possible to define static content handler on a different (no-root) context.</p> 
+  </div> 
+  <div class="admonitionblock note"> 
+   <table> 
+    <tbody>
+     <tr> 
+      <td class="icon"> <i class="fa icon-note" title="Note"></i> </td> 
+      <td class="content"> For demonstration purposes, the static content configuration has been added to the <a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo"> Jakarta MVC Demo application</a>. So, if you prefer to study a complete example, then grab the linked repository (<code>code</code> branch of Github repository of this Blog project). </td> 
+     </tr> 
+    </tbody>
+   </table> 
+  </div> 
+  <div class="paragraph"> 
+   <p>To demonstrate let’s first define some content to be published. These files go into the project’s <code>extra-content</code> directory:</p> 
+  </div> 
+  <div class="imageblock"> 
+   <div class="content"> 
+    <img src="https://guntherrotsch.github.io/assets/img/file-system-tree.png" alt="file system tree" width="131" height="98"> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The <code>index.html</code> contains just a simple <em>hello world</em> page:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-html hljs" data-lang="html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8" /&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+
+  &lt;title&gt;Wildfly Web Content&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello world!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Furthermore, the JBoss CLI to define the handler of static content is required. The CLI scripts are hosted in <code>scripts/setup.cli</code> file:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">/subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
+/subsystem=undertow/server=default-server/host=default-host/location="/public":add(handler="public-content")</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>In this case, the location, from which users can fetch the static content, is hosted below the <code>public</code> context path.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The <code>extra-content</code> and CLI scripts eventually need to be configured for the Wildfly Bootable JAR packaging by the Maven plugin:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="title">
+    Maven pom.xml:
+   </div> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">...
+&lt;build&gt;
+    ...
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.wildfly.plugins&lt;/groupId&gt;
+            &lt;artifactId&gt;wildfly-jar-maven-plugin&lt;/artifactId&gt;
+            &lt;configuration&gt;
+                &lt;feature-pack-location&gt;wildfly@maven(org.jboss.universe:community-universe)#22.0.1.Final&lt;/feature-pack-location&gt;
+                &lt;layers&gt;
+                    &lt;layer&gt;web-server&lt;/layer&gt;
+                    &lt;layer&gt;jaxrs&lt;/layer&gt;
+                    &lt;layer&gt;management&lt;/layer&gt;
+                &lt;/layers&gt;
+                &lt;excluded-layers&gt;
+                    &lt;layer&gt;deployment-scanner&lt;/layer&gt;
+                &lt;/excluded-layers&gt;
+                &lt;cli-sessions&gt;
+                    &lt;cli-session&gt;
+                        &lt;script-files&gt;
+                            &lt;script&gt;scripts/setup.cli&lt;/script&gt;
+                        &lt;/script-files&gt;
+                        &lt;resolve-expressions&gt;true&lt;/resolve-expressions&gt;
+                    &lt;/cli-session&gt;
+                &lt;/cli-sessions&gt;
+                &lt;extra-server-content-dirs&gt;
+                    &lt;extra-server-content-dir&gt;extra-content&lt;/extra-server-content-dir&gt;
+                &lt;/extra-server-content-dirs&gt;
+            &lt;/configuration&gt;
+            &lt;executions&gt;
+                &lt;execution&gt;
+                    &lt;goals&gt;
+                        &lt;goal&gt;package&lt;/goal&gt;
+                    &lt;/goals&gt;
+                &lt;/execution&gt;
+            &lt;/executions&gt;
+        &lt;/plugin&gt;
+    &lt;/plugins&gt;
+&lt;/build&gt;
+...</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>In order to test the setup, submit the following commands in a terminal:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell"># build and execute the application
+$ mvn clean package
+...
+$ java -jar target/mvc-demo-bootable.jar
+...
+
+# while application is running in another terminal
+$ curl localhost:8080/public/index.html
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8" /&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+
+  &lt;title&gt;Wildfly Web Content&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello world!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+$</code></pre> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_hollow_jar">Hollow JAR</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Hollow JAR packaged applications do not contain/provide the welcome page, although the application is typically not deployed to the root context (except the application’s <code>&lt;finalName&gt;</code> is equal to <code>ROOT</code>).</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>To get the application packaged as Hollow JAR, i.e. a Bootable JAR for the plain vanilla application server and a WAR file containing the application, the Maven plugin configuration of the Wildfly Bootable JAR need to be amended with:</p> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>&lt;hollowJar&gt;true&lt;/hollowJar&gt;</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>In addition, the file handler is configured with the location <code>/</code> as follows:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">/subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
+/subsystem=undertow/server=default-server/host=default-host/location="/":add(handler="public-content")</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The user can now retrieve static content from the root context, just like the pre-defined welcome page of the classical Wildfly application server:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell"># build and execute the application
+$ mvn clean package
+...
+$ java -jar target/mvc-demo-bootable.jar --deployment=target/mvc-demo.war
+...
+
+# while application is running in another terminal
+$ curl localhost:8080/index.html
+# or just: $ curl localhost:8080
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8" /&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+
+  &lt;title&gt;Wildfly Web Content&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello world!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+$</code></pre> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_summary">Summary</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>I already mentioned that the welcome page is not pre-configured for Bootable JAR packages Wildfly applications, because the root context is usually occupied by the application itself, at least for Single FAT JAR builds. Another reason might be, that Wildfly Bootable JAR follows the philosophy of creating a <em>just-enough-application-server</em>, i.e. containing just the features required by the application. If your application requires to serve static content, you have to define accordingly. However, as shown in this Blog Post, this is not a big deal.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_links">Links</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo">MVC Demo Application</a></p> </li> 
+    <li> <p><a href="https://docs.wildfly.org/bootablejar/">WildFly Bootable JAR Documentation</a></p> </li> 
+    <li> <p><a href="https://docs.wildfly.org/23/Bootable_Guide.html">Wildfly Bootable JAR Guide</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/wildfly.html">wildfly</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/maven.html">maven</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jboss.html">jboss</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/cloud-native.html">cloud-native</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>
