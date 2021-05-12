@@ -1,0 +1,11 @@
+= Jakarta MVC Demo Application
+
+Commands to build the (single JAR) application:
+
+* `mvn clean package`
+
+Commands to build the Docker image:
+
+* `docker build -t mvc-app .`
+* `docker run --rm -it mvc-app:latest`
+

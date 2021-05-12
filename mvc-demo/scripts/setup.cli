@@ -1,0 +1,5 @@
+#/subsystem=undertow/configuration=handler/file=public-content:add(cache-buffer-size=1024,cache-buffers=1024,directory-listing=true,follow-symlink=true,path="${jboss.home.dir}/")
+#/subsystem=undertow/configuration=handler/file=public-content:add(path="${env.WEB_ROOT}")
+
+/subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
+/subsystem=undertow/server=default-server/host=default-host/location="/":add(handler="public-content")
