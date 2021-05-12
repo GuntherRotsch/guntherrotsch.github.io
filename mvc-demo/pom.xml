@@ -111,7 +111,7 @@
 								<layer>jaxrs</layer>
 								<layer>microprofile-config</layer>
 							</layers>
-                            <hollowJar>true</hollowJar>
+                            <hollowJar>false</hollowJar>
 							<cli-sessions>
 								<cli-session>
 									<scriptFiles>
