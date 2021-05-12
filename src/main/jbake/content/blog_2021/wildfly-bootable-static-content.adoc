@@ -1,0 +1,254 @@
+= Wildfly Bootable JAR and Static Content
+Gunther Rotsch
+2021-05-12
+:jbake-type: post
+:jbake-tags: java, maven, wildfly, jboss, cloud-native
+:jbake-status: published
+:jbake-summary: Web applications often serve static content alongside with dynamically generated HTML pages. If the static content is not hosted on a CDN, the application server should provide this kind of content, too. In this Blog post I'll show how to configure Wildfly Bootable JAR packaged servers to do this job.
+
+== Welcome Page
+
+Users of JBoss/Wildfly know the welcome page, which is returned when navigating
+to the application server's root.
+
+image::JBoss_Welcome_Page.png[JBoss Welcome Page]
+
+The shown page is actually static content hosted in the file
+`$JBOSS_HOME/welcome-content/index.html`. The last two lines displayed on the
+page explain how to replace the content or get entirely rid of it. The
+referenced configuration of the Undertow subsystem is part of the application
+server's `standalone.xml` (stripped down to the crucial parts):
+
+[source,xml]
+----
+<subsystem xmlns="urn:jboss:domain:undertow:3.0">
+    <buffer-cache name="default"/>
+    <server name="default-server">
+        <http-listener name="default" redirect-socket="https" socket-binding="http"/>
+        <host name="default-host" alias="localhost">
+            <location name="/" handler="welcome-content"/> <!--1-->
+            ...
+        </host>
+    </server>
+    ...
+    <handlers>
+        <file name="welcome-content" path="${jboss.home.dir}/welcome-content"/> <!--2-->
+        ...
+    </handlers>
+    <filters>
+        ...
+    </filters>
+</subsystem>
+----
+
+<1> The `name` of the `location` element defines the application server's context,
+i.e. how users can reach the content.
+<2> The referenced `handler` of type `file` specifies where in the file system the
+content is hosted.
+
+After having a look at the configuration of the web container of Wildfly/JBoss,
+nothing other is the Undertow subsystem, we go into the details of the packaging
+as Bootable JAR.
+
+== Handler Configuration
+
+Wildfly Bootable JAR packaged applications (Single Fat JAR) are deployed to the
+root context of the application server. Therefor there cannot be a welcome page
+at the same location. But it's still possible to define static content handler
+on a different (no-root) context.
+
+[NOTE]
+For demonstration purposes, the static content configuration has been added to
+the
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo[
+Jakarta MVC Demo application]. So, if you prefer to study a complete example,
+then grab the linked repository (`code` branch of Github repository of this
+Blog project).
+
+To demonstrate let's first define some content to be published. These files go
+into the project's `extra-content` directory:
+
+[plantuml, "file-system-tree", "png", opts="inline"]
+----
+@startuml
+skinparam {
+  BackgroundColor transparent
+  BorderColor transparent
+}
+legend
+extra-content
+|_ web-root
+  |_ index.html
+end legend
+----
+
+The `index.html` contains just a simple _hello world_ page:
+
+[source, html]
+----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Wildfly Web Content</title>
+</head>
+<body>
+  <h1>Hello world!</h1>
+</body>
+</html>
+----
+
+Furthermore, the JBoss CLI to define the handler of static content is required.
+The CLI scripts are hosted in `scripts/setup.cli`  file:
+
+[source, xml]
+----
+/subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
+/subsystem=undertow/server=default-server/host=default-host/location="/public":add(handler="public-content")
+----
+
+In this case, the location, from which users can fetch the static content, is
+hosted below the `public` context path.
+
+The `extra-content` and CLI scripts eventually need to be configured for the
+Wildfly Bootable JAR packaging by the Maven plugin:
+
+.Maven pom.xml:
+[source, xml]
+----
+...
+<build>
+    ...
+    <plugins>
+        <plugin>
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-jar-maven-plugin</artifactId>
+            <configuration>
+                <feature-pack-location>wildfly@maven(org.jboss.universe:community-universe)#22.0.1.Final</feature-pack-location>
+                <layers>
+                    <layer>web-server</layer>
+                    <layer>jaxrs</layer>
+                    <layer>management</layer>
+                </layers>
+                <excluded-layers>
+                    <layer>deployment-scanner</layer>
+                </excluded-layers>
+                <cli-sessions>
+                    <cli-session>
+                        <script-files>
+                            <script>scripts/setup.cli</script>
+                        </script-files>
+                        <resolve-expressions>true</resolve-expressions>
+                    </cli-session>
+                </cli-sessions>
+                <extra-server-content-dirs>
+                    <extra-server-content-dir>extra-content</extra-server-content-dir>
+                </extra-server-content-dirs>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>package</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+...
+----
+
+In order to test the setup, submit the following commands in a terminal:
+
+[source, shell]
+----
+# build and execute the application
+$ mvn clean package
+...
+$ java -jar target/mvc-demo-bootable.jar
+...
+
+# while application is running in another terminal
+$ curl localhost:8080/public/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Wildfly Web Content</title>
+</head>
+<body>
+  <h1>Hello world!</h1>
+</body>
+</html>
+$
+----
+
+== Hollow JAR
+
+Hollow JAR packaged applications do not contain/provide the welcome page,
+although the application is typically not deployed to the root context (except
+the application's `<finalName>` is equal to `ROOT`).
+
+To get the application packaged as Hollow JAR, i.e. a Bootable JAR for the
+plain vanilla application server and a WAR file containing the application, the
+Maven plugin configuration of the Wildfly Bootable JAR need to be amended with:
+
+  <hollowJar>true</hollowJar>
+
+In addition, the file handler is configured with the location `/` as follows:
+
+[source, xml]
+----
+/subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
+/subsystem=undertow/server=default-server/host=default-host/location="/":add(handler="public-content")
+----
+
+The user can now retrieve static content from the root context, just like the
+pre-defined welcome page of the classical Wildfly application server:
+
+[source, shell]
+----
+# build and execute the application
+$ mvn clean package
+...
+$ java -jar target/mvc-demo-bootable.jar --deployment=target/mvc-demo.war
+...
+
+# while application is running in another terminal
+$ curl localhost:8080/index.html
+# or just: $ curl localhost:8080
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Wildfly Web Content</title>
+</head>
+<body>
+  <h1>Hello world!</h1>
+</body>
+</html>
+$
+----
+
+== Summary
+
+I already mentioned that the welcome page is not pre-configured for Bootable
+JAR packages Wildfly applications, because the root context is usually
+occupied by the application itself, at least for Single FAT JAR builds.
+Another reason might be, that Wildfly Bootable JAR follows the philosophy
+of creating a _just-enough-application-server_, i.e. containing just the
+features required by the application. If your application requires to serve
+static content, you have to define accordingly. However, as shown in this
+Blog Post, this is not a big deal.
+
+== Links
+
+- https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo[MVC Demo Application]
+- https://docs.wildfly.org/bootablejar/[WildFly Bootable JAR Documentation]
+- https://docs.wildfly.org/23/Bootable_Guide.html[Wildfly Bootable JAR Guide]
