@@ -6,9 +6,197 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Wed, 12 May 2021 19:12:56 +0200</pubDate>
-    <lastBuildDate>Wed, 12 May 2021 19:12:56 +0200</lastBuildDate>
+    <pubDate>Wed, 2 Jun 2021 20:08:25 +0200</pubDate>
+    <lastBuildDate>Wed, 2 Jun 2021 20:08:25 +0200</lastBuildDate>
 
+    <item>
+      <title>Distroless? Distroless!</title>
+      <link>https://guntherrotsch.github.io/blog_2021/distroless-distroless.html</link>
+      <pubDate>Wed, 2 Jun 2021 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2021/distroless-distroless.html</guid>
+      	<description>
+	&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_what_is_distroless&quot;&gt;What is Distroless?&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;If you’re looking around for an appropriate base image to package your application, you may stumble into the term &lt;em&gt;distroless&lt;/em&gt; image. This term was coined by Google, which describes it as&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;quoteblock&quot;&gt; 
+   &lt;blockquote&gt;
+     Distroless images contain only your application and its runtime dependencies. They do not contain package managers, shells or any other programs you would expect to find in a standard Linux distribution. 
+   &lt;/blockquote&gt; 
+   &lt;div class=&quot;attribution&quot;&gt;
+     — Google 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The described approach is best practice and basically means to restrict what’s going into your runtime container to precisely what’s necessary for the application.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Although, &lt;em&gt;distroless&lt;/em&gt; images are rather a general principal, Google is still the major supplier of such images. Google provides images for different languages like&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;Java&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Python&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;JavaScript/NodeJS&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;Golang&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Technically, the &lt;em&gt;distroless&lt;/em&gt; base images contain mainly the language platform components, i.e. in case of Java the JDK. Because the JDK is dynamically linked to system libraries like GlibC, these libraries are also contained in the image.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;admonitionblock note&quot;&gt; 
+   &lt;table&gt; 
+    &lt;tbody&gt;
+     &lt;tr&gt; 
+      &lt;td class=&quot;icon&quot;&gt; &lt;i class=&quot;fa icon-note&quot; title=&quot;Note&quot;&gt;&lt;/i&gt; &lt;/td&gt; 
+      &lt;td class=&quot;content&quot;&gt; 
+       &lt;div class=&quot;paragraph&quot;&gt; 
+        &lt;p&gt;The list of supported languages even includes Go. This may be surprising a little bit at the first glance, because Go applications are usually linked statically and can be packaged into images &lt;code&gt;FROM SCRATCH&lt;/code&gt;, i.e. into an entirely empty image. Actually, the &lt;em&gt;distroless&lt;/em&gt; base image just contains some small pieces like a truststore of CA root certificates and does not increase the size of the image notably.&lt;/p&gt; 
+       &lt;/div&gt; &lt;/td&gt; 
+     &lt;/tr&gt; 
+    &lt;/tbody&gt;
+   &lt;/table&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_sample_application&quot;&gt;Sample Application&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Before discussing the benefits of applications packaged with &lt;em&gt;distroless&lt;/em&gt; images, let’s have a look at the containerization of a sample Java application. I’ll use the &lt;a href=&quot;https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar-starter.html&quot;&gt; Jakarta MVC demo application&lt;/a&gt; of one of the last Blog posts, which is packaged as Wildfly Bootable JAR, i.e. as a Single Fat Jar.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The following &lt;code&gt;Dockerfile&lt;/code&gt; just copies the application’s Jar file into the image, which is based on Google’s &lt;em&gt;distroless&lt;/em&gt; image for Java 11:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;FROM gcr.io/distroless/java:11
+
+COPY target/mvc-demo-bootable.jar /app/main.jar
+WORKDIR /app
+CMD [&quot;main.jar&quot;]&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Because the &lt;code&gt;java&lt;/code&gt; command is defined as entrypoint of the image, the application’s Jar can be provided as command. The regular &lt;code&gt;docker build&lt;/code&gt; command creates the image:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ docker build -t mvc-app .
+Sending build context to Docker daemon  204.7MB
+Step 1/4 : FROM gcr.io/distroless/java:11
+ ---&amp;gt; 6395a77cb03c
+Step 2/4 : COPY target/mvc-demo-bootable.jar /app/main.jar
+ ---&amp;gt; 2209115d4185
+Step 3/4 : WORKDIR /app
+ ---&amp;gt; Running in 5faa7537ec9b
+Removing intermediate container 5faa7537ec9b
+ ---&amp;gt; a81720f1f285
+Step 4/4 : CMD [&quot;main.jar&quot;]
+ ---&amp;gt; Running in 944c9a473721
+Removing intermediate container 944c9a473721
+ ---&amp;gt; d21a6c599d58
+Successfully built d21a6c599d58
+Successfully tagged mvc-app:latest&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;This containerized application can be executed on Linux by:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ docker run --sysctl net.ipv4.ip_forward=1 --network=host -p 8080:8080 --rm -it mvc-app:latest
+WARNING: Published ports are discarded when using host network mode
+05:26:38,437 INFO  [org.wildfly.jar] (main) WFLYJAR0007: Installed server and application in /tmp/wildfly-bootable-server5397933122926229342, took 932ms
+05:26:38,684 INFO  [org.wildfly.jar] (main) WFLYJAR0008: Server options: [--read-only-server-config=standalone.xml]
+05:26:38,806 INFO  [org.jboss.msc] (main) JBoss MSC version 1.4.12.Final
+05:26:38,814 INFO  [org.jboss.threads] (main) JBoss Threads version 2.4.0.Final
+05:26:38,979 INFO  [org.jboss.as] (MSC service thread 1-3) WFLYSRV0049: WildFly Full 22.0.1.Final (WildFly Core 14.0.1.Final) starting
+05:26:39,967 INFO  [org.jboss.as.jaxrs] (ServerService Thread Pool -- 15) WFLYRS0016: RESTEasy version 3.14.0.Final
+05:26:39,988 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0003: Undertow 2.2.4.Final starting
+...
+05:26:43,418 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0010: Deployed &quot;mvc-demo.war&quot; (runtime-name : &quot;ROOT.war&quot;)
+05:26:43,449 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0212: Resuming server
+05:26:43,451 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Full 22.0.1.Final (WildFly Core 14.0.1.Final) started in 4761ms - Started 144 of 149 services (23 services are lazy, passive or on-demand)&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Beside the simple and straightforward image build, the generated images are surprisingly small compared to Java application images built on top of distribution based images:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code&gt;$ docker images
+REPOSITORY           TAG              IMAGE ID            CREATED             SIZE
+mvc-app              latest           d21a6c599d58        4 minutes ago       265MB
+...&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;From my experience, the size of application images based on a Linux distribution is about 200 MB larger - the only exception of this are Alpine Linux based images, but these have other drawbacks…​&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_why_distroless&quot;&gt;Why Distroless?&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;&lt;em&gt;Distroless&lt;/em&gt; best resembles the origins of application containers, i.e. packaging applications with its required runtime components in order to&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;isolate applications in the best possible way&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;allow resource management like CPU and memory quotas on a per application basis&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;At the same time it refutes the widespread misconception that containers are a replacement for VMs.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The main attribute of &lt;em&gt;distroless&lt;/em&gt; image applications is their small size. And size actually matters because of:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;dlist&quot;&gt; 
+   &lt;dl&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     Performance
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;Images are copied, transmitted and launched by fleet managers like Kubernetes. In addition, fitting more containers into one machine means less machine spawns.&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     Security
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;Improved security by minimizing the attack surface, because everything in your container, e.g. shells, not used by your application can still be used by attackers.&lt;/p&gt; 
+    &lt;/dd&gt; 
+    &lt;dt class=&quot;hdlist1&quot;&gt;
+     Money
+    &lt;/dt&gt; 
+    &lt;dd&gt; 
+     &lt;p&gt;Fitting more containers into one machine (AKA worker node in Kubernetes) reduces the bill from your cloud provider.&lt;/p&gt; 
+    &lt;/dd&gt; 
+   &lt;/dl&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;There are situations, in which a shell access to an application’s container may be convenient. For such situations Google offers a debug version of their &lt;em&gt;distroless&lt;/em&gt; containers, which includes a &lt;code&gt;busybox&lt;/code&gt; in addition. But usually containerized applications should go without a shell. This may be not possible for legacy applications brought to the cloud applying a &lt;code&gt;Lift-and-Shift&lt;/code&gt; approach. But cloud-native applications should be designed and implemented in a way, that shells and other components of a Linux distribution are not required.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://github.com/GoogleContainerTools/distroless&quot;&gt;Google Container Tools - Distroless&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo&quot;&gt;MVC Demo Application&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://docs.wildfly.org/bootablejar/&quot;&gt;WildFly Bootable JAR Documentation&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Wildfly Bootable JAR and Static Content</title>
       <link>https://guntherrotsch.github.io/blog_2021/wildfly-bootable-static-content.html</link>
