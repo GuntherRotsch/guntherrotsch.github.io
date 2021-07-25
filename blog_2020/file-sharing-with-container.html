@@ -85,73 +85,96 @@
    </dl>
   </div>
 
-	<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>&nbsp;</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Eclipse Theia is the code editor integrated into Eclipse Che, which calls itself as <a href="https://www.eclipse.org/che/">The Kubernetes-Native IDE for Developer Teams</a>. There are different ways to execute Eclipse Theia independent of Eclipse Che as described by the article <a href="https://eclipsesource.com/de/blogs/2019/09/25/how-to-launch-eclipse-theia/">How to launch Eclipse Theia</a>.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_sharing_files_between_host_and_container">Sharing files between host and container</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Starting Eclipse Theia in a pre-configured Docker container prevents you from complex installation procedures. As mentioned on the Eclipse Theia IDE Github repository, executing the IDE is as easy as submitting the command:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>$ docker run -it --init -p 3000:3000 \
+	<p><div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>&nbsp;</p>
+</div>
+<div class="paragraph">
+<p>Eclipse Theia is the code editor integrated into Eclipse Che, which calls itself
+as <a href="https://www.eclipse.org/che/">The Kubernetes-Native IDE for Developer Teams</a>.
+There are different ways to execute Eclipse Theia independent of Eclipse Che
+as described by the article
+<a href="https://eclipsesource.com/de/blogs/2019/09/25/how-to-launch-eclipse-theia/">How to launch Eclipse Theia</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sharing_files_between_host_and_container">Sharing files between host and container</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Starting Eclipse Theia in a pre-configured Docker container prevents you from
+complex installation procedures. As mentioned on the Eclipse Theia IDE Github
+repository, executing the IDE is as easy as submitting the command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ docker run -it --init -p 3000:3000 \
              -v "$(pwd):/home/project:cached" \
-             theiaide/theia-java:next</code></pre> 
-   </div> 
-  </div> 
-  <div class="admonitionblock note"> 
-   <table> 
-    <tbody>
-     <tr> 
-      <td class="icon"> <i class="fa icon-note" title="Note"></i> </td> 
-      <td class="content"> As Java developer I went for the Java flavored IDE, but other languages are available, too. </td> 
-     </tr> 
-    </tbody>
-   </table> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The <code>-v</code> option of the Docker run command maps the current working directory <code>$(pwd)</code> to the <code>/home/project</code> directory, where the IDE expects the workspace files. In this case, the host files are shared with the container, ie. we <a href="https://docs.docker.com/storage/bind-mounts/">use bind mounts</a>. Although, the preferred mechanism for persisting data with Docker is to <a href="https://docs.docker.com/storage/volumes/">use volumes</a>, the utilization of bind mounts is fine here.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When I started the Theia container from the root directory of an existing Maven project, the IDE can be opened in the Browser on <code><a href="http://localhost:3000" class="bare">http://localhost:3000</a></code>:</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://guntherrotsch.github.io/assets/img/Eclipse_Theia.png" alt="Image: Eclipse Theia Workspace"> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The terminal integrated in the IDE runs a shell in the container of the IDE. There the files of the workspace are listed using the <code>ls</code> command. The file’s owner are reported as <code>node</code>. However, the Maven build in IDE’s terminal fails with:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>[ERROR] Failed to execute goal org.apache.maven.plugins:maven-clean-plugin:3.1.0:clean (default-clean) on project bean-validation: Failed to clean project: Failed to delete /home/project/target/generated-test-sources/test-annotations -&gt; [Help 1]: value</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The Maven build cannot remove the <code>target</code> folder, because the container runs with the user <code>theia</code>, which is apparently not the owner of the files:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>theia@466d3953d9e1:/home/project$ id
-uid=1001(theia) gid=1001(theia) groups=1001(theia)</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>What’s also a bit confusing at the first glance is that the shell on the host system reports the very same files to be owned by my personal user <code>gunther</code>:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>$ ls -al
+             theiaide/theia-java:next</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+As Java developer I went for the Java flavored IDE, but other languages
+are available, too.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The <code>-v</code> option of the Docker run command maps the current working directory
+<code>$(pwd)</code> to the <code>/home/project</code> directory, where the IDE expects the workspace
+files.
+In this case, the host files are shared with the container, ie. we
+<a href="https://docs.docker.com/storage/bind-mounts/">use bind mounts</a>. Although,
+the preferred mechanism for persisting data with Docker is to
+<a href="https://docs.docker.com/storage/volumes/">use volumes</a>, the utilization of
+bind mounts is fine here.</p>
+</div>
+<div class="paragraph">
+<p>When I started the Theia container from the root directory of an existing
+Maven project, the IDE can be opened in the Browser on <code><a href="http://localhost:3000" class="bare">http://localhost:3000</a></code>:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/img/Eclipse_Theia.png" alt="Image: Eclipse Theia Workspace">
+</div>
+</div>
+<div class="paragraph">
+<p>The terminal integrated in the IDE runs a shell in the container of the IDE.
+There the files of the workspace are listed using the <code>ls</code> command. The file&#8217;s
+owner are reported as <code>node</code>. However, the Maven build in IDE&#8217;s terminal
+fails with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">[ERROR] Failed to execute goal org.apache.maven.plugins:maven-clean-plugin:3.1.0:clean (default-clean) on project bean-validation: Failed to clean project: Failed to delete /home/project/target/generated-test-sources/test-annotations -&gt; [Help 1]: value</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The Maven build cannot remove the <code>target</code> folder, because the container runs
+with the user <code>theia</code>, which is apparently not the owner of the files:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">theia@466d3953d9e1:/home/project$ id
+uid=1001(theia) gid=1001(theia) groups=1001(theia)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What&#8217;s also a bit confusing at the first glance is that the shell on the
+host system reports the very same files to be owned by my personal
+user <code>gunther</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ ls -al
 total 40
 drwxrwxr-x  5 gunther gunther 4096 Mai 24 12:04 .
 drwxrwxr-x  4 gunther gunther 4096 Mai 20 20:00 ..
@@ -161,83 +184,105 @@ drwxrwxr-x  4 gunther gunther 4096 Mai 20 20:00 ..
 -rw-rw-r--  1 gunther gunther  261 Apr 13 12:43 README.txt
 drwxr-xr-x  2 gunther gunther 4096 Apr 10 12:26 .settings
 drwxrwxr-x  4 gunther gunther 4096 Dez 17 18:29 src
-drwxr-xr-x 10 gunther gunther 4096 Mai 24 11:49 target</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>To break things up: The file permission is checked by the Linux kernel. The kernel does not know anything about user names, but works with user IDs only. The <code>/etc/passwd</code> file or LDAP integration or a similar mechanism takes care of mapping the user IDs to names. That explains why the <code>ls</code> command reports different user names as owner of shared files inside and outside of the container. The user <code>gunther</code> on the host system does have the same ID as the user <code>node</code> in the Theia container:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>$ id
-uid=1000(gunther) gid=1000(gunther) groups=1000(gunther),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),118(lpadmin),129(sambashare),999(microk8s),1001(docker)</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Another fact to keep is mind is that the Linux kernel is shared between the host and all containers. That’s, by the way, one big difference to virtual machines.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>If we want to fix the permissions, so that user running the container owns the shared file of the workspace, we could add the <code>-u</code> option when starting the container as follows:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>docker run -it --rm --init -p 3000:3000 \
+drwxr-xr-x 10 gunther gunther 4096 Mai 24 11:49 target</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To break things up: The file permission is checked by the Linux kernel.
+The kernel does not know anything about user names, but works with user IDs
+only. The <code>/etc/passwd</code> file or LDAP integration or a similar mechanism takes
+care of mapping the user IDs to names. That explains why the <code>ls</code> command
+reports different user names as owner of shared files inside and outside
+of the container. The user <code>gunther</code> on the host system does have the same
+ID as the user <code>node</code> in the Theia container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ id
+uid=1000(gunther) gid=1000(gunther) groups=1000(gunther),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),118(lpadmin),129(sambashare),999(microk8s),1001(docker)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Another fact to keep is mind is that the Linux kernel is shared between the
+host and all containers. That&#8217;s, by the way, one big difference to virtual
+machines.</p>
+</div>
+<div class="paragraph">
+<p>If we want to fix the permissions, so that user running the container owns
+the shared file of the workspace, we could add the <code>-u</code> option when starting
+the container as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">docker run -it --rm --init -p 3000:3000 \
            -u $UID:$(id -g) \
            -v "$(pwd):/home/project:cached" \
-           theiaide/theia-java:next</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Now the container runs with user ID <code>1000</code>, the same ID as the user <code>gunther</code> on the host system:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>node@11e14537a344:/home/project$ id
-uid=1000(node) gid=1000(node) groups=1000(node)</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>As mentioned before, the name of the user does not matter, only its ID counts. The Maven build in the IDE’s terminal, ie. executed by the container, runs successful now.</p> 
-  </div> 
-  <div class="admonitionblock warning"> 
-   <table> 
-    <tbody>
-     <tr> 
-      <td class="icon"> <i class="fa icon-warning" title="Warning"></i> </td> 
-      <td class="content"> After changing the user ID of the container, Eclipse Theia IDE does not work properly anymore. Other files inside the container are not longer readable or writable. Though, changing the container’s user is not a sustainable solution to share Theia workspaces with the host. </td> 
-     </tr> 
-    </tbody>
-   </table> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_conclusion">Conclusion</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>File permissions are checked by the Linux kernel based on the user’s id, never considering the name of the user which belongs to the ID. Starting containers with a certain user ID can fix file permission issues, but often cause issues when containers expect to run under a particular user ID.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_links">Links</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p><a href="https://github.com/eclipse-theia/theia">Github - Eclipse Theia</a></p> 
-  </div> 
-  <div class="paragraph"> 
-   <p><a href="https://www.eclipse.org/che/">Project - Eclipse Che</a></p> 
-  </div> 
-  <div class="paragraph"> 
-   <p><a href="https://docs.docker.com/storage/bind-mounts/">Docker - Use bind mounts</a></p> 
-  </div> 
-  <div class="paragraph"> 
-   <p><a href="https://docs.docker.com/storage/volumes/">Docker - Use volumes</a></p> 
-  </div> 
-  <div class="paragraph"> 
-   <p><a href="https://eclipsesource.com/de/blogs/2019/09/25/how-to-launch-eclipse-theia/">Blog Post - How to launch Eclipse Theia</a>.</p> 
-  </div> 
- </div> 
+           theiaide/theia-java:next</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now the container runs with user ID <code>1000</code>, the same ID as the user <code>gunther</code>
+on the host system:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">node@11e14537a344:/home/project$ id
+uid=1000(node) gid=1000(node) groups=1000(node)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As mentioned before, the name of the user does not matter, only its ID
+counts. The Maven build in the IDE&#8217;s terminal, ie. executed by the container,
+runs successful now.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+After changing the user ID of the container, Eclipse Theia IDE does not
+work properly anymore. Other files inside the container are not longer
+readable or writable. Though, changing the container&#8217;s user is not a
+sustainable solution to share Theia workspaces with the host.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>File permissions are checked by the Linux kernel based on the user&#8217;s id,
+never considering the name of the user which belongs to the ID. Starting
+containers with a certain user ID can fix file permission issues, but
+often cause issues when containers expect to run under a particular user
+ID.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://github.com/eclipse-theia/theia">Github - Eclipse Theia</a></p>
+</div>
+<div class="paragraph">
+<p><a href="https://www.eclipse.org/che/">Project - Eclipse Che</a></p>
+</div>
+<div class="paragraph">
+<p><a href="https://docs.docker.com/storage/bind-mounts/">Docker - Use bind mounts</a></p>
+</div>
+<div class="paragraph">
+<p><a href="https://docs.docker.com/storage/volumes/">Docker - Use volumes</a></p>
+</div>
+<div class="paragraph">
+<p><a href="https://eclipsesource.com/de/blogs/2019/09/25/how-to-launch-eclipse-theia/">Blog Post - How to launch Eclipse Theia</a>.</p>
+</div>
+</div>
 </div></p>
 
   <span>Tags:
@@ -259,7 +304,7 @@ uid=1000(node) gid=1000(node) groups=1000(node)</code></pre>
     <div id="footer">
       <div class="container">
         <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
-        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
           -->
       </div>
     </div>
@@ -267,7 +312,7 @@ uid=1000(node) gid=1000(node) groups=1000(node)</code></pre>
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/prettify.js"></script>
 

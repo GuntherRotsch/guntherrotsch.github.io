@@ -85,80 +85,92 @@
    </dl>
   </div>
 
-	<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>&nbsp;</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>It is really a hype to have everything in version control, namely Git, - and it is always better to version text source than images or binary files. This applies to diagrams, too. With the PlantUML extension Asciidoc offers a way to define diagrams in a declarative way, but include them as images into generated documents, eg. Blog posts like HTML pages.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_configuration">Configuration</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The use of PlantUML is actually not very difficult to configure. Because my Blog project setup works with JBake’s Maven plugin, we need to add the dependency of <code>jbake-maven-plugin</code> on the <em>diagram</em> extension:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+	<p><div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>&nbsp;</p>
+</div>
+<div class="paragraph">
+<p>It is really a hype to have everything in version control, namely Git, - and it
+is always better to version text source than images or binary files. This applies
+to diagrams, too. With the PlantUML extension Asciidoc offers a way to define
+diagrams in a declarative way, but include them as images into generated
+documents, eg. Blog posts like HTML pages.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuration">Configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The use of PlantUML is actually not very difficult to configure. Because my
+Blog project setup works with JBake&#8217;s Maven plugin, we need to add the
+dependency of <code>jbake-maven-plugin</code> on the <em>diagram</em> extension:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
   &lt;groupId&gt;org.asciidoctor&lt;/groupId&gt;
   &lt;artifactId&gt;asciidoctorj-diagram&lt;/artifactId&gt;
   &lt;version&gt;1.5.18&lt;/version&gt;
-&lt;/dependency&gt;</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The diagram extension includes PlantUML.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The next and last step is to set some properties in JBake’s configuration file <code>jbake.properties</code>:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">asciidoctor.option.requires=asciidoctor-diagram
-asciidoctor.attributes=sourceDir=src/main/jbake,imagesdir=assets/img/diagrams,imagesoutdir=../../assets/assets/img/diagrams,source-highlighter=highlight.js,icons=font</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>If you’re interested in the image directory configuration the <a href="https://guntherrotsch.github.io/blog_2020/non-jekyll-github-pages.html">Blog post</a> gives more details.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_usage">Usage</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>With described configurations in place, UML diagrams can be easily included in Blog posts. The definition:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>[plantuml, "asciidoctor-sequence-diagram", "png"]
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The diagram extension includes PlantUML.</p>
+</div>
+<div class="paragraph">
+<p>The next and last step is to set some properties in JBake&#8217;s configuration file
+<code>jbake.properties</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">asciidoctor.option.requires=asciidoctor-diagram
+asciidoctor.attributes=sourceDir=src/main/jbake,imagesdir=assets/img/diagrams,imagesoutdir=../../assets/assets/img/diagrams,source-highlighter=highlight.js,icons=font</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you&#8217;re interested in the image directory configuration the
+<a href="https://guntherrotsch.github.io/blog_2020/non-jekyll-github-pages.html">Blog post</a>
+gives more details.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_usage">Usage</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>With described configurations in place, UML diagrams can be easily included
+in Blog posts. The definition:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">[plantuml, "asciidoctor-sequence-diagram", "png"]
 ----
 Alice -&gt; Bob: Authentication Request
 Bob --&gt; Alice: Authentication Response
 
 Alice -&gt; Bob: Another authentication Request
 Alice &lt;-- Bob: another authentication Response
-----</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>results in the diagram:</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://guntherrotsch.github.io/assets/img/asciidoctor-sequence-diagram.png" alt="asciidoctor sequence diagram" width="298" height="214"> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Because PlantUML includes the <em>Creole</em> markup engine, which offers the definition of simple <em>tree like</em> structures, it’s also possible to create diagrams of directory hierarchies for example. The definition:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>[plantuml, "file-system-tree", "png", opts="inline"]
+----</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>results in the diagram:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="assets/img/asciidoctor-sequence-diagram.png" alt="asciidoctor sequence diagram" width="298" height="214">
+</div>
+</div>
+<div class="paragraph">
+<p>Because PlantUML includes the <em>Creole</em> markup engine, which offers the
+definition of simple <em>tree like</em> structures, it&#8217;s also possible to create
+diagrams of directory hierarchies for example. The definition:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">[plantuml, "file-system-tree", "png", opts="inline"]
 ----
 @startuml
 skinparam {
@@ -176,18 +188,18 @@ Root
 |_ Element 2
   |_ Element 2.1
 end legend
-----</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>renders to:</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://guntherrotsch.github.io/assets/img/file-system-tree.png" alt="file system tree" width="164" height="196"> 
-   </div> 
-  </div> 
- </div> 
+----</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>renders to:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="assets/img/file-system-tree.png" alt="file system tree" width="164" height="196">
+</div>
+</div>
+</div>
 </div></p>
 
   <span>Tags:
@@ -207,7 +219,7 @@ end legend
     <div id="footer">
       <div class="container">
         <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
-        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
           -->
       </div>
     </div>
@@ -215,7 +227,7 @@ end legend
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/prettify.js"></script>
 

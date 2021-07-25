@@ -85,74 +85,88 @@
    </dl>
   </div>
 
-	<p><div class="sect1"> 
- <h2 id="_microprofile_starter">Microprofile Starter</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The <a href="https://start.microprofile.io/">Microprofile Starter Page</a> lists Wildfly as supported runtime:</p> 
-  </div> 
-  <div class="imageblock"> 
-   <div class="content"> 
-    <img src="https://guntherrotsch.github.io/assets/img/Microprofile_Starter.png" alt="Microprofile Starter Page"> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>After extracting the downloaded project package, you’ll happily notice that a Wildfly Bootable JAR project is setup. The configured Galleon layers are configured according to the selected MP specifications.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The setup project can already be build by <code>mvn package</code> and the application executed. Although, you’re ready to add the business logic to your application, I recommend to upgrade the Wildfly Bootable JAR plugin and the Wildfly application server, both are not up to date in the <em>MicroProfile Starter</em> setup.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_upgrade_wildfly_bootable_jar_plugin">Upgrade Wildfly Bootable Jar Plugin</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The Maven plugin is defined in the <code>&lt;build&gt;</code> section of the project’s POM, apparently. You’ll find the latest plugin on <a href="https://search.maven.org/artifact/org.wildfly.plugins/wildfly-jar-maven-plugin"> Maven Central</a>. At the time of writing the latest released version is <code>4.0.1.Final</code>.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_upgrade_wildfly_application_server">Upgrade Wildfly Application Server</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The version of the Wildfly application server is also defined in the project’s POM. In this case the <code>&lt;properties&gt;</code> section contains the configuration:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;properties&gt;
+	<p><div class="sect1">
+<h2 id="_microprofile_starter">Microprofile Starter</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <a href="https://start.microprofile.io/">Microprofile Starter Page</a> lists Wildfly as
+supported runtime:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="assets/img/Microprofile_Starter.png" alt="Microprofile Starter Page">
+</div>
+</div>
+<div class="paragraph">
+<p>After extracting the downloaded project package, you&#8217;ll happily notice that a
+Wildfly Bootable JAR project is setup. The configured Galleon layers are
+configured according to the selected MP specifications.</p>
+</div>
+<div class="paragraph">
+<p>The setup project can already be build by <code>mvn package</code> and the application
+executed. Although, you&#8217;re ready to add the business logic to your application,
+I recommend to upgrade the Wildfly Bootable JAR plugin and the Wildfly
+application server, both are not up to date in the <em>MicroProfile Starter</em> setup.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_upgrade_wildfly_bootable_jar_plugin">Upgrade Wildfly Bootable Jar Plugin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Maven plugin is defined in the <code>&lt;build&gt;</code> section of the project&#8217;s POM,
+apparently. You&#8217;ll find the latest plugin on
+<a href="https://search.maven.org/artifact/org.wildfly.plugins/wildfly-jar-maven-plugin">
+Maven Central</a>. At the time of writing the latest released version is
+<code>4.0.1.Final</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_upgrade_wildfly_application_server">Upgrade Wildfly Application Server</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The version of the Wildfly application server is also defined in the project&#8217;s
+POM. In this case the <code>&lt;properties&gt;</code> section contains the configuration:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;properties&gt;
   &lt;maven.compiler.target&gt;11&lt;/maven.compiler.target&gt;
   &lt;version.wildfly&gt;22.0.1.Final&lt;/version.wildfly&gt; <i class="conum" data-value="1"></i><b>(1)</b>
   &lt;failOnMissingWebXml&gt;false&lt;/failOnMissingWebXml&gt;
   &lt;maven.compiler.source&gt;11&lt;/maven.compiler.source&gt;
   &lt;final.name&gt;wildfly-starter&lt;/final.name&gt;
-&lt;/properties&gt;</code></pre> 
-   </div> 
-  </div> 
-  <div class="colist arabic"> 
-   <table> 
-    <tbody>
-     <tr> 
-      <td><i class="conum" data-value="1"></i><b>1</b></td> 
-      <td>The version of the Wildfly application server.</td> 
-     </tr> 
-    </tbody>
-   </table> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The available versions are listed on the <a href="https://www.wildfly.org/downloads/">Wildfly Download Page</a>.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_development">Development</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The command <code>mvn clean package</code> builds the application. By submitting the command <code>java -jar target/wildfly-starter-bootable.jar</code> the application can be started from the command line. The application server logs to the console. In order to test the application, <code>cURL</code> can be used in another shell:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ curl localhost:8080/data/hello -v
+&lt;/properties&gt;</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The version of the Wildfly application server.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The available versions are listed on the
+<a href="https://www.wildfly.org/downloads/">Wildfly Download Page</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_development">Development</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The command <code>mvn clean package</code> builds the application. By submitting the
+command <code>java -jar target/wildfly-starter-bootable.jar</code> the application
+can be started from the command line. The application server logs to the
+console. In order to test the application, <code>cURL</code> can be used in another
+shell:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ curl localhost:8080/data/hello -v
 *   Trying 127.0.0.1:8080...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 8080 (#0)
@@ -169,28 +183,35 @@
 &lt; Date: Sun, 21 Mar 2021 15:57:06 GMT
 &lt;
 * Connection #0 to host localhost left intact
-Hello World</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>That’s it, very easy and straight forward. Happy MicroProfiling with Wildfly Bootable JAR…​</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_links">Links</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p><a href="https://docs.wildfly.org/bootablejar/">WildFly Bootable JAR Documentation</a></p> </li> 
-    <li> <p><a href="https://start.microprofile.io/">Microprofile Starter Page</a></p> </li> 
-    <li> <p><a href="https://www.wildfly.org/downloads/">Wildfly Download Page</a></p> </li> 
-   </ul> 
-  </div> 
-  <div class="paragraph"> 
-   <p>​</p> 
-  </div> 
- </div> 
+Hello World</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s it, very easy and straight forward. Happy MicroProfiling with Wildfly
+Bootable JAR&#8230;&#8203;</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.wildfly.org/bootablejar/">WildFly Bootable JAR Documentation</a></p>
+</li>
+<li>
+<p><a href="https://start.microprofile.io/">Microprofile Starter Page</a></p>
+</li>
+<li>
+<p><a href="https://www.wildfly.org/downloads/">Wildfly Download Page</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>​</p>
+</div>
+</div>
 </div></p>
 
   <span>Tags:
@@ -211,7 +232,7 @@ Hello World</code></pre>
     <div id="footer">
       <div class="container">
         <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
-        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
           -->
       </div>
     </div>
@@ -219,7 +240,7 @@ Hello World</code></pre>
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/prettify.js"></script>
 

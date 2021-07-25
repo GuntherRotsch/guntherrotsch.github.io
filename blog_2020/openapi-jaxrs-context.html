@@ -85,65 +85,87 @@
    </dl>
   </div>
 
-	<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>&nbsp;</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>But, before starting the discussion of the JAX/RS context object related issues, I shortly describe the setup of the <code>openapi-jaxrs</code> sample project, you’ll find on the <a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code">code branch</a> of the Blog repository.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_demo_project_setup">Demo Project Setup</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The prerequisites to run the demo project are Java of version equal or higher 8 and a current version of Maven. The code samples shown in this Blog post use the OpenAPI Maven plugin:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+	<p><div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>&nbsp;</p>
+</div>
+<div class="paragraph">
+<p>But, before starting the discussion of the JAX/RS context object related issues,
+I shortly describe the setup of the <code>openapi-jaxrs</code> sample project, you&#8217;ll find
+on the
+<a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code">code branch</a>
+of the Blog repository.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_demo_project_setup">Demo Project Setup</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The prerequisites to run the demo project are Java of version equal or
+higher 8 and a current version of Maven.
+The code samples shown in this Blog post use the OpenAPI Maven plugin:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
   &lt;groupId&gt;org.openapitools&lt;/groupId&gt;
   &lt;artifactId&gt;openapi-generator-maven-plugin&lt;/artifactId&gt;
   &lt;version&gt;4.2.3&lt;/version&gt;
-&lt;/plugin&gt;</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>This plugin integrates very well with Eclipse: Updating the Maven project executes the generator. In addition, the output directory of generated code is automatically added as source folder to the Eclipse project.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The generator places the output directory into the <code>target</code> folder of the project. This ensures that the code generation is executed for every build and generated code is never put under version control.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The OpenAPI generator plugin supports several kinds of JAX/RS generators, eg. <code>jaxrs-spec</code>, <code>jaxrs-resteasy</code>, <code>jaxrs-cxf</code>. For this Blog post, we’ll use the <code>jaxrs-spec</code> generator, which produces code that is compliant to the Jakarta EE standard, but does not depend on a particular implementation of this standard. Nowadays the standard APIs support all features typically required in application development, so that implementation specific extensions are rarely required.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The documentation of the <code>jaxrs-spec</code> generator’s options can be found on the <code>OpenAPITools/openapi-generator</code> Github repo at <a href="https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/jaxrs-spec.md">JAX/RS Spec Generator</a>.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The demo project is configured for the <code>Thorntail</code> framework, which allows convenient start of the sample application from the command-line by</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>mvn thorntail:run</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>But the classical packaging as <code>war</code> file and deployment to an Jakarta EE compliant application server is equally possible.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_jaxrs_context">JAX/RS Context</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The following list enumerates all JAX/RS context objects of the JAX-RS 2.1 specification, ie. types that can be injected using the <code>@Context</code> annotation:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    javax.ws.rs.core.Application
+&lt;/plugin&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This plugin integrates very well with Eclipse: Updating the Maven project
+executes the generator. In addition, the output directory of generated code
+is automatically added as source folder to the Eclipse project.</p>
+</div>
+<div class="paragraph">
+<p>The generator places the output directory into the <code>target</code> folder of the
+project. This ensures that the code generation is executed for every build
+and generated code is never put under version control.</p>
+</div>
+<div class="paragraph">
+<p>The OpenAPI generator plugin supports several kinds of JAX/RS generators, eg.
+<code>jaxrs-spec</code>, <code>jaxrs-resteasy</code>, <code>jaxrs-cxf</code>. For this Blog post, we&#8217;ll use
+the <code>jaxrs-spec</code> generator, which produces code that is compliant to the
+Jakarta EE standard, but does not depend on a particular implementation of
+this standard. Nowadays the standard APIs support all features typically
+required in application development, so that implementation specific
+extensions are rarely required.</p>
+</div>
+<div class="paragraph">
+<p>The documentation of the <code>jaxrs-spec</code> generator&#8217;s options can be found on
+the <code>OpenAPITools/openapi-generator</code> Github repo at
+<a href="https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/jaxrs-spec.md">JAX/RS Spec Generator</a>.</p>
+</div>
+<div class="paragraph">
+<p>The demo project is configured for the <code>Thorntail</code> framework, which allows
+convenient start of the sample application from the command-line by</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">mvn thorntail:run</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But the classical packaging as <code>war</code> file and deployment to an Jakarta EE
+compliant application server is equally possible.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_jaxrs_context">JAX/RS Context</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following list enumerates all JAX/RS context objects of the JAX-RS
+2.1 specification, ie. types that can be injected using the <code>@Context</code>
+annotation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    javax.ws.rs.core.Application
     javax.ws.rs.core.HttpHeaders
     javax.ws.rs.core.Request
     javax.ws.rs.core.SecurityContext
@@ -152,42 +174,49 @@
     javax.ws.rs.container.ResourceContext
     javax.ws.rs.ext.Providers
     javax.ws.rs.sse.Sse
-    javax.ws.rs.sse.SseEventSink</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>In addition, the following types are available when the application in deployed to a servlet container:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    javax.servlet.HttpServletRequest
+    javax.ws.rs.sse.SseEventSink</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In addition, the following types are available when the application in
+deployed to a servlet container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    javax.servlet.HttpServletRequest
     javax.servlet.HttpServletResponse
     javax.servlet.ServletConfig
-    javax.servlet.ServletContext</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>What makes JAX/RS context objects special is that they can only injected into JAX/RS resources itself, but not into CDI beans, that are injected into the JAX/RS resource objects. If the JAX/RS resources reside in generated code, the context objects are available only if the generator takes them into account.</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_interface_only_generation">Interface-Only Generation</h3> 
-   <div class="paragraph"> 
-    <p>The easiest solution to make JAX/RS context objects available is to generate interfaces of the JAX/RS resources only. This can achieved by setting the generator’s option</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;interfaceOnly&gt;true&lt;/interfaceOnly&gt;</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>in the OpenAPI generator plugin of Maven’s <code>pom.xml</code> file.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The resulting generated code of a simple <em>greeting</em> service looks then like this:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  Path("/greeting")
+    javax.servlet.ServletContext</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What makes JAX/RS context objects special is that they can only injected into
+JAX/RS resources itself, but not into CDI beans, that are injected into the
+JAX/RS resource objects. If the JAX/RS resources reside in generated code,
+the context objects are available only if the generator takes them into account.</p>
+</div>
+<div class="sect2">
+<h3 id="_interface_only_generation">Interface-Only Generation</h3>
+<div class="paragraph">
+<p>The easiest solution to make JAX/RS context objects available is to generate
+interfaces of the JAX/RS resources only. This can achieved by setting the
+generator&#8217;s option</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;interfaceOnly&gt;true&lt;/interfaceOnly&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>in the OpenAPI generator plugin of Maven&#8217;s <code>pom.xml</code> file.</p>
+</div>
+<div class="paragraph">
+<p>The resulting generated code of a simple <em>greeting</em> service looks then like
+this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  Path("/greeting")
   @Api(description = "the greeting API")
   @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", date = "2020-03-23T19:02:54.718784+01:00[Europe/Zurich]")
   public interface GreetingApi {
@@ -198,15 +227,16 @@
           @ApiResponse(code = 200, message = "Returns greeting on success", response = Void.class),
           @ApiResponse(code = 405, message = "Invalid input", response = Void.class) })
       Response greet(@QueryParam("name")   @ApiParam("Optional name of person to greet")  String name);
-  }</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Since only interfaces are generated, the actual implementation must be coded manually, eg.:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public class GreetingApiImpl implements GreetingApi {
+  }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Since only interfaces are generated, the actual implementation must be coded
+manually, eg.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public class GreetingApiImpl implements GreetingApi {
 
   	private static final Logger LOGGER = LoggerFactory.getLogger(GreetingApiImpl.class);
 
@@ -225,32 +255,37 @@
 
   		return Response.ok("Hello world").build();
   	}
-  }</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Because the JAX/RS resource implementation is hand-written, you are free to inject any context object. In the example above, <code>HttpHeaders</code> and <code>UriInfo</code> have been added for demo purposes, but any others is possible, too.</p> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_implementation_generation">Implementation Generation</h3> 
-   <div class="paragraph"> 
-    <p>For some projects it might not be desired or possible to work with interfaces of JAX/RS resource objects. Let’s see what happens when we change the OpenAPI generator to</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;interfaceOnly&gt;false&lt;/interfaceOnly&gt;</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>First difference to <em>interface only</em> generation is that the <code>RestApplication</code> object is now generated and must not longer provided with the application code.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The generate JAX/RS resource now looks like:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  @Path("/greeting")
+  }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Because the JAX/RS resource implementation is hand-written, you are free to
+inject any context object. In the example above, <code>HttpHeaders</code> and
+<code>UriInfo</code> have been added for demo purposes, but any others is possible, too.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_implementation_generation">Implementation Generation</h3>
+<div class="paragraph">
+<p>For some projects it might not be desired or possible to work with interfaces
+of JAX/RS resource objects. Let&#8217;s see what happens when we change the
+OpenAPI generator to</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;interfaceOnly&gt;false&lt;/interfaceOnly&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>First difference to <em>interface only</em> generation is that the <code>RestApplication</code>
+object is now generated and must not longer provided with the application code.</p>
+</div>
+<div class="paragraph">
+<p>The generate JAX/RS resource now looks like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  @Path("/greeting")
   @Api(description = "the greeting API")
   @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", date = "2020-03-23T19:06:40.010561+01:00[Europe/Zurich]")
   public class GreetingApi {
@@ -264,65 +299,90 @@
       public Response greet(@QueryParam("name")   @ApiParam("Optional name of person to greet")  String name) {
           return Response.ok().entity("magic!").build();
       }
-  }</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The API method of the generated class provides an implementation already. You might be tempted to change this implementation to your needs and add the application’s business logic here. However, the class is generated and the next build would overwrite any manual change.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>What can we do about that? Moving the generated class to the developer managed code-base is not an option, because it violates the principle that the code is generated on each build and generated code is never taken under version control. The best would be to customize the generation in a way that the actual business logic gets injected and the JAX/RS API methods just delegate to the injected business services. This idea is based on the integration of JAX/RS and CDI, which allows to inject arbitrary CDI beans into JAX/RS resources.</p> 
-   </div> 
-   <div class="sect3"> 
-    <h4 id="_template_customization">Template Customization</h4> 
-    <div class="paragraph"> 
-     <p>The OpenAPITools/openapi-generator Github repository includes comprising documentation about the customization of <a href="https://github.com/OpenAPITools/openapi-generator/blob/master/docs/templating.md">Templates</a> or even the entire <a href="https://github.com/OpenAPITools/openapi-generator/blob/master/docs/customization.md">Generators</a>.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>For our purposes the customization of templates is sufficient. After adding the configuration</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;templateDirectory&gt;${project.basedir}/src/main/templates&lt;/templateDirectory&gt;</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>to the OpenAPI generator plugin, customized Mustache templates can be provided in defined folder.</p> 
-    </div> 
-    <div class="admonitionblock note"> 
-     <table> 
-      <tbody>
-       <tr> 
-        <td class="icon"> <i class="fa icon-note" title="Note"></i> </td> 
-        <td class="content"> The OpenAPI generator processes many template files in a generation run, but only the customized templates need to be hosted in the project’s template directory. The remaining templates will still be retrieved from the set of standard templates of the generator, ie. the custom teplates <em>shadow</em> the equally named templates of the generator. </td> 
-       </tr> 
-      </tbody>
-     </table> 
-    </div> 
-    <div class="paragraph"> 
-     <p>For our use case the injection of the service class need to be added in the <code>api.mustache</code> template file:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  @Inject {{package}}.services.{{classname}}Impl delegatee;</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>And the delegation to the injected business service need to be added in the <code>apiMethod.mustache</code> template file:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public Response {{nickname}}({{#allParams}}{{&gt;queryParams}}{{&gt;pathParams}}{{&gt;headerParams}}{{&gt;bodyParams}}{{&gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+  }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The API method of the generated class provides an implementation already. You
+might be tempted to change this implementation to your needs and add the
+application&#8217;s business logic here. However, the class is generated and the
+next build would overwrite any manual change.</p>
+</div>
+<div class="paragraph">
+<p>What can we do about that?
+Moving the generated class to the developer managed code-base is not an option,
+because it violates the principle that the code is generated on each build
+and generated code is never taken under version control.
+The best would be to customize the generation in a way that the actual
+business logic gets injected and the JAX/RS API methods just delegate to the
+injected business services. This idea is based on the integration of JAX/RS
+and CDI, which allows to inject arbitrary CDI beans into JAX/RS resources.</p>
+</div>
+<div class="sect3">
+<h4 id="_template_customization">Template Customization</h4>
+<div class="paragraph">
+<p>The OpenAPITools/openapi-generator Github repository includes comprising
+documentation about the customization of
+<a href="https://github.com/OpenAPITools/openapi-generator/blob/master/docs/templating.md">Templates</a>
+or even the entire
+<a href="https://github.com/OpenAPITools/openapi-generator/blob/master/docs/customization.md">Generators</a>.</p>
+</div>
+<div class="paragraph">
+<p>For our purposes the customization of templates is sufficient. After adding
+the configuration</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;templateDirectory&gt;${project.basedir}/src/main/templates&lt;/templateDirectory&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>to the OpenAPI generator plugin, customized Mustache templates can be provided
+in defined folder.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The OpenAPI generator processes many template files in a generation run, but
+only the customized templates need to be hosted in the project&#8217;s template
+directory. The remaining templates will still be retrieved from the set
+of standard templates of the generator, ie. the custom teplates <em>shadow</em>
+the equally named templates of the generator.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For our use case the injection of the service class need to be added in the
+<code>api.mustache</code> template file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  @Inject {{package}}.services.{{classname}}Impl delegatee;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And the delegation to the injected business service need to be added
+in the <code>apiMethod.mustache</code> template file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public Response {{nickname}}({{#allParams}}{{&gt;queryParams}}{{&gt;pathParams}}{{&gt;headerParams}}{{&gt;bodyParams}}{{&gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
       return delegatee.{{nickname}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
-  }</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>The delegatee, ie. the CDI bean hosting the business logic, looks in its simplest form like:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  package net.gunther.blog.codegen.api.services;
+  }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The delegatee, ie. the CDI bean hosting the business logic, looks in its
+simplest form like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  package net.gunther.blog.codegen.api.services;
 
   import javax.ws.rs.core.Response;
 
@@ -331,15 +391,19 @@
   	public Response greet(String name) {
   		return Response.ok("Hello world").build();
   	}
-  }</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>At this point we achieved that the generated JAX/RS resource classes delegate each call to a hand-written service class, that host the actual business logic. The JAX/RS context objects are still unavailable to the application. To solve this last challenge, we introduce a request scoped <em>holder</em> object of the JAX/RS context:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@RequestScoped
+  }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At this point we achieved that the generated JAX/RS resource classes delegate
+each call to a hand-written service class, that host the actual business logic.
+The JAX/RS context objects are still unavailable to the application. To solve
+this last challenge, we introduce a request scoped <em>holder</em> object of the
+JAX/RS context:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@RequestScoped
 public class JAXRSContext {
 
   private UriInfo uriInfo;
@@ -360,53 +424,65 @@ public class JAXRSContext {
   public void setHttpHeaders(HttpHeaders httpHeaders) {
 	  this.httpHeaders = httpHeaders;
   }
-}</code></pre> 
-     </div> 
-    </div> 
-    <div class="admonitionblock note"> 
-     <table> 
-      <tbody>
-       <tr> 
-        <td class="icon"> <i class="fa icon-note" title="Note"></i> </td> 
-        <td class="content"> For sake of simplicity, the sample code limits to <code>HttpHeaders</code> and <code>UriInfo</code>, but any other JAX/RS context object can be easily added. Import statements are also omitted. </td> 
-       </tr> 
-      </tbody>
-     </table> 
-    </div> 
-    <div class="paragraph"> 
-     <p>Then we add the injection of the JAX/RS context objects and our new holder object to the customized <code>api.mustache</code> template file:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  ...
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+For sake of simplicity, the sample code limits to <code>HttpHeaders</code> and <code>UriInfo</code>,
+but any other JAX/RS context object can be easily added. Import statements
+are also omitted.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Then we add the injection of the JAX/RS context objects and our new holder
+object to the customized <code>api.mustache</code> template file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  ...
   @Context UriInfo uriInfo;
   @Context HttpHeaders httpHeaders;
 
   @Inject JAXRSContext context;
-  ...</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>The injected objects can then be used in the generated API methods, ie. the template <code>apiMethod.mustache</code> file can further customized by adding:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public Response {{nickname}}({{#allParams}}{{&gt;queryParams}}{{&gt;pathParams}}{{&gt;headerParams}}{{&gt;bodyParams}}{{&gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+  ...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The injected objects can then be used in the generated API methods, ie. the
+template <code>apiMethod.mustache</code> file can further customized by adding:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public Response {{nickname}}({{#allParams}}{{&gt;queryParams}}{{&gt;pathParams}}{{&gt;headerParams}}{{&gt;bodyParams}}{{&gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
     context.setUriInfo(uriInfo);
     context.setHttpHeaders(httpHeaders);
     return delegatee.{{nickname}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
-  }</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>You may have noted, that we do not add the JAX/RS holder object to the signature of the delegatee’s method. The JAX/RS holder <code>context</code> is a CDI bean, which is just populated with the JAX/RS context in the generated resource class. Because the bean of type <code>JAXRSContext</code> is request scoped, every request processing (thread) gets its own instance of the bean.</p> 
-    </div> 
-    <div class="paragraph"> 
-     <p>The <code>JAXRSContext</code> is a regular CDI bean which can be injected into any other CDI bean, eg. the delegatee’s service implementation:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public class GreetingApiImpl {
+  }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You may have noted, that we do not add the JAX/RS holder object to the
+signature of the delegatee&#8217;s method.
+The JAX/RS holder <code>context</code> is a CDI bean, which is just populated with the
+JAX/RS context in the generated resource class. Because the bean of type
+<code>JAXRSContext</code> is request scoped, every request processing (thread) gets its
+own instance of the bean.</p>
+</div>
+<div class="paragraph">
+<p>The <code>JAXRSContext</code> is a regular CDI bean which can be injected into any other
+CDI bean, eg. the delegatee&#8217;s service implementation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public class GreetingApiImpl {
 
   	private static final Logger LOGGER = LoggerFactory.getLogger(GreetingApiImpl.class);
 
@@ -421,15 +497,16 @@ public class JAXRSContext {
   		LOGGER.info("UriInfo.absolutePath: {}", context.getUriInfo().getAbsolutePath());
   		return Response.ok("Hello world").build();
   	}
-  }</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>When now calling the application the HTTP headers and the absolute path of the requested JAX/RS resource are logged, for example:</p> 
-    </div> 
-    <div class="listingblock"> 
-     <div class="content"> 
-      <pre class="highlightjs highlight"><code>2020-03-24 20:45:02,834 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) Headers:
+  }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When now calling the application the HTTP headers and the absolute path of the
+requested JAX/RS resource are logged, for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">2020-03-24 20:45:02,834 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) Headers:
 	DNT: [1]
 	Accept-Language: [en-US,en;q=0.5]
 	Host: [localhost:8080]
@@ -440,34 +517,55 @@ public class JAXRSContext {
 	Connection: [keep-alive]
 	Cache-Control: [max-age=0]
 
-2020-03-24 20:45:02,836 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) UriInfo.absolutePath: http://localhost:8080/greeting</code></pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>Implementing the <code>JAXRSContext</code> as request scoped CDI bean has several benefits:</p> 
-    </div> 
-    <div class="ulist"> 
-     <ul> 
-      <li> <p>The technical JAX/RS context does not pollute the business interfaces implemented by the service delegates.</p> </li> 
-      <li> <p>The <code>JAXRSContext</code> can hold any number of context objects, you can start with just one and add more if you need more in later stages of the development. Adding more context objects means extending the template, but does not break a single line of existing code.</p> </li> 
-      <li> <p>The <code>JAXRSContext</code> can be injected into business logic of any level in the call hierarchy, not only in the directly called delegatee.</p> </li> 
-      <li> <p>The <code>JAXRSContext</code> is only injected into CDI beans that actually need the context.</p> </li> 
-     </ul> 
-    </div> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_summary">Summary</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The simplest approach when it comes to OpenAPI and its generators is to limit the generated code to interfaces. This approach does not require customization of templates and nevertheless leaves any implementation option in your hands.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>If you already generate JAX/RS resource implementations or need to customize the generator’s templates anyway, then the described JAX/RS holder object may be an option for you. Implementing the JAX/RS holder as request scoped CDI bean offers several benefits as listed above.</p> 
-  </div> 
- </div> 
+2020-03-24 20:45:02,836 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) UriInfo.absolutePath: http://localhost:8080/greeting</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Implementing the <code>JAXRSContext</code> as request scoped CDI bean has several
+benefits:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The technical JAX/RS context does not pollute the business interfaces
+implemented by the service delegates.</p>
+</li>
+<li>
+<p>The <code>JAXRSContext</code> can hold any number of context objects, you can start
+with just one and add more if you need more in later stages of the development.
+Adding more context objects means extending the template, but does not break
+a single line of existing code.</p>
+</li>
+<li>
+<p>The <code>JAXRSContext</code> can be injected into business logic of any level in the
+call hierarchy, not only in the directly called delegatee.</p>
+</li>
+<li>
+<p>The <code>JAXRSContext</code> is only injected into CDI beans that actually need the
+context.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_summary">Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The simplest approach when it comes to OpenAPI and its generators is to
+limit the generated code to interfaces. This approach does not require
+customization of templates and nevertheless leaves any implementation
+option in your hands.</p>
+</div>
+<div class="paragraph">
+<p>If you already generate JAX/RS resource implementations or need to customize
+the generator&#8217;s templates anyway, then the described JAX/RS holder object
+may be an option for you. Implementing the JAX/RS holder as request scoped
+CDI bean offers several benefits as listed above.</p>
+</div>
+</div>
 </div></p>
 
   <span>Tags:
@@ -490,7 +588,7 @@ public class JAXRSContext {
     <div id="footer">
       <div class="container">
         <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
-        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
           -->
       </div>
     </div>
@@ -498,7 +596,7 @@ public class JAXRSContext {
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/prettify.js"></script>
 

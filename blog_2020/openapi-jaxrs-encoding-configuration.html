@@ -85,15 +85,15 @@
    </dl>
   </div>
 
-	<p><div class="paragraph"> 
- <p>&nbsp;</p> 
-</div> 
-<div class="paragraph"> 
- <p>Let’s say an API defines a response model object as follows:</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">  ....
+	<p><div class="paragraph">
+<p>&nbsp;</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s say an API defines a response model object as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">  ....
 definitions:
   SomeResponse:
     type: "object"
@@ -104,24 +104,30 @@ definitions:
         description: The binary data of the response object.
         type: "string"
         format: "byte"
-  ...</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>The code produced by generator <code>jaxrs-spec</code> encodes the <code>data</code> field as an array of bytes (numbers). The ASCII string "Java" for example results in an encoded JSON field <code>"data": [ 112, 141, 166, 141 ]</code>.</p> 
-</div> 
-<div class="paragraph"> 
- <p>On the other side, the generator <code>java</code> creates client code that encodes such <em>byte strings</em> of the API spec as base 64 strings. The sample string "Java" results in <code>"data": "SmF2YQ=="</code>.</p> 
-</div> 
-<div class="paragraph"> 
- <p>Eventually, this leads to a situation, the generated client and server are not compatible and cannot exchange binary data.</p> 
-</div> 
-<div class="paragraph"> 
- <p>The simplest approach to fix this issue is by configuring the binary data strategy on the server-side:</p> 
-</div> 
-<div class="listingblock"> 
- <div class="content"> 
-  <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import javax.json.bind.*;
+  ...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The code produced by generator <code>jaxrs-spec</code> encodes the <code>data</code> field as an
+array of bytes (numbers). The ASCII string "Java" for example results in an
+encoded JSON field <code>"data": [ 112, 141, 166, 141 ]</code>.</p>
+</div>
+<div class="paragraph">
+<p>On the other side, the generator <code>java</code> creates client code that encodes
+such <em>byte strings</em> of the API spec as base 64 strings. The sample string
+"Java" results in <code>"data": "SmF2YQ=="</code>.</p>
+</div>
+<div class="paragraph">
+<p>Eventually, this leads to a situation, the generated client and server are not
+compatible and cannot exchange binary data.</p>
+</div>
+<div class="paragraph">
+<p>The simplest approach to fix this issue is by configuring the binary data
+strategy on the server-side:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import javax.json.bind.*;
 import javax.ws.rs.ext.*;
 
 /**
@@ -141,11 +147,15 @@ public class JsonbConfigurator implements ContextResolver&lt;Jsonb&gt; {
   private JsonbConfig getJsonbConfig() {
     return new JsonbConfig().withBinaryDataStrategy(BinaryDataStrategy.BASE_64);
   }
-}</code></pre> 
- </div> 
-</div> 
-<div class="paragraph"> 
- <p>If you add this class to your JAX/RS server project, client and server both encode and decode binary data as base 64 strings and start to work well together. Such a Jakarta EE based solution should definitely preferred over the customization of generator’s templates, in particular if you take long-term maintainability into account.</p> 
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you add this class to your JAX/RS server project, client and server both
+encode and decode binary data as base 64 strings and start to work well
+together. Such a Jakarta EE based solution should definitely preferred over
+the customization of generator&#8217;s templates, in particular if you take
+long-term maintainability into account.</p>
 </div></p>
 
   <span>Tags:
@@ -167,7 +177,7 @@ public class JsonbConfigurator implements ContextResolver&lt;Jsonb&gt; {
     <div id="footer">
       <div class="container">
         <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
-        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
           -->
       </div>
     </div>
@@ -175,7 +185,7 @@ public class JsonbConfigurator implements ContextResolver&lt;Jsonb&gt; {
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/prettify.js"></script>
 

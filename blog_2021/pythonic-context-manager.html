@@ -85,38 +85,52 @@
    </dl>
   </div>
 
-	<p><div class="sect1"> 
- <h2 id="_context_managers_in_python">Context Managers in Python</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Basically, Python context managers are a simple and reliable technique for the management of resources of any kind. Context managers are objects with the two <em>magic</em> methods (a.k.a. dunder method) <code><em>enter</em></code> and <code><em>exit</em></code>. If you’re not familiar with Python’s <em>magic</em> methods, the post <a href="https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08"> Advanced Python: What Are Magic Methods?</a> gives a detailed introduction.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When context managers are used in Python programs as follows</p> 
-  </div> 
-  <div class="literalblock"> 
-   <div class="content"> 
-    <pre>with MyContextManager() as c:
-    // do something with c</pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>the method <code><em>enter</em></code> is automatically called on entering the <code>with</code> block, respectively, the method <code><em>exit</em></code> is called when the thread of control leaves the <code>with</code> block. The <code><em>exit</em></code> method is even called, when leaving the block due to an exception. The post <a href="https://martinheinz.dev/blog/34">The Magic of Python Context Managers</a> describes context managers in more detail and also lists some applications of context managers in Python.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The <code><em>exit</em></code> often ensures, that acquired resources are released reliably. Does this remind you of Java’s <code>AutoCloseable</code>? Although, <code>AutoCloseable</code> are mainly known for input and output streams, the idea to generalize the pattern in Java is tempting. Let’s give an example.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_sample">Sample</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>When testing code that makes some decisions based on System properties, it would be nice if we could write the following test code:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">System.clearProperty("KEY");
+	<p><div class="sect1">
+<h2 id="_context_managers_in_python">Context Managers in Python</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Basically, Python context managers are a simple and reliable technique for the
+management of resources of any kind. Context managers are objects with the
+two <em>magic</em> methods (a.k.a. dunder method) <code><em>enter</em></code> and <code><em>exit</em></code>. If you&#8217;re
+not familiar with Python&#8217;s <em>magic</em> methods, the post
+<a href="https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08">
+Advanced Python: What Are Magic Methods?</a> gives a detailed introduction.</p>
+</div>
+<div class="paragraph">
+<p>When context managers are used in Python programs as follows</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>with MyContextManager() as c:
+    // do something with c</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>the method <code><em>enter</em></code> is automatically called on entering the <code>with</code> block,
+respectively, the method <code><em>exit</em></code> is called when the thread of control leaves
+the <code>with</code> block. The <code><em>exit</em></code> method is even called, when leaving the block
+due to an exception. The post <a href="https://martinheinz.dev/blog/34">The Magic
+of Python Context Managers</a> describes context managers in more detail and also
+lists some applications of context managers in Python.</p>
+</div>
+<div class="paragraph">
+<p>The <code><em>exit</em></code> often ensures, that acquired resources are released reliably.
+Does this remind you of Java&#8217;s <code>AutoCloseable</code>? Although, <code>AutoCloseable</code> are
+mainly known for input and output streams, the idea to generalize the pattern
+in Java is tempting. Let&#8217;s give an example.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sample">Sample</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When testing code that makes some decisions based on System properties, it would
+be nice if we could write the following test code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">System.clearProperty("KEY");
 
 try (SystemPropertiesContext testee = SystemPropertiesContext
         .of(entry("KEY", "VALUE"))) {
@@ -124,15 +138,19 @@ try (SystemPropertiesContext testee = SystemPropertiesContext
     // testing functionality that considers the System property "KEY"
 }
 
-assertEquals(null, System.getProperty("KEY"));</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Inside the <code>try</code> block the System property keyed <code>KEY</code> takes the value <code>VALUE</code>, but after leaving the <code>try</code> block, the value is reset to whatever the property’s value was before. The <em>context manager</em> named <code>SystemPropertiesContext</code> takes care of the management of these resources. The implementation of the <code>SystemPropertiesContext</code> looks like:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class SystemPropertiesContext implements AutoCloseable {
+assertEquals(null, System.getProperty("KEY"));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Inside the <code>try</code> block the System property keyed <code>KEY</code> takes the value
+<code>VALUE</code>, but after leaving the <code>try</code> block, the value is reset to whatever
+the property&#8217;s value was before. The <em>context manager</em> named
+<code>SystemPropertiesContext</code> takes care of the management of these resources.
+The implementation of the <code>SystemPropertiesContext</code> looks like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class SystemPropertiesContext implements AutoCloseable {
 
 	public static class Entry {
 		private final String key;
@@ -186,15 +204,16 @@ assertEquals(null, System.getProperty("KEY"));</code></pre>
 			}
 		}
 	}
-}</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The <code>SystemPropertiesContext</code> behaves like a context manager in Python. Here in addition the complete unit test of the <code>SystemPropertiesContext</code> class:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package io.github.guntherrotsch.demo.contextmanager;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>SystemPropertiesContext</code> behaves like a context manager in Python. Here
+in addition the complete unit test of the <code>SystemPropertiesContext</code> class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package io.github.guntherrotsch.demo.contextmanager;
 
 import static io.github.guntherrotsch.demo.contextmanager.SystemPropertiesContext.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -243,29 +262,37 @@ class SystemPropertiesContextTest {
 
 		assertEquals(expectedJavaVersion, System.getProperty("java.version"));
 	}
-}</code></pre> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_conclusion">Conclusion</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Looking beyond the Java universe can be inspiring and broaden your thinking by giving you new ideas to build better abstractions. So, I believe it’s always worth to study other programming languages and ecosystems, even if not interested in leaving the professional Java development space.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_links">Links</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p><a href="https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08"> Advanced Python: What Are Magic Methods?</a></p> </li> 
-    <li> <p><a href="https://martinheinz.dev/blog/34">The Magic of Python Context Managers</a></p> </li> 
-   </ul> 
-  </div> 
- </div> 
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Looking beyond the Java universe can be inspiring and broaden your thinking by
+giving you new ideas to build better abstractions. So, I believe it&#8217;s always
+worth to study other programming languages and ecosystems, even if not
+interested in leaving the professional Java development space.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08">
+Advanced Python: What Are Magic Methods?</a></p>
+</li>
+<li>
+<p><a href="https://martinheinz.dev/blog/34">The Magic of Python Context Managers</a></p>
+</li>
+</ul>
+</div>
+</div>
 </div></p>
 
   <span>Tags:
@@ -282,7 +309,7 @@ class SystemPropertiesContextTest {
     <div id="footer">
       <div class="container">
         <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
-        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
           -->
       </div>
     </div>
@@ -290,7 +317,7 @@ class SystemPropertiesContextTest {
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/prettify.js"></script>
 

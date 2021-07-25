@@ -85,79 +85,126 @@
    </dl>
   </div>
 
-	<p><div id="preamble"> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>&nbsp;</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Github Pages was originally designed to integrate static site-generator Jekyll. This may still be the most applied combination. But today it’s also possible to generate a static site using a generator of your choice and publish it with Github Pages. Because my Blog is generated with JBake and only distribution files are pushed to <code>master</code> branch of Github repo, I placed an empty <code>.nojekyll</code> file into the web root. According to the documentation, this tells Github Pages to skip the Jekyll build and just transfer every file hosted in <code>master</code> branch to the web server. However, images are still not deployed and the <em>alternative</em> text is shown instead to the users.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_images">Images</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The Github Pages documentation mentions, that images should be kept below an <code>assets</code> folder. This may apply for Jekyll especially, but nevertheless I introduced such a folder and moved the images to <code>/assets/img</code>. Actually, I ended up with two nested folders named <code>assets</code> in the sources of the project. JBake removes one of them during <em>baking</em> of the site, so that the directory structure of the distribution contains only one folder <code>assets</code> possibly required by Github Pages.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>To clean everything up a bit, the <code>css</code>, <code>fonts</code>, and <code>js</code> folders are also moved below the <code>/assets</code> directory. This requires adaption of the templates, eg. the <code>header.ftl</code> has to reference the right stylesheets:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>...
+	<p><div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>&nbsp;</p>
+</div>
+<div class="paragraph">
+<p>Github Pages was originally designed to integrate static site-generator Jekyll.
+This may still be the most applied combination. But today it&#8217;s also possible
+to generate a static site using a generator of your choice and publish it with
+Github Pages.
+Because my Blog is generated with JBake and only distribution files are pushed
+to <code>master</code> branch of Github repo, I placed an empty <code>.nojekyll</code> file into the
+web root. According to the documentation, this tells Github Pages to
+skip the Jekyll build and just transfer every file hosted in <code>master</code> branch
+to the web server. However, images are still not deployed and the <em>alternative</em>
+text is shown instead to the users.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_images">Images</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Github Pages documentation mentions, that images should be kept below an
+<code>assets</code> folder. This may apply for Jekyll especially, but nevertheless I
+introduced such a folder and moved the images to <code>/assets/img</code>.
+Actually, I ended up with two nested folders named <code>assets</code> in the sources of
+the project. JBake removes one of them during <em>baking</em> of the site, so that the
+directory structure of the distribution contains only one folder <code>assets</code>
+possibly required by Github Pages.</p>
+</div>
+<div class="paragraph">
+<p>To clean everything up a bit, the <code>css</code>, <code>fonts</code>, and <code>js</code> folders are also
+moved below the <code>/assets</code> directory. This requires adaption of the templates,
+eg. the <code>header.ftl</code> has to reference the right stylesheets:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">...
 &lt;link href="&lt;#if (content.rootpath)??&gt;${content.rootpath}&lt;#else&gt;&lt;/#if&gt;assets/css/bootstrap.min.css" rel="stylesheet"&gt;
 &lt;link href="&lt;#if (content.rootpath)??&gt;${content.rootpath}&lt;#else&gt;&lt;/#if&gt;assets/css/asciidoctor.css" rel="stylesheet"&gt;
 &lt;link href="&lt;#if (content.rootpath)??&gt;${content.rootpath}&lt;#else&gt;&lt;/#if&gt;assets/css/base.css" rel="stylesheet"&gt;
 &lt;link href="&lt;#if (content.rootpath)??&gt;${content.rootpath}&lt;#else&gt;&lt;/#if&gt;assets/css/prettify.css" rel="stylesheet"&gt;
-...</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>After publishing these changes, the the images embedded in the pages appear as expected.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_pages_in_sub_directories">Pages in Sub-directories</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The typical directory structure of a JBake project organizes HTML pages as follows:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>/
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After publishing these changes, the the images embedded in the pages appear as
+expected.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_pages_in_sub_directories">Pages in Sub-directories</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The typical directory structure of a JBake project organizes HTML pages as
+follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">/
    ...
    index.html
    ...
    /blog/2020
       first-post.html
       second-post.html
-      ...</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The index page is initially presented to the user when he navigates to the web page’s root. From here users may navigate to the individual Blog posts, which are hosted in two level deep sub-directories <code>/blog/&lt;year&gt;</code>. Though, the Blog post in sub-directories were not deployed and navigation to such pages resulted in 404 (page not found) error pages.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The documentation of Github Pages mentions, that the <code>Checks</code> tab of the Pull Requests should be observed for detecting issues during the Github/Jekyll build. But I’ve never seen a single message there. May be this applies to <em>pure</em> Jekyll builds only. In general, I find it hard to get an insight into what happens on Github Pages. To my knowledge, it’t not even possible to get an eye on the actually distributed files hosted by the web server - please drop me an email, if I missed something.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Anyway, to find by trial-and-error out what’s going on during the Github Pages build/deployment, I placed additional <code>index.html</code> files into the directories <code>/blog</code> as well as <code>/blog/2020</code>. Surprisingly, the index page in <code>/blog</code> could be retrieved by the Browser, but <code>/blog/2020</code> is missing and leads a 404 (page not found) error page. Does the additional level of directories really makes the difference? That’d be far away from being logical. But after merging the directories <code>/blog/2020</code> to <code>/blog_2020</code> and moving the Blog posts into the new directory, the navigation to individual posts works fine, even on Github Pages' deployment.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_conclusion">Conclusion</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Actually, my enthusiasm for Github Pages diminished quite a bit. The process of build and deployment could be improved to more transparency in principle. In addition, I initially was not aware of the limitation that personal (and organizational) Github pages can only be served from <code>master</code> branch’s root directory, but not like project pages from a <code>/docs</code> folder - the reason for this limitation is not clear to me. (Because of this limitation, I separated sources and distribution files of my project to different branches <code>sources-master</code> and <code>master</code>. The local development is then setup with a single Git repo managing two worktrees.)</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>However, I’m still excited about JBake, it’s easy to use and always works as expected. In the meantime, I also adapted several templates, which is understandable and also well documented. JBake, really good stuff.</p> 
-  </div> 
- </div> 
+      ...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The index page is initially presented to the user when he navigates to the
+web page&#8217;s root. From here users may navigate to the individual Blog posts,
+which are hosted in two level deep sub-directories <code>/blog/&lt;year&gt;</code>. Though,
+the Blog post in sub-directories were not deployed and navigation to such pages
+resulted in 404 (page not found) error pages.</p>
+</div>
+<div class="paragraph">
+<p>The documentation of Github Pages mentions, that the <code>Checks</code> tab of the Pull
+Requests should be observed for detecting issues during the Github/Jekyll build.
+But I&#8217;ve never seen a single message there. May be this applies to <em>pure</em>
+Jekyll builds only. In general, I find it hard to get an insight into what
+happens on Github Pages. To my knowledge, it&#8217;t not even possible to get an eye
+on the actually distributed files hosted by the web server - please drop me
+an email, if I missed something.</p>
+</div>
+<div class="paragraph">
+<p>Anyway, to find by trial-and-error out what&#8217;s going on during the Github Pages
+build/deployment, I placed additional <code>index.html</code> files into the directories
+<code>/blog</code> as well as <code>/blog/2020</code>. Surprisingly, the index page in <code>/blog</code> could
+be retrieved by the Browser, but <code>/blog/2020</code> is missing and leads a 404
+(page not found) error page. Does the additional level of directories really
+makes the difference? That&#8217;d be far away from being logical. But after merging
+the directories <code>/blog/2020</code> to <code>/blog_2020</code> and moving the Blog posts into the
+new directory, the navigation to individual posts works fine, even on Github
+Pages' deployment.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Actually, my enthusiasm for Github Pages diminished quite a bit. The process
+of build and deployment could be improved to more transparency in principle.
+In addition, I initially was not aware of the limitation that personal
+(and organizational) Github pages can only be served from <code>master</code> branch&#8217;s
+root directory, but not like project pages from a <code>/docs</code> folder - the reason
+for this limitation is not clear to me. (Because of this limitation, I
+separated sources and distribution files of my project to different branches
+<code>sources-master</code> and <code>master</code>. The local development is then setup with a
+single Git repo managing two worktrees.)</p>
+</div>
+<div class="paragraph">
+<p>However, I&#8217;m still excited about JBake, it&#8217;s easy to use and always works as
+expected. In the meantime, I also adapted several templates, which is
+understandable and also well documented. JBake, really good stuff.</p>
+</div>
+</div>
 </div></p>
 
   <span>Tags:
@@ -175,7 +222,7 @@
     <div id="footer">
       <div class="container">
         <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
-        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
           -->
       </div>
     </div>
@@ -183,7 +230,7 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/prettify.js"></script>
 

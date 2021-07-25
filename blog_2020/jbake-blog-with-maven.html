@@ -85,175 +85,240 @@
    </dl>
   </div>
 
-	<p><div class="sect1"> 
- <h2 id="_preparation">Preparation</h2> 
- <div class="sectionbody"> 
-  <div class="sect2"> 
-   <h3 id="_java">Java</h3> 
-   <div class="paragraph"> 
-    <p>As of the time of writing, with Java runtime 11 or higher JBake (or one of its dependencies) logged exceptions to the console. At the first glance JBake still seemed to work. But to be on the save side, I usually run JBake with Java in version 8 <sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>.</p> 
-   </div> 
-   <div class="admonitionblock tip"> 
-    <table> 
-     <tbody>
-      <tr> 
-       <td class="icon"> <i class="fa icon-tip" title="Tip"></i> </td> 
-       <td class="content"> I use the nice little tool <a href="https://github.com/jenv/jenv">jenv</a>, that allows to switch between different Java JDK versions easily. If you work on many projects with different Java versions at the same time, you should give <code>jenv</code> a try, </td> 
-      </tr> 
-     </tbody>
-    </table> 
-   </div> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_github_pages">Github Pages</h3> 
-   <div class="paragraph"> 
-    <p>I decided to publish my Blog on Github pages, which are well suited for statically generated sites. In addition, it’s well integrated with git and by that supports well-known workflows.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>In my case, I created a personal Github Pages site by defining a repository named <code>guntherrotsch.github.io</code>. Project-specific Github Pages are also possible, but could create links/URLs in some cases, which are not so nice. Please see the <a href="https://help.github.com/en/github/working-with-github-pages">Github Pages documentation</a> for more information on setting up an appropriate repository.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The Github Pages paragraph of the repository settings should after configuration look like:</p> 
-   </div> 
-   <div class="imageblock"> 
-    <div class="content"> 
-     <img src="https://guntherrotsch.github.io/assets/img/Github_Pages_Setting_Blog.png" alt="Image: Github Pages Setting"> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The content merged to <code>master</code> branch will be automatically published (with a short delay of max a few minutes).</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_starting_blog_project">Starting Blog Project</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>When setting up my Blog, the goal was to utilize JBake by Maven only. So, I wanted to avoid to install JBake explicitly and let Maven handle the download and integration of JBake artifacts.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The most explanations below apply for the JBake Maven Plugin in general, but some are specific for settings I did for my Blog project. Please see the Maven <a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml">pom.xml</a> of my Blog project. If you also want to start your Blog with Maven and the JBake plugin, you could even copy the POM and adapt it slightly - very few definitions are specific to my Blog project, eg. group and artifact id.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_jbake_maven_plugin">JBake Maven Plugin</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>The JBake Maven Plugin is hosted on <a href="https://github.com/jbake-org/jbake-maven-plugin">Github</a>. There you can find some useful information to start its usage.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>It also helps a lot, that the plugin follows good practices of Maven plugin development and provides a <code>help</code> goal:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The <code>jbake:help</code> goal gives general information about other goals of the plugin, it provides even more information than the Github page of JBake Maven plugin. The <code>jbake:help</code> called without additional parameters just lists available goals. In addition, it considers the property System property parameters <code>detail</code> and <code>goal</code> (commented out above) to give more detailed information about each plugin’s goal.</p> 
-  </div> 
-  <div class="sect2"> 
-   <h3 id="_plugin_goals">Plugin Goals</h3> 
-   <div class="paragraph"> 
-    <p>The most goals of the plugin consider configuration parameters. The most important ones are:</p> 
-   </div> 
-   <div class="dlist"> 
-    <dl> 
-     <dt class="hdlist1">
-      outputDirectory
-     </dt> 
-     <dd> 
-      <p>The directory the goals write the generated output.</p> 
-     </dd> 
-     <dt class="hdlist1">
-      inputDirectory
-     </dt> 
-     <dd> 
-      <p>The directory the goals read input from. The input directory defaults for the most goals to <code>${project.basedir}/src/main/jbake)</code>.</p> 
-     </dd> 
-    </dl> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The easiest way to setup the Blog project is to fetch samples templates and content and populate the Blog project folders. This can be achieved with the <code>jbake:seed</code> goal.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The <code>jbake:seed</code> goal is an exception to the default <code>outputDirectory</code> parameter, because it populates the input directory. If you don’t like to modify the <code>pom.xml</code> temporarily for the first initialization step and work with a copy of my POM, you can overwrite the output directory on the command-line by defining a Java System property as follows:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code>$ mvn jbake:seed -DoutputDirectory=./src/main/jbake</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>Before we generate the sample static Blog site, you should have a look at the jbake configuration, which is hosted in <code>${project.basedir}/src/main/jbake/jbake.properties)</code>:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code>#site.host=https://guntherrotsch.github.io
+	<p><div class="sect1">
+<h2 id="_preparation">Preparation</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_java">Java</h3>
+<div class="paragraph">
+<p>As of the time of writing, with Java runtime 11 or higher JBake (or one
+of its dependencies) logged exceptions to the console. At the first glance
+JBake still seemed to work. But to be on the save side, I usually run JBake
+with Java in version 8 <sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+I use the nice little tool <a href="https://github.com/jenv/jenv">jenv</a>, that allows
+to switch between different Java JDK versions easily. If you work on many
+projects with different Java versions at the same time, you should give <code>jenv</code>
+a try,
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_github_pages">Github Pages</h3>
+<div class="paragraph">
+<p>I decided to publish my Blog on Github pages, which are well suited for
+statically generated sites. In addition, it&#8217;s well integrated with git
+and by that supports well-known workflows.</p>
+</div>
+<div class="paragraph">
+<p>In my case, I created a personal Github Pages site by defining a repository
+named <code>guntherrotsch.github.io</code>. Project-specific Github Pages are also
+possible, but could create links/URLs in some cases, which are not so nice.
+Please see the
+<a href="https://help.github.com/en/github/working-with-github-pages">Github Pages documentation</a>
+for more information on setting up an appropriate repository.</p>
+</div>
+<div class="paragraph">
+<p>The Github Pages paragraph of the repository settings should after
+configuration  look like:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/img/Github_Pages_Setting_Blog.png" alt="Image: Github Pages Setting">
+</div>
+</div>
+<div class="paragraph">
+<p>The content merged to <code>master</code> branch will be automatically published
+(with a short delay of max a few minutes).</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_starting_blog_project">Starting Blog Project</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When setting up my Blog, the goal was to utilize JBake by Maven only.
+So, I wanted to avoid to install JBake explicitly and let Maven handle
+the download and integration of JBake artifacts.</p>
+</div>
+<div class="paragraph">
+<p>The most explanations below apply for the JBake Maven Plugin in general,
+but some are specific for settings I did for my Blog project. Please
+see  the Maven
+<a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/blob/master/pom.xml">pom.xml</a>
+of my Blog project. If you also want to start your Blog with Maven and the
+JBake plugin, you could even copy the POM and adapt it slightly - very few
+definitions are specific to my Blog project, eg. group and artifact id.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_jbake_maven_plugin">JBake Maven Plugin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The JBake Maven Plugin is hosted on
+<a href="https://github.com/jbake-org/jbake-maven-plugin">Github</a>.
+There you can find some useful information to start its usage.</p>
+</div>
+<div class="paragraph">
+<p>It also helps a lot, that the plugin follows good practices of Maven
+plugin development and provides a <code>help</code> goal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>jbake:help</code> goal gives general information about other goals of the plugin,
+it provides even more information than the Github page of JBake Maven plugin.
+The <code>jbake:help</code> called without additional parameters just lists available goals.
+In addition, it considers the property System property parameters <code>detail</code> and
+<code>goal</code> (commented out above) to give more detailed information about each
+plugin&#8217;s goal.</p>
+</div>
+<div class="sect2">
+<h3 id="_plugin_goals">Plugin Goals</h3>
+<div class="paragraph">
+<p>The most goals of the plugin consider configuration parameters. The most
+important ones are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">outputDirectory</dt>
+<dd>
+<p>The directory the goals write the generated output.</p>
+</dd>
+<dt class="hdlist1">inputDirectory</dt>
+<dd>
+<p>The directory the goals read input from. The input directory defaults for the
+most goals to <code>${project.basedir}/src/main/jbake)</code>.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>The easiest way to setup the Blog project is to fetch samples templates and
+content and populate the Blog project folders. This can be achieved with
+the <code>jbake:seed</code> goal.</p>
+</div>
+<div class="paragraph">
+<p>The <code>jbake:seed</code> goal is an exception to the default <code>outputDirectory</code>
+parameter, because it populates the input directory. If you don&#8217;t like to
+modify the <code>pom.xml</code> temporarily for the first initialization step and work
+with a copy of my POM, you can overwrite the output directory on the
+command-line by defining a Java System property as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn jbake:seed -DoutputDirectory=./src/main/jbake</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Before we generate the sample static Blog site, you should have a look at the
+jbake configuration, which is hosted in
+<code>${project.basedir}/src/main/jbake/jbake.properties)</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">#site.host=https://guntherrotsch.github.io
 site.host=http://localhost:8080
 render.tags=false
-render.sitemap=true</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>For local testing of the site, I’ve changed the <code>site.host</code> property temporarily to localhost. JBake uses this parameter to generate the links between the site’s pages, which is quite important.</p> 
-   </div> 
-   <div class="admonitionblock warning"> 
-    <table> 
-     <tbody>
-      <tr> 
-       <td class="icon"> <i class="fa icon-warning" title="Warning"></i> </td> 
-       <td class="content"> Don’t forget to change the <code>site.host</code> to you Github Pages URL before you commit and push the project files to Github. The commented out first line shows the definition for my Blog site’s URL. </td> 
-      </tr> 
-     </tbody>
-    </table> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The <code>jbake:generate</code> goal applies the project’s templates to the content files and generates the static site:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code>$ mvn jbake:generate</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>My project POM already defines input and output configuration parameters properly. If you want to have a look at the generated site you can either serve it by a local Web server, e.g. by executing <code>python3 -m http.server</code> in the site’s root folder, or use the <code>jbake:inline</code> goal, that starts JBake’s internal Web server:</p> 
-   </div> 
-   <div class="listingblock"> 
-    <div class="content"> 
-     <pre class="highlightjs highlight"><code>$ mvn jbake:inline [ -Dport=8000 ]</code></pre> 
-    </div> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The JBake’s internal Web server listens by default on port <code>8080</code>. If you have another application occupying port <code>8080</code>, then the listening port of JBake can be changed with the <code>port</code> parameter.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>The <code>jbake:inline</code> watches for changes of templates and content in the source folder and re-generates the static site if any modified file is detected. After refreshing the page in the browser you see the changes without explicitly generating the static site again, which is very nice for a workflow. So, it’s worth considering usage of JBake’s internal Web server, even if you are used to another local Web server.</p> 
-   </div> 
-   <div class="paragraph"> 
-    <p>You can now navigate with your favorite Browser to <code><a href="http://localhost:8080" class="bare">http://localhost:8080</a></code> to have a look at the sample content. After replacing the samples with your own content and merging the changed files to <code>master</code> branch of your Blog project, Github Pages takes automatically care of publishing your site. Congratulations, your Blog is up and running.</p> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_conclusion">Conclusion</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>I’m really happy to have selected JBake as static site generator when I started blogging. The Java tooling feels familiar for me and JBake’s features are absolutely satisfying - I appreciate the Asciidoc support in particular.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Also, the combination with the Maven plugin works really well. Till today I haven’t installed JBake CLI and let do Maven the job of managing the required JBake dependencies.</p> 
-  </div> 
- </div> 
-</div> 
-<div id="footnotes"> 
- <hr> 
- <div class="footnote" id="_footnotedef_1"> 
-  <a href="#_footnoteref_1">1</a>. Amendment, 18th of February 2020: In the meantime I found out that at least the OrientDB used by Jbake to manage the posts during the build requires Java 8. 
- </div> 
+render.sitemap=true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For local testing of the site, I&#8217;ve changed the <code>site.host</code> property temporarily
+to localhost. JBake uses this parameter to generate the links between the site&#8217;s
+pages, which is quite important.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Don&#8217;t forget to change the <code>site.host</code> to you Github Pages URL before you commit
+and push the project files to Github. The commented out first line shows the
+definition for my Blog site&#8217;s URL.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The <code>jbake:generate</code> goal applies the project&#8217;s templates to the content files
+and generates the static site:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn jbake:generate</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>My project POM already defines input and output configuration parameters
+properly. If you want to have a look at the generated site you can either serve
+it by a local Web server, e.g. by executing <code>python3 -m http.server</code> in the
+site&#8217;s root folder, or use the <code>jbake:inline</code> goal, that starts JBake&#8217;s
+internal Web server:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn jbake:inline [ -Dport=8000 ]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The JBake&#8217;s internal Web server listens by default on port <code>8080</code>. If you have
+another application occupying port <code>8080</code>, then the listening port of JBake can
+be changed with the <code>port</code> parameter.</p>
+</div>
+<div class="paragraph">
+<p>The <code>jbake:inline</code> watches for changes of templates and content in the source
+folder and re-generates the static site if any modified file is detected.
+After refreshing the page in the browser you see the changes without explicitly
+generating the static site again, which is very nice for a workflow. So, it&#8217;s
+worth considering usage of JBake&#8217;s internal Web server, even if you are used
+to another local Web server.</p>
+</div>
+<div class="paragraph">
+<p>You can now navigate with your favorite Browser to <code><a href="http://localhost:8080" class="bare">http://localhost:8080</a></code> to
+have a look at the sample content. After replacing the samples with your own
+content and merging the changed files to <code>master</code> branch of your Blog project,
+Github Pages takes automatically care of publishing your site. Congratulations,
+your Blog is up and running.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I&#8217;m really happy to have selected JBake as static site generator when I started
+blogging. The Java tooling feels familiar for me and JBake&#8217;s features are
+absolutely satisfying - I appreciate the Asciidoc support in particular.</p>
+</div>
+<div class="paragraph">
+<p>Also, the combination with the Maven plugin works really well. Till today I
+haven&#8217;t installed JBake CLI and let do Maven the job of managing the required
+JBake dependencies.</p>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<hr>
+<div class="footnote" id="_footnotedef_1">
+<a href="#_footnoteref_1">1</a>. Amendment, 18th of February 2020: In the meantime I found out that at least the OrientDB used by Jbake to manage the posts during the build requires Java 8.
+</div>
 </div></p>
 
   <span>Tags:
@@ -272,7 +337,7 @@ render.sitemap=true</code></pre>
     <div id="footer">
       <div class="container">
         <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
-        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
           -->
       </div>
     </div>
@@ -280,7 +345,7 @@ render.sitemap=true</code></pre>
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/prettify.js"></script>
 

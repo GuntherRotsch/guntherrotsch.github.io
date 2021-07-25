@@ -85,102 +85,120 @@
    </dl>
   </div>
 
-	<p><div class="sect1"> 
- <h2 id="_running_java_from_source">Running Java from Source</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>Since Java 11 the <code>java</code> command does have the <code>--source</code> option, which allows running Java code which is given in source. For demonstration purposes I’m using a Java 13 installation, but the sample will work with all Java versions &gt;11.</p> 
-  </div> 
-  <div class="literalblock"> 
-   <div class="content"> 
-    <pre>$ java -version
+	<p><div class="sect1">
+<h2 id="_running_java_from_source">Running Java from Source</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Since Java 11 the <code>java</code> command does have the <code>--source</code> option, which allows
+running Java code which is given in source. For demonstration purposes I&#8217;m
+using a Java 13 installation, but the sample will work with all Java
+versions &gt;11.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ java -version
 openjdk version "13.0.1" 2019-10-15
 OpenJDK Runtime Environment (build 13.0.1+9)
-OpenJDK 64-Bit Server VM (build 13.0.1+9, mixed mode, sharing)</pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>When the <code>--source</code> feature is combined with the <a href="https://en.wikipedia.org/wiki/Shebang_(Unix)">Shebang</a> of modern shells like so:</p> 
-  </div> 
-  <div class="literalblock"> 
-   <div class="content"> 
-    <pre>$ cat hellojava.sh
+OpenJDK 64-Bit Server VM (build 13.0.1+9, mixed mode, sharing)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When the <code>--source</code> feature is combined with the
+<a href="https://en.wikipedia.org/wiki/Shebang_(Unix)">Shebang</a> of modern shells like so:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat hellojava.sh
 #!/home/gunther/.jenv/shims/java --source 11
 public class App {
     public static void main(String ...args){
         System.out.println("Hello, Java!");
     }
-}</pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>the file - given Posix file attributes include execute permission - can be executed like a shell script:</p> 
-  </div> 
-  <div class="listingblock"> 
-   <div class="content"> 
-    <pre class="highlightjs highlight"><code>$ ./hellojava.sh
-Hello, Java!</code></pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Java is still a compiled language, ie. before the <em>script</em> starts, the Java compiler still need to generate the byte-code to be executed. This impacts the startup time of large scripts - Java applications are in general not known for starting quickly. Nevertheless, the <code>--source</code> option allows more use cases implemented with Java.</p> 
-  </div> 
-  <div class="sidebarblock"> 
-   <div class="content"> 
-    <div class="title">
-     jenv
-    </div> 
-    <div class="paragraph"> 
-     <p>The one or the other may be wondering about the java command of the <em>Shebang</em> definition. It actually points to the <a href="https://github.com/jenv/jenv">jenv</a> tool, which eases management of multiple Java installations in parallel. Generally, the <em>Shebang</em> command should the absolute path printed out by the <code>which</code> command:</p> 
-    </div> 
-    <div class="literalblock"> 
-     <div class="content"> 
-      <pre>$ which java
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>the file - given Posix file attributes include execute permission - can be
+executed like a shell script:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">$ ./hellojava.sh
+Hello, Java!</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Java is still a compiled language, ie. before the <em>script</em> starts, the Java
+compiler still need to generate the byte-code to be executed. This impacts
+the startup time of large scripts - Java applications
+are in general not known for starting quickly. Nevertheless, the <code>--source</code>
+option allows more use cases implemented with Java.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">jenv</div>
+<div class="paragraph">
+<p>The one or the other may be wondering about the java command of the <em>Shebang</em>
+definition. It actually points to the <a href="https://github.com/jenv/jenv">jenv</a> tool,
+which eases management of multiple Java installations in parallel. Generally,
+the <em>Shebang</em> command should the absolute path printed out by the <code>which</code>
+command:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ which java
 /home/gunther/.jenv/shims/java
 
 $ jenv version
-openjdk64-13.0.1 (set by /home/gunther/.jenv/version)</pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>If you’re looking for a more portable <em>Shebang</em> definition, you could apply the <code>env</code> command as follows:</p> 
-    </div> 
-    <div class="literalblock"> 
-     <div class="content"> 
-      <pre>#!/usr/bin/env -S java --source 11
-...</pre> 
-     </div> 
-    </div> 
-    <div class="paragraph"> 
-     <p>This definition executes the Java installation (first) found in the <code>PATH</code>, ie. the default Java installation on the system, regardless the installation directory.</p> 
-    </div> 
-   </div> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_before_java_version_11">Before Java Version 11</h2> 
- <div class="sectionbody"> 
-  <div class="paragraph"> 
-   <p>It becomes less relevant with every day, but there are still organizations supporting legacy systems that run on Java 8. In such a environment the <code>--source</code> option is not available. Nevertheless, there’s still a way to package Java applications into an executable file.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Let’s switch to Java 8 (thanks to <code>jenv</code> this is a piece of cake :-):</p> 
-  </div> 
-  <div class="literalblock"> 
-   <div class="content"> 
-    <pre>$ java -version
+openjdk64-13.0.1 (set by /home/gunther/.jenv/version)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you&#8217;re looking for a more portable <em>Shebang</em> definition, you could apply
+the <code>env</code> command as follows:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>#!/usr/bin/env -S java --source 11
+...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This definition executes the Java installation (first) found in the <code>PATH</code>,
+ie. the default Java installation on the system, regardless the installation
+directory.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_before_java_version_11">Before Java Version 11</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It becomes less relevant with every day, but there are still organizations
+supporting legacy systems that run on Java 8. In such a environment the
+<code>--source</code> option is not available. Nevertheless, there&#8217;s still a way to
+package Java applications into an executable file.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s switch to Java 8 (thanks to <code>jenv</code> this is a piece of cake :-):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ java -version
 openjdk version "1.8.0_222"
 OpenJDK Runtime Environment (AdoptOpenJDK)(build 1.8.0_222-b10)
-OpenJDK 64-Bit Server VM (AdoptOpenJDK)(build 25.222-b10, mixed mode)</pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>The Java application is the same as before, just placed into a separate file which follows the Java naming convention, ie. file name equals class name.</p> 
-  </div> 
-  <div class="literalblock"> 
-   <div class="content"> 
-    <pre>$ cat HelloJava.java
+OpenJDK 64-Bit Server VM (AdoptOpenJDK)(build 25.222-b10, mixed mode)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The Java application is the same as before, just placed into a separate file
+which follows the Java naming convention, ie. file name equals class name.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat HelloJava.java
 
 public class HelloJava {
 
@@ -191,57 +209,68 @@ public class HelloJava {
 $ javac -version
 javac 1.8.0_222
 
-$ javac HelloJava.java</pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Note, that for sake of simplicity the Java source and class files are in the current working directory, ie. the class belongs to the default package. But the demonstrated approach will work for any Java package structure.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>In the next step the compiled class is packaged into a JAR file:</p> 
-  </div> 
-  <div class="literalblock"> 
-   <div class="content"> 
-    <pre>$ cat manifest.txt
+$ javac HelloJava.java</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note, that for sake of simplicity the Java source and class files are in the
+current working directory, ie. the class belongs to the default package. But
+the demonstrated approach will work for any Java package structure.</p>
+</div>
+<div class="paragraph">
+<p>In the next step the compiled class is packaged into a JAR file:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ cat manifest.txt
 Main-Class: HelloJava
 $ jar cvfm hellojava.jar manifest.txt HelloJava.class
 added manifest
-adding: HelloJava.class(in = 424) (out= 287)(deflated 32%)</pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Note, that the JAR’s manifest defines the <code>HelloJava</code> class as entry point for execution.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Packaged the application as described, the executable can be created by the following commands:</p> 
-  </div> 
-  <div class="literalblock"> 
-   <div class="content"> 
-    <pre>$ echo '#!/home/gunther/.jenv/shims/java -jar' &gt;hellojava8.sh
+adding: HelloJava.class(in = 424) (out= 287)(deflated 32%)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note, that the JAR&#8217;s manifest defines the <code>HelloJava</code> class as entry point
+for execution.</p>
+</div>
+<div class="paragraph">
+<p>Packaged the application as described, the executable can be created by
+the following commands:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ echo '#!/home/gunther/.jenv/shims/java -jar' &gt;hellojava8.sh
 $ cat hellojava.jar &gt;&gt;hellojava8.sh
 $ chmod +x hellojava8.sh
 $ ./hellojava8.sh
 Hello, Java!
-$</pre> 
-   </div> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Instead of placing the source code into the body of the shell script, the JAR file itself is appended to the <em>Shebang</em> line, on which the <code>--source</code> is replaced by the <code>-jar</code> option.</p> 
-  </div> 
-  <div class="paragraph"> 
-   <p>Though, the steps to create the <em>executable</em> Java application can be automated, the scripting experience gets partly lost by the need to explicitly compile and package the Java classes. On the other hand, the startup time is better compared to the source approach.</p> 
-  </div> 
- </div> 
-</div> 
-<div class="sect1"> 
- <h2 id="_links">Links</h2> 
- <div class="sectionbody"> 
-  <div class="ulist"> 
-   <ul> 
-    <li> <p><a href="https://github.com/jenv/jenv">jenv</a></p> </li> 
-   </ul> 
-  </div> 
- </div> 
+$</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Instead of placing the source code into the body of the shell script, the JAR
+file itself is appended to the <em>Shebang</em> line, on which the <code>--source</code>
+is replaced by the <code>-jar</code> option.</p>
+</div>
+<div class="paragraph">
+<p>Though, the steps to create the <em>executable</em> Java application can be automated,
+the scripting experience gets partly lost by the need to explicitly compile and
+package the Java classes. On the other hand, the startup time is better compared
+to the source approach.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/jenv/jenv">jenv</a></p>
+</li>
+</ul>
+</div>
+</div>
 </div></p>
 
   <span>Tags:
@@ -260,7 +289,7 @@ $</pre>
     <div id="footer">
       <div class="container">
         <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
-        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
           -->
       </div>
     </div>
@@ -268,7 +297,7 @@ $</pre>
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
     <script src="../assets/js/bootstrap.min.js"></script>
     <script src="../assets/js/prettify.js"></script>
 
