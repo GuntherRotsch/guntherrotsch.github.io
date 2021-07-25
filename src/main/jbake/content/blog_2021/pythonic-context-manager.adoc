@@ -1,0 +1,189 @@
+= Pythonic Context Managers for Java
+Gunther Rotsch
+2021-07-25
+:jbake-type: post
+:jbake-tags: java, python
+:jbake-status: published
+:jbake-summary: If seasoned Java developer have a look into other languages, they may find interesting constructs, idioms or solution approaches. Sometimes it's even possible to take over some ideas into the Java world. That was the case when I learned about context managers in Python.
+
+== Context Managers in Python
+
+Basically, Python context managers are a simple and reliable technique for the
+management of resources of any kind. Context managers are objects with the
+two _magic_ methods (a.k.a. dunder method) `_enter_` and `_exit_`. If you're
+not familiar with Python's _magic_ methods, the post
+https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08[
+Advanced Python: What Are Magic Methods?] gives a detailed introduction.
+
+When context managers are used in Python programs as follows
+
+  with MyContextManager() as c:
+      // do something with c
+
+the method `_enter_` is automatically called on entering the `with` block,
+respectively, the method `_exit_` is called when the thread of control leaves
+the `with` block. The `_exit_` method is even called, when leaving the block
+due to an exception. The post https://martinheinz.dev/blog/34[The Magic
+of Python Context Managers] describes context managers in more detail and also
+lists some applications of context managers in Python.
+
+The `_exit_` often ensures, that acquired resources are released reliably.
+Does this remind you of Java's `AutoCloseable`? Although, `AutoCloseable` are
+mainly known for input and output streams, the idea to generalize the pattern
+in Java is tempting. Let's give an example.
+
+== Sample
+
+When testing code that makes some decisions based on System properties, it would
+be nice if we could write the following test code:
+
+[source, java]
+----
+System.clearProperty("KEY");
+
+try (SystemPropertiesContext testee = SystemPropertiesContext
+        .of(entry("KEY", "VALUE"))) {
+    assertEquals("VALUE", System.getProperty("KEY"));
+    // testing functionality that considers the System property "KEY"
+}
+
+assertEquals(null, System.getProperty("KEY"));
+----
+
+Inside the `try` block the System property keyed `KEY` takes the value
+`VALUE`, but after leaving the `try` block, the value is reset to whatever
+the property's value was before. The _context manager_ named
+`SystemPropertiesContext` takes care of the management of these resources.
+The implementation of the `SystemPropertiesContext` looks like:
+
+[source, java]
+----
+public class SystemPropertiesContext implements AutoCloseable {
+
+	public static class Entry {
+		private final String key;
+		private final String value;
+
+		private Entry(String key, String value) {
+			Objects.requireNonNull(key);
+			this.key = key;
+			this.value = value;
+		}
+
+		public static Entry entry(String key, String value) {
+			return new Entry(key, value);
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public String getValue() {
+			return value;
+		}
+	}
+
+	private Map<String, String> savedEntries = new HashMap<>();
+
+	public static Entry entry(String key, String value) {
+		return new Entry(key, value);
+	}
+
+	public static SystemPropertiesContext of(SystemPropertiesContext.Entry... entries) {
+		SystemPropertiesContext newContext = new SystemPropertiesContext();
+		for (SystemPropertiesContext.Entry entry : entries) {
+			newContext.savedEntries.put(entry.getKey(), System.getProperty(entry.getKey()));
+			if (entry.getValue() == null) {
+				System.clearProperty(entry.getKey());
+			} else {
+				System.setProperty(entry.getKey(), entry.getValue());
+			}
+		}
+		return newContext;
+	}
+
+	@Override
+	public void close() throws Exception {
+		for (Map.Entry<String, String> entry : savedEntries.entrySet()) {
+			if (entry.getValue() == null) {
+				System.clearProperty(entry.getKey());
+			} else {
+				System.setProperty(entry.getKey(), entry.getValue());
+			}
+		}
+	}
+}
+
+----
+
+The `SystemPropertiesContext` behaves like a context manager in Python. Here
+in addition the complete unit test of the `SystemPropertiesContext` class:
+
+[source, java]
+----
+package io.github.guntherrotsch.demo.contextmanager;
+
+import static io.github.guntherrotsch.demo.contextmanager.SystemPropertiesContext.entry;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+class SystemPropertiesContextTest {
+
+	@Test
+	void addsPropertyContextually() throws Exception {
+		System.clearProperty("KEY1");
+
+		try (SystemPropertiesContext testee = SystemPropertiesContext
+				.of(entry("KEY1", "VALUE1"))) {
+			assertEquals("VALUE1", System.getProperty("KEY1"));
+		}
+
+		assertEquals("UNDEFINED", System.getProperty("KEY1", "UNDEFINED"));
+	}
+
+	@Test
+	void addsMultiplePropertiesContextually() throws Exception {
+		System.clearProperty("KEY1");
+		System.clearProperty("KEY2");
+		System.clearProperty("KEY3");
+
+		try (SystemPropertiesContext testee = SystemPropertiesContext
+				.of(entry("KEY1", "VALUE1"),entry("KEY2", "VALUE2"),entry("KEY3", "VALUE3"))) {
+			assertEquals("VALUE1", System.getProperty("KEY1"));
+			assertEquals("VALUE2", System.getProperty("KEY2"));
+			assertEquals("VALUE3", System.getProperty("KEY3"));
+		}
+
+		assertEquals("UNDEFINED", System.getProperty("KEY1", "UNDEFINED"));
+		assertEquals("UNDEFINED", System.getProperty("KEY2", "UNDEFINED"));
+		assertEquals("UNDEFINED", System.getProperty("KEY3", "UNDEFINED"));
+	}
+
+	@Test
+	void clearsStandardPropertyContextually() throws Exception {
+		String expectedJavaVersion = System.getProperty("java.version");
+		try (SystemPropertiesContext testee = SystemPropertiesContext
+				.of(entry("java.version", null))) {
+			assertEquals("UNDEFINED", System.getProperty("java.version", "UNDEFINED"));
+		}
+
+		assertEquals(expectedJavaVersion, System.getProperty("java.version"));
+	}
+}
+
+----
+
+
+== Conclusion
+
+Looking beyond the Java universe can be inspiring and broaden your thinking by
+giving you new ideas to build better abstractions. So, I believe it's always
+worth to study other programming languages and ecosystems, even if not
+interested in leaving the professional Java development space.
+
+== Links
+
+- https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08[
+Advanced Python: What Are Magic Methods?]
+- https://martinheinz.dev/blog/34[The Magic of Python Context Managers]
