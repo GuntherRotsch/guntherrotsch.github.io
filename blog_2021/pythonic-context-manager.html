@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Pythonic Context Managers for Java</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Pythonic Context Managers for Java</h1>
+	</div>
+
+	<p><em>25 July 2021</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>If seasoned Java developer have a look into other languages, they may find interesting constructs, idioms or solution approaches. Sometimes it's even possible to take over some ideas into the Java world. That was the case when I learned about context managers in Python.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div class="sect1"> 
+ <h2 id="_context_managers_in_python">Context Managers in Python</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Basically, Python context managers are a simple and reliable technique for the management of resources of any kind. Context managers are objects with the two <em>magic</em> methods (a.k.a. dunder method) <code><em>enter</em></code> and <code><em>exit</em></code>. If you’re not familiar with Python’s <em>magic</em> methods, the post <a href="https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08"> Advanced Python: What Are Magic Methods?</a> gives a detailed introduction.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>When context managers are used in Python programs as follows</p> 
+  </div> 
+  <div class="literalblock"> 
+   <div class="content"> 
+    <pre>with MyContextManager() as c:
+    // do something with c</pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>the method <code><em>enter</em></code> is automatically called on entering the <code>with</code> block, respectively, the method <code><em>exit</em></code> is called when the thread of control leaves the <code>with</code> block. The <code><em>exit</em></code> method is even called, when leaving the block due to an exception. The post <a href="https://martinheinz.dev/blog/34">The Magic of Python Context Managers</a> describes context managers in more detail and also lists some applications of context managers in Python.</p> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The <code><em>exit</em></code> often ensures, that acquired resources are released reliably. Does this remind you of Java’s <code>AutoCloseable</code>? Although, <code>AutoCloseable</code> are mainly known for input and output streams, the idea to generalize the pattern in Java is tempting. Let’s give an example.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_sample">Sample</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>When testing code that makes some decisions based on System properties, it would be nice if we could write the following test code:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">System.clearProperty("KEY");
+
+try (SystemPropertiesContext testee = SystemPropertiesContext
+        .of(entry("KEY", "VALUE"))) {
+    assertEquals("VALUE", System.getProperty("KEY"));
+    // testing functionality that considers the System property "KEY"
+}
+
+assertEquals(null, System.getProperty("KEY"));</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>Inside the <code>try</code> block the System property keyed <code>KEY</code> takes the value <code>VALUE</code>, but after leaving the <code>try</code> block, the value is reset to whatever the property’s value was before. The <em>context manager</em> named <code>SystemPropertiesContext</code> takes care of the management of these resources. The implementation of the <code>SystemPropertiesContext</code> looks like:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class SystemPropertiesContext implements AutoCloseable {
+
+	public static class Entry {
+		private final String key;
+		private final String value;
+
+		private Entry(String key, String value) {
+			Objects.requireNonNull(key);
+			this.key = key;
+			this.value = value;
+		}
+
+		public static Entry entry(String key, String value) {
+			return new Entry(key, value);
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public String getValue() {
+			return value;
+		}
+	}
+
+	private Map&lt;String, String&gt; savedEntries = new HashMap&lt;&gt;();
+
+	public static Entry entry(String key, String value) {
+		return new Entry(key, value);
+	}
+
+	public static SystemPropertiesContext of(SystemPropertiesContext.Entry... entries) {
+		SystemPropertiesContext newContext = new SystemPropertiesContext();
+		for (SystemPropertiesContext.Entry entry : entries) {
+			newContext.savedEntries.put(entry.getKey(), System.getProperty(entry.getKey()));
+			if (entry.getValue() == null) {
+				System.clearProperty(entry.getKey());
+			} else {
+				System.setProperty(entry.getKey(), entry.getValue());
+			}
+		}
+		return newContext;
+	}
+
+	@Override
+	public void close() throws Exception {
+		for (Map.Entry&lt;String, String&gt; entry : savedEntries.entrySet()) {
+			if (entry.getValue() == null) {
+				System.clearProperty(entry.getKey());
+			} else {
+				System.setProperty(entry.getKey(), entry.getValue());
+			}
+		}
+	}
+}</code></pre> 
+   </div> 
+  </div> 
+  <div class="paragraph"> 
+   <p>The <code>SystemPropertiesContext</code> behaves like a context manager in Python. Here in addition the complete unit test of the <code>SystemPropertiesContext</code> class:</p> 
+  </div> 
+  <div class="listingblock"> 
+   <div class="content"> 
+    <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">package io.github.guntherrotsch.demo.contextmanager;
+
+import static io.github.guntherrotsch.demo.contextmanager.SystemPropertiesContext.entry;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+class SystemPropertiesContextTest {
+
+	@Test
+	void addsPropertyContextually() throws Exception {
+		System.clearProperty("KEY1");
+
+		try (SystemPropertiesContext testee = SystemPropertiesContext
+				.of(entry("KEY1", "VALUE1"))) {
+			assertEquals("VALUE1", System.getProperty("KEY1"));
+		}
+
+		assertEquals("UNDEFINED", System.getProperty("KEY1", "UNDEFINED"));
+	}
+
+	@Test
+	void addsMultiplePropertiesContextually() throws Exception {
+		System.clearProperty("KEY1");
+		System.clearProperty("KEY2");
+		System.clearProperty("KEY3");
+
+		try (SystemPropertiesContext testee = SystemPropertiesContext
+				.of(entry("KEY1", "VALUE1"),entry("KEY2", "VALUE2"),entry("KEY3", "VALUE3"))) {
+			assertEquals("VALUE1", System.getProperty("KEY1"));
+			assertEquals("VALUE2", System.getProperty("KEY2"));
+			assertEquals("VALUE3", System.getProperty("KEY3"));
+		}
+
+		assertEquals("UNDEFINED", System.getProperty("KEY1", "UNDEFINED"));
+		assertEquals("UNDEFINED", System.getProperty("KEY2", "UNDEFINED"));
+		assertEquals("UNDEFINED", System.getProperty("KEY3", "UNDEFINED"));
+	}
+
+	@Test
+	void clearsStandardPropertyContextually() throws Exception {
+		String expectedJavaVersion = System.getProperty("java.version");
+		try (SystemPropertiesContext testee = SystemPropertiesContext
+				.of(entry("java.version", null))) {
+			assertEquals("UNDEFINED", System.getProperty("java.version", "UNDEFINED"));
+		}
+
+		assertEquals(expectedJavaVersion, System.getProperty("java.version"));
+	}
+}</code></pre> 
+   </div> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_conclusion">Conclusion</h2> 
+ <div class="sectionbody"> 
+  <div class="paragraph"> 
+   <p>Looking beyond the Java universe can be inspiring and broaden your thinking by giving you new ideas to build better abstractions. So, I believe it’s always worth to study other programming languages and ecosystems, even if not interested in leaving the professional Java development space.</p> 
+  </div> 
+ </div> 
+</div> 
+<div class="sect1"> 
+ <h2 id="_links">Links</h2> 
+ <div class="sectionbody"> 
+  <div class="ulist"> 
+   <ul> 
+    <li> <p><a href="https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08"> Advanced Python: What Are Magic Methods?</a></p> </li> 
+    <li> <p><a href="https://martinheinz.dev/blog/34">The Magic of Python Context Managers</a></p> </li> 
+   </ul> 
+  </div> 
+ </div> 
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/python.html">python</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.1</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.11.1.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>

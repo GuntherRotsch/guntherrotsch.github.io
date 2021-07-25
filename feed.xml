@@ -6,9 +6,199 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Wed, 2 Jun 2021 20:08:25 +0200</pubDate>
-    <lastBuildDate>Wed, 2 Jun 2021 20:08:25 +0200</lastBuildDate>
+    <pubDate>Sun, 25 Jul 2021 17:30:39 +0200</pubDate>
+    <lastBuildDate>Sun, 25 Jul 2021 17:30:39 +0200</lastBuildDate>
 
+    <item>
+      <title>Pythonic Context Managers for Java</title>
+      <link>https://guntherrotsch.github.io/blog_2021/pythonic-context-manager.html</link>
+      <pubDate>Sun, 25 Jul 2021 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2021/pythonic-context-manager.html</guid>
+      	<description>
+	&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_context_managers_in_python&quot;&gt;Context Managers in Python&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Basically, Python context managers are a simple and reliable technique for the management of resources of any kind. Context managers are objects with the two &lt;em&gt;magic&lt;/em&gt; methods (a.k.a. dunder method) &lt;code&gt;&lt;em&gt;enter&lt;/em&gt;&lt;/code&gt; and &lt;code&gt;&lt;em&gt;exit&lt;/em&gt;&lt;/code&gt;. If you’re not familiar with Python’s &lt;em&gt;magic&lt;/em&gt; methods, the post &lt;a href=&quot;https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08&quot;&gt; Advanced Python: What Are Magic Methods?&lt;/a&gt; gives a detailed introduction.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;When context managers are used in Python programs as follows&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;literalblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre&gt;with MyContextManager() as c:
+    // do something with c&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;the method &lt;code&gt;&lt;em&gt;enter&lt;/em&gt;&lt;/code&gt; is automatically called on entering the &lt;code&gt;with&lt;/code&gt; block, respectively, the method &lt;code&gt;&lt;em&gt;exit&lt;/em&gt;&lt;/code&gt; is called when the thread of control leaves the &lt;code&gt;with&lt;/code&gt; block. The &lt;code&gt;&lt;em&gt;exit&lt;/em&gt;&lt;/code&gt; method is even called, when leaving the block due to an exception. The post &lt;a href=&quot;https://martinheinz.dev/blog/34&quot;&gt;The Magic of Python Context Managers&lt;/a&gt; describes context managers in more detail and also lists some applications of context managers in Python.&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The &lt;code&gt;&lt;em&gt;exit&lt;/em&gt;&lt;/code&gt; often ensures, that acquired resources are released reliably. Does this remind you of Java’s &lt;code&gt;AutoCloseable&lt;/code&gt;? Although, &lt;code&gt;AutoCloseable&lt;/code&gt; are mainly known for input and output streams, the idea to generalize the pattern in Java is tempting. Let’s give an example.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_sample&quot;&gt;Sample&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;When testing code that makes some decisions based on System properties, it would be nice if we could write the following test code:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;System.clearProperty(&quot;KEY&quot;);
+
+try (SystemPropertiesContext testee = SystemPropertiesContext
+        .of(entry(&quot;KEY&quot;, &quot;VALUE&quot;))) {
+    assertEquals(&quot;VALUE&quot;, System.getProperty(&quot;KEY&quot;));
+    // testing functionality that considers the System property &quot;KEY&quot;
+}
+
+assertEquals(null, System.getProperty(&quot;KEY&quot;));&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Inside the &lt;code&gt;try&lt;/code&gt; block the System property keyed &lt;code&gt;KEY&lt;/code&gt; takes the value &lt;code&gt;VALUE&lt;/code&gt;, but after leaving the &lt;code&gt;try&lt;/code&gt; block, the value is reset to whatever the property’s value was before. The &lt;em&gt;context manager&lt;/em&gt; named &lt;code&gt;SystemPropertiesContext&lt;/code&gt; takes care of the management of these resources. The implementation of the &lt;code&gt;SystemPropertiesContext&lt;/code&gt; looks like:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class SystemPropertiesContext implements AutoCloseable {
+
+	public static class Entry {
+		private final String key;
+		private final String value;
+
+		private Entry(String key, String value) {
+			Objects.requireNonNull(key);
+			this.key = key;
+			this.value = value;
+		}
+
+		public static Entry entry(String key, String value) {
+			return new Entry(key, value);
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public String getValue() {
+			return value;
+		}
+	}
+
+	private Map&amp;lt;String, String&amp;gt; savedEntries = new HashMap&amp;lt;&amp;gt;();
+
+	public static Entry entry(String key, String value) {
+		return new Entry(key, value);
+	}
+
+	public static SystemPropertiesContext of(SystemPropertiesContext.Entry... entries) {
+		SystemPropertiesContext newContext = new SystemPropertiesContext();
+		for (SystemPropertiesContext.Entry entry : entries) {
+			newContext.savedEntries.put(entry.getKey(), System.getProperty(entry.getKey()));
+			if (entry.getValue() == null) {
+				System.clearProperty(entry.getKey());
+			} else {
+				System.setProperty(entry.getKey(), entry.getValue());
+			}
+		}
+		return newContext;
+	}
+
+	@Override
+	public void close() throws Exception {
+		for (Map.Entry&amp;lt;String, String&amp;gt; entry : savedEntries.entrySet()) {
+			if (entry.getValue() == null) {
+				System.clearProperty(entry.getKey());
+			} else {
+				System.setProperty(entry.getKey(), entry.getValue());
+			}
+		}
+	}
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;The &lt;code&gt;SystemPropertiesContext&lt;/code&gt; behaves like a context manager in Python. Here in addition the complete unit test of the &lt;code&gt;SystemPropertiesContext&lt;/code&gt; class:&lt;/p&gt; 
+  &lt;/div&gt; 
+  &lt;div class=&quot;listingblock&quot;&gt; 
+   &lt;div class=&quot;content&quot;&gt; 
+    &lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;package io.github.guntherrotsch.demo.contextmanager;
+
+import static io.github.guntherrotsch.demo.contextmanager.SystemPropertiesContext.entry;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+class SystemPropertiesContextTest {
+
+	@Test
+	void addsPropertyContextually() throws Exception {
+		System.clearProperty(&quot;KEY1&quot;);
+
+		try (SystemPropertiesContext testee = SystemPropertiesContext
+				.of(entry(&quot;KEY1&quot;, &quot;VALUE1&quot;))) {
+			assertEquals(&quot;VALUE1&quot;, System.getProperty(&quot;KEY1&quot;));
+		}
+
+		assertEquals(&quot;UNDEFINED&quot;, System.getProperty(&quot;KEY1&quot;, &quot;UNDEFINED&quot;));
+	}
+
+	@Test
+	void addsMultiplePropertiesContextually() throws Exception {
+		System.clearProperty(&quot;KEY1&quot;);
+		System.clearProperty(&quot;KEY2&quot;);
+		System.clearProperty(&quot;KEY3&quot;);
+
+		try (SystemPropertiesContext testee = SystemPropertiesContext
+				.of(entry(&quot;KEY1&quot;, &quot;VALUE1&quot;),entry(&quot;KEY2&quot;, &quot;VALUE2&quot;),entry(&quot;KEY3&quot;, &quot;VALUE3&quot;))) {
+			assertEquals(&quot;VALUE1&quot;, System.getProperty(&quot;KEY1&quot;));
+			assertEquals(&quot;VALUE2&quot;, System.getProperty(&quot;KEY2&quot;));
+			assertEquals(&quot;VALUE3&quot;, System.getProperty(&quot;KEY3&quot;));
+		}
+
+		assertEquals(&quot;UNDEFINED&quot;, System.getProperty(&quot;KEY1&quot;, &quot;UNDEFINED&quot;));
+		assertEquals(&quot;UNDEFINED&quot;, System.getProperty(&quot;KEY2&quot;, &quot;UNDEFINED&quot;));
+		assertEquals(&quot;UNDEFINED&quot;, System.getProperty(&quot;KEY3&quot;, &quot;UNDEFINED&quot;));
+	}
+
+	@Test
+	void clearsStandardPropertyContextually() throws Exception {
+		String expectedJavaVersion = System.getProperty(&quot;java.version&quot;);
+		try (SystemPropertiesContext testee = SystemPropertiesContext
+				.of(entry(&quot;java.version&quot;, null))) {
+			assertEquals(&quot;UNDEFINED&quot;, System.getProperty(&quot;java.version&quot;, &quot;UNDEFINED&quot;));
+		}
+
+		assertEquals(expectedJavaVersion, System.getProperty(&quot;java.version&quot;));
+	}
+}&lt;/code&gt;&lt;/pre&gt; 
+   &lt;/div&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_conclusion&quot;&gt;Conclusion&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;paragraph&quot;&gt; 
+   &lt;p&gt;Looking beyond the Java universe can be inspiring and broaden your thinking by giving you new ideas to build better abstractions. So, I believe it’s always worth to study other programming languages and ecosystems, even if not interested in leaving the professional Java development space.&lt;/p&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;div class=&quot;sect1&quot;&gt; 
+ &lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt; 
+ &lt;div class=&quot;sectionbody&quot;&gt; 
+  &lt;div class=&quot;ulist&quot;&gt; 
+   &lt;ul&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://medium.com/fintechexplained/advanced-python-what-are-magic-methods-d21891cf9a08&quot;&gt; Advanced Python: What Are Magic Methods?&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+    &lt;li&gt; &lt;p&gt;&lt;a href=&quot;https://martinheinz.dev/blog/34&quot;&gt;The Magic of Python Context Managers&lt;/a&gt;&lt;/p&gt; &lt;/li&gt; 
+   &lt;/ul&gt; 
+  &lt;/div&gt; 
+ &lt;/div&gt; 
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Distroless? Distroless!</title>
       <link>https://guntherrotsch.github.io/blog_2021/distroless-distroless.html</link>
