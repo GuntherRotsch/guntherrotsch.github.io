@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Functional Java: Partial Application</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Functional Java: Partial Application</h1>
+	</div>
+
+	<p><em>28 August 2021</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>Java 8 brought lambdas to the Java language, which is a corner stone of functional programming. Although, the functional programming features of Java out of the box are limited, some interesting concepts can be implemented using it. This post is about applying function parameters partially.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div class="sect1">
+<h2 id="_partial_function_application">Partial Function Application</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Partial application refers to the process of fixing some arguments of a function
+and producing a function of lower arity - actually, the arity is reduced by the
+number of fixed arguments. To not become to theoretical and I&#8217;ll give an example:
+The function</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>int add(int a, int b);</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>adds two integer numbers. If we fix an argument applying the integer number <code>3</code>,
+we get the function (in pseudo-code)</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>partial(add, 3) =&gt; int add3(int a)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>which returns the sum of <code>3</code> and the given integer parameter. While the function
+<code>add</code> does have the arity <code>2</code>, the arity of <code>add3</code> is 1, which is the arity of
+function <code>add</code> reduced by the number of fixed arguments.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Partial application is sometimes incorrectly called currying, which is a related,
+but distinct concept.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_functions_in_java">Functions in Java</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Functions in Java are represented by objects implementing a functional interface.
+In the following the <code>Function</code> and <code>BiFunction</code> interfaces are used to
+demonstrate partial application - but the same holds for other functional
+interfaces like <code>Supplier</code>. Given a <code>BiFunction</code> corresponding to the
+introductory example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>BiFunction&lt;Integer, Integer, Integer&gt; add = (a, b) -&gt; a + b;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To partially apply the function, we need to fix an argument and produce a
+function which takes one argument. This can be accomplished by:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>public static &lt;T, U, R&gt; Function&lt;U, R&gt; partial(BiFunction&lt;T, U, R&gt; f, T x) {
+  return (y) -&gt; f.apply(x, y);
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The function takes the <code>BiFunction</code> plus an argument and returns a <code>Function</code>.
+The logic of the created <code>Function</code> calls the given <code>BiFunction</code> applying
+one fixed and one call argument. The <code>partial</code> function is used as follows:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Function&lt;Integer, Integer&gt; add3 = partial(add, 3);
+Assertions.assertEquals(6, add3.apply(3));</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>partial</code> function implements a higher-order functions because</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>it takes a function as argument</p>
+</li>
+<li>
+<p>and returns a function as its result</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Cool, how lambdas makes functions to first-class citizen of the Java language.
+But, let&#8217;s take the next step.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_generalization">Generalization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>add</code> function example works fine, because it doesn&#8217;t matter which
+of the two arguments get fixed. More precisely, the <code>add</code> function is
+commutative, i.e. it does not matter in which order the arguments are provided,
+the result will be the same.</p>
+</div>
+<div class="paragraph">
+<p>If we define a function <code>divide</code> as follows</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>BiFunction&lt;Integer, Integer, Integer&gt; divide = (a, b) -&gt; a / b;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>the order of the arguments provided actually matters, i.e. the function is
+non-commutative.</p>
+</div>
+<div class="paragraph">
+<p>The first idea to solve this is to provide two functions, one partially applies
+the first argument, the second partially applies the second argument:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>public static &lt;T, U, R&gt; Function&lt;U, R&gt; partialFirst(BiFunction&lt;T, U, R&gt; f, T x) {
+  return (y) -&gt; f.apply(x, y);
+}</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>public static &lt;T, U, R&gt; Function&lt;T, R&gt; partialSecond(BiFunction&lt;T, U, R&gt; f, U x) {
+  return (y) -&gt; f.apply(y, x);
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These two functions can then used to fix the first or second argument
+respectively:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Function&lt;Integer, Integer&gt; divideFourBy = partialFirst(divide, 4);
+Assertions.assertEquals(2, divideFourBy.apply(2));</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Function&lt;Integer, Integer&gt; divideByTwo = partialSecond(divide, 2);
+Assertions.assertEquals(2, divideByTwo.apply(4));</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The interface of <code>partialFirst</code> and <code>partialSecond</code> doesn&#8217;t look very nice
+and concise, because you need to select the right function when applying the
+function arguments partially. This is even more true for functions with higher
+arity - we&#8217;ll come to such functions in a second. From an API point of view, it
+would be nicer to have just one overloaded <code>partial</code> function, to which you
+provide <em>all</em> arguments, some fixed, others denoted with placeholders. Let&#8217;s
+first define a placeholder class and instance:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>static class Matches {
+  public static Matches _any;
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This placeholder is then used when defining the overloaded <code>partial</code> function:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>public static &lt;T, U, R&gt; Function&lt;U, R&gt; partial(BiFunction&lt;T, U, R&gt; f, T x, Matches m) {
+  return (y) -&gt; f.apply(x, y);
+}</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>public static &lt;T, U, R&gt; Function&lt;T, R&gt; partial(BiFunction&lt;T, U, R&gt; f, Matches m, U x) {
+  return (y) -&gt; f.apply(y, x);
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When statically importing the placeholder instance <code>Matcher._any</code> the partial
+application looks like:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Function&lt;Integer, Integer&gt; divideByFour = partial(divide, _any, 4);
+Assertions.assertEquals(2, divideByFour.apply(8));</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Function&lt;Integer, Integer&gt; divideSixBy = assume(divide, 6, _any);
+Assertions.assertEquals(3, divideSixBy.apply(2));</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The overloaded <code>partial</code> function feels more concise on usage, because one
+don&#8217;t need to worry about the name of the function for partial application
+and can provide the all arguments of the original function in the same order.</p>
+</div>
+<div class="paragraph">
+<p>The next step would be to apply this pattern to functions of higher arity.
+Functions taking three arguments and map those arguments to one result
+are usually called tri-function and can be defined in Java as:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>@FunctionalInterface
+public interface TriFunction&lt;T, U, V, R&gt; {
+  R apply(T t, U u, V v);
+}</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Increasing the arity would result in QuadFunction (4 arguments),
+QuintFunction (5), SextFunction (6), SeptFunction (7), OctFunction(8)
+and so on.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The definition of partial applications to generate bi-functions out of
+tri-functions are straight forward:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>public static &lt;T, U, V, R&gt; BiFunction&lt;U, V, R&gt; partial(TriFunction&lt;T, U, V, R&gt; f, T a1, Matches m2, Matches m3) {
+  return (x, y) -&gt; f.apply(a1, x, y);
+}</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>public static &lt;T, U, V, R&gt; BiFunction&lt;T, V, R&gt; partial(TriFunction&lt;T, U, V, R&gt; f, Matches m1, U a2, Matches m3) {
+  return (x, y) -&gt; f.apply(x, a2, y);
+}</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>public static &lt;T, U, V, R&gt; BiFunction&lt;T, U, R&gt; partial(TriFunction&lt;T, U, V, R&gt; f, Matches m1, Matches m2, V a3) {
+  return (x, y) -&gt; f.apply(x, y, a3);
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>partial</code> function for tri-function arguments can be used very the same way
+as we&#8217;ve done for bi-functions:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>TriFunction&lt;Integer, String, List&lt;String&gt;, String&gt; formatter =
+   (indent, delimiter, strings) -&gt; " ".repeat(indent) + strings.stream()
+                                                               .collect(joining(delimiter));
+BiFunction&lt;Integer, List&lt;String&gt;, String&gt; commaSeparatingFormatter = partial(formatter, _any, ",", _any);
+Assertions.assertEquals("   one,two,three",
+                        commaSeparatingFormatter.apply(3, Arrays.asList("one", "two", "three")));</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Because the tri-function&#8217;s <code>partial</code> return a bi-function, for which <code>partial</code>
+functions are already defined, the calls can be cascaded to partially apply
+even more arguments:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Function&lt;List&lt;String&gt;, String&gt;
+   indentThreeCommaSeparatingFormatter = partial(
+                                            partial(formatter, _any, ",", _any), 3, ._any);</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Assertions.assertEquals("   one,two,three",
+    indentThreeCommaSeparatingFormatter.apply(Arrays.asList("one", "two", "three")));</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The implementation of partial application for functions with higher arity is
+basically the same as for bi- or tri-function.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Lambdas introduced functional programming features into the Java ecosystem.
+With the exception of processing of streams functional programming techniques
+seem to be less used by Java programmers, maybe because of the imperative and
+object oriented history of Java. Nevertheless, adapting functional programming
+style can be beneficial in Java, too. The partial application of functions shown
+in this Blog post demonstrated the power of the functional programming style in
+Java.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Partial_application">Wikipedia - Partial Application</a></p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Higher-order_function">Wikipedia - Higher-order Function</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/software-design.html">software-design</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/functional.html">functional</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>

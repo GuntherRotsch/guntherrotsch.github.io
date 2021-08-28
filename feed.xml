@@ -6,9 +6,344 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sun, 25 Jul 2021 17:48:41 +0200</pubDate>
-    <lastBuildDate>Sun, 25 Jul 2021 17:48:41 +0200</lastBuildDate>
+    <pubDate>Sat, 28 Aug 2021 14:56:07 +0200</pubDate>
+    <lastBuildDate>Sat, 28 Aug 2021 14:56:07 +0200</lastBuildDate>
 
+    <item>
+      <title>Functional Java: Partial Application</title>
+      <link>https://guntherrotsch.github.io/blog_2021/partial-application-java.html</link>
+      <pubDate>Sat, 28 Aug 2021 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2021/partial-application-java.html</guid>
+      	<description>
+	&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_partial_function_application&quot;&gt;Partial Function Application&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Partial application refers to the process of fixing some arguments of a function
+and producing a function of lower arity - actually, the arity is reduced by the
+number of fixed arguments. To not become to theoretical and I&amp;#8217;ll give an example:
+The function&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;int add(int a, int b);&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;adds two integer numbers. If we fix an argument applying the integer number &lt;code&gt;3&lt;/code&gt;,
+we get the function (in pseudo-code)&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;partial(add, 3) =&amp;gt; int add3(int a)&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;which returns the sum of &lt;code&gt;3&lt;/code&gt; and the given integer parameter. While the function
+&lt;code&gt;add&lt;/code&gt; does have the arity &lt;code&gt;2&lt;/code&gt;, the arity of &lt;code&gt;add3&lt;/code&gt; is 1, which is the arity of
+function &lt;code&gt;add&lt;/code&gt; reduced by the number of fixed arguments.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;admonitionblock note&quot;&gt;
+&lt;table&gt;
+&lt;tr&gt;
+&lt;td class=&quot;icon&quot;&gt;
+&lt;i class=&quot;fa icon-note&quot; title=&quot;Note&quot;&gt;&lt;/i&gt;
+&lt;/td&gt;
+&lt;td class=&quot;content&quot;&gt;
+Partial application is sometimes incorrectly called currying, which is a related,
+but distinct concept.
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_functions_in_java&quot;&gt;Functions in Java&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Functions in Java are represented by objects implementing a functional interface.
+In the following the &lt;code&gt;Function&lt;/code&gt; and &lt;code&gt;BiFunction&lt;/code&gt; interfaces are used to
+demonstrate partial application - but the same holds for other functional
+interfaces like &lt;code&gt;Supplier&lt;/code&gt;. Given a &lt;code&gt;BiFunction&lt;/code&gt; corresponding to the
+introductory example:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;BiFunction&amp;lt;Integer, Integer, Integer&amp;gt; add = (a, b) -&amp;gt; a + b;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;To partially apply the function, we need to fix an argument and produce a
+function which takes one argument. This can be accomplished by:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;public static &amp;lt;T, U, R&amp;gt; Function&amp;lt;U, R&amp;gt; partial(BiFunction&amp;lt;T, U, R&amp;gt; f, T x) {
+  return (y) -&amp;gt; f.apply(x, y);
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The function takes the &lt;code&gt;BiFunction&lt;/code&gt; plus an argument and returns a &lt;code&gt;Function&lt;/code&gt;.
+The logic of the created &lt;code&gt;Function&lt;/code&gt; calls the given &lt;code&gt;BiFunction&lt;/code&gt; applying
+one fixed and one call argument. The &lt;code&gt;partial&lt;/code&gt; function is used as follows:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;Function&amp;lt;Integer, Integer&amp;gt; add3 = partial(add, 3);
+Assertions.assertEquals(6, add3.apply(3));&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The &lt;code&gt;partial&lt;/code&gt; function implements a higher-order functions because&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;it takes a function as argument&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;and returns a function as its result&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Cool, how lambdas makes functions to first-class citizen of the Java language.
+But, let&amp;#8217;s take the next step.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_generalization&quot;&gt;Generalization&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The &lt;code&gt;add&lt;/code&gt; function example works fine, because it doesn&amp;#8217;t matter which
+of the two arguments get fixed. More precisely, the &lt;code&gt;add&lt;/code&gt; function is
+commutative, i.e. it does not matter in which order the arguments are provided,
+the result will be the same.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;If we define a function &lt;code&gt;divide&lt;/code&gt; as follows&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;BiFunction&amp;lt;Integer, Integer, Integer&amp;gt; divide = (a, b) -&amp;gt; a / b;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;the order of the arguments provided actually matters, i.e. the function is
+non-commutative.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The first idea to solve this is to provide two functions, one partially applies
+the first argument, the second partially applies the second argument:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;public static &amp;lt;T, U, R&amp;gt; Function&amp;lt;U, R&amp;gt; partialFirst(BiFunction&amp;lt;T, U, R&amp;gt; f, T x) {
+  return (y) -&amp;gt; f.apply(x, y);
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;public static &amp;lt;T, U, R&amp;gt; Function&amp;lt;T, R&amp;gt; partialSecond(BiFunction&amp;lt;T, U, R&amp;gt; f, U x) {
+  return (y) -&amp;gt; f.apply(y, x);
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;These two functions can then used to fix the first or second argument
+respectively:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;Function&amp;lt;Integer, Integer&amp;gt; divideFourBy = partialFirst(divide, 4);
+Assertions.assertEquals(2, divideFourBy.apply(2));&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;Function&amp;lt;Integer, Integer&amp;gt; divideByTwo = partialSecond(divide, 2);
+Assertions.assertEquals(2, divideByTwo.apply(4));&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The interface of &lt;code&gt;partialFirst&lt;/code&gt; and &lt;code&gt;partialSecond&lt;/code&gt; doesn&amp;#8217;t look very nice
+and concise, because you need to select the right function when applying the
+function arguments partially. This is even more true for functions with higher
+arity - we&amp;#8217;ll come to such functions in a second. From an API point of view, it
+would be nicer to have just one overloaded &lt;code&gt;partial&lt;/code&gt; function, to which you
+provide &lt;em&gt;all&lt;/em&gt; arguments, some fixed, others denoted with placeholders. Let&amp;#8217;s
+first define a placeholder class and instance:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;static class Matches {
+  public static Matches _any;
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;This placeholder is then used when defining the overloaded &lt;code&gt;partial&lt;/code&gt; function:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;public static &amp;lt;T, U, R&amp;gt; Function&amp;lt;U, R&amp;gt; partial(BiFunction&amp;lt;T, U, R&amp;gt; f, T x, Matches m) {
+  return (y) -&amp;gt; f.apply(x, y);
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;public static &amp;lt;T, U, R&amp;gt; Function&amp;lt;T, R&amp;gt; partial(BiFunction&amp;lt;T, U, R&amp;gt; f, Matches m, U x) {
+  return (y) -&amp;gt; f.apply(y, x);
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;When statically importing the placeholder instance &lt;code&gt;Matcher._any&lt;/code&gt; the partial
+application looks like:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;Function&amp;lt;Integer, Integer&amp;gt; divideByFour = partial(divide, _any, 4);
+Assertions.assertEquals(2, divideByFour.apply(8));&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;Function&amp;lt;Integer, Integer&amp;gt; divideSixBy = assume(divide, 6, _any);
+Assertions.assertEquals(3, divideSixBy.apply(2));&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The overloaded &lt;code&gt;partial&lt;/code&gt; function feels more concise on usage, because one
+don&amp;#8217;t need to worry about the name of the function for partial application
+and can provide the all arguments of the original function in the same order.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The next step would be to apply this pattern to functions of higher arity.
+Functions taking three arguments and map those arguments to one result
+are usually called tri-function and can be defined in Java as:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;@FunctionalInterface
+public interface TriFunction&amp;lt;T, U, V, R&amp;gt; {
+  R apply(T t, U u, V v);
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;admonitionblock note&quot;&gt;
+&lt;table&gt;
+&lt;tr&gt;
+&lt;td class=&quot;icon&quot;&gt;
+&lt;i class=&quot;fa icon-note&quot; title=&quot;Note&quot;&gt;&lt;/i&gt;
+&lt;/td&gt;
+&lt;td class=&quot;content&quot;&gt;
+Increasing the arity would result in QuadFunction (4 arguments),
+QuintFunction (5), SextFunction (6), SeptFunction (7), OctFunction(8)
+and so on.
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The definition of partial applications to generate bi-functions out of
+tri-functions are straight forward:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;public static &amp;lt;T, U, V, R&amp;gt; BiFunction&amp;lt;U, V, R&amp;gt; partial(TriFunction&amp;lt;T, U, V, R&amp;gt; f, T a1, Matches m2, Matches m3) {
+  return (x, y) -&amp;gt; f.apply(a1, x, y);
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;public static &amp;lt;T, U, V, R&amp;gt; BiFunction&amp;lt;T, V, R&amp;gt; partial(TriFunction&amp;lt;T, U, V, R&amp;gt; f, Matches m1, U a2, Matches m3) {
+  return (x, y) -&amp;gt; f.apply(x, a2, y);
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;public static &amp;lt;T, U, V, R&amp;gt; BiFunction&amp;lt;T, U, R&amp;gt; partial(TriFunction&amp;lt;T, U, V, R&amp;gt; f, Matches m1, Matches m2, V a3) {
+  return (x, y) -&amp;gt; f.apply(x, y, a3);
+}&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The &lt;code&gt;partial&lt;/code&gt; function for tri-function arguments can be used very the same way
+as we&amp;#8217;ve done for bi-functions:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;TriFunction&amp;lt;Integer, String, List&amp;lt;String&amp;gt;, String&amp;gt; formatter =
+   (indent, delimiter, strings) -&amp;gt; &quot; &quot;.repeat(indent) + strings.stream()
+                                                               .collect(joining(delimiter));
+BiFunction&amp;lt;Integer, List&amp;lt;String&amp;gt;, String&amp;gt; commaSeparatingFormatter = partial(formatter, _any, &quot;,&quot;, _any);
+Assertions.assertEquals(&quot;   one,two,three&quot;,
+                        commaSeparatingFormatter.apply(3, Arrays.asList(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;)));&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Because the tri-function&amp;#8217;s &lt;code&gt;partial&lt;/code&gt; return a bi-function, for which &lt;code&gt;partial&lt;/code&gt;
+functions are already defined, the calls can be cascaded to partially apply
+even more arguments:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;Function&amp;lt;List&amp;lt;String&amp;gt;, String&amp;gt;
+   indentThreeCommaSeparatingFormatter = partial(
+                                            partial(formatter, _any, &quot;,&quot;, _any), 3, ._any);&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;literalblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre&gt;Assertions.assertEquals(&quot;   one,two,three&quot;,
+    indentThreeCommaSeparatingFormatter.apply(Arrays.asList(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;)));&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The implementation of partial application for functions with higher arity is
+basically the same as for bi- or tri-function.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Lambdas introduced functional programming features into the Java ecosystem.
+With the exception of processing of streams functional programming techniques
+seem to be less used by Java programmers, maybe because of the imperative and
+object oriented history of Java. Nevertheless, adapting functional programming
+style can be beneficial in Java, too. The partial application of functions shown
+in this Blog post demonstrated the power of the functional programming style in
+Java.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Partial_application&quot;&gt;Wikipedia - Partial Application&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Higher-order_function&quot;&gt;Wikipedia - Higher-order Function&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Pythonic Context Managers for Java</title>
       <link>https://guntherrotsch.github.io/blog_2021/pythonic-context-manager.html</link>
