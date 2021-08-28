@@ -1,0 +1,199 @@
+= Functional Java: Partial Application
+Gunther Rotsch
+2021-08-28
+:jbake-type: post
+:jbake-tags: java, software-design, functional
+:jbake-status: published
+:jbake-summary: Java 8 brought lambdas to the Java language, which is a corner stone of functional programming. Although, the functional programming features of Java out of the box are limited, some interesting concepts can be implemented using it. This post is about applying function parameters partially.
+
+== Partial Function Application
+
+Partial application refers to the process of fixing some arguments of a function
+and producing a function of lower arity - actually, the arity is reduced by the
+number of fixed arguments. To not become to theoretical and I'll give an example:
+The function
+
+  int add(int a, int b);
+
+adds two integer numbers. If we fix an argument applying the integer number `3`,
+we get the function (in pseudo-code)
+
+  partial(add, 3) => int add3(int a)
+
+which returns the sum of `3` and the given integer parameter. While the function
+`add` does have the arity `2`, the arity of `add3` is 1, which is the arity of
+function `add` reduced by the number of fixed arguments.
+
+[NOTE]
+Partial application is sometimes incorrectly called currying, which is a related,
+but distinct concept.
+
+== Functions in Java
+
+Functions in Java are represented by objects implementing a functional interface.
+In the following the `Function` and `BiFunction` interfaces are used to
+demonstrate partial application - but the same holds for other functional
+interfaces like `Supplier`. Given a `BiFunction` corresponding to the
+introductory example:
+
+  BiFunction<Integer, Integer, Integer> add = (a, b) -> a + b;
+
+To partially apply the function, we need to fix an argument and produce a
+function which takes one argument. This can be accomplished by:
+
+  public static <T, U, R> Function<U, R> partial(BiFunction<T, U, R> f, T x) {
+    return (y) -> f.apply(x, y);
+  }
+
+The function takes the `BiFunction` plus an argument and returns a `Function`.
+The logic of the created `Function` calls the given `BiFunction` applying
+one fixed and one call argument. The `partial` function is used as follows:
+
+  Function<Integer, Integer> add3 = partial(add, 3);
+  Assertions.assertEquals(6, add3.apply(3));
+
+The `partial` function implements a higher-order functions because
+
+* it takes a function as argument
+* and returns a function as its result
+
+Cool, how lambdas makes functions to first-class citizen of the Java language.
+But, let's take the next step.
+
+== Generalization
+
+The `add` function example works fine, because it doesn't matter which
+of the two arguments get fixed. More precisely, the `add` function is
+commutative, i.e. it does not matter in which order the arguments are provided,
+the result will be the same.
+
+If we define a function `divide` as follows
+
+  BiFunction<Integer, Integer, Integer> divide = (a, b) -> a / b;
+
+the order of the arguments provided actually matters, i.e. the function is
+non-commutative.
+
+The first idea to solve this is to provide two functions, one partially applies
+the first argument, the second partially applies the second argument:
+
+  public static <T, U, R> Function<U, R> partialFirst(BiFunction<T, U, R> f, T x) {
+    return (y) -> f.apply(x, y);
+  }
+
+  public static <T, U, R> Function<T, R> partialSecond(BiFunction<T, U, R> f, U x) {
+    return (y) -> f.apply(y, x);
+  }
+
+These two functions can then used to fix the first or second argument
+respectively:
+
+  Function<Integer, Integer> divideFourBy = partialFirst(divide, 4);
+  Assertions.assertEquals(2, divideFourBy.apply(2));
+
+  Function<Integer, Integer> divideByTwo = partialSecond(divide, 2);
+  Assertions.assertEquals(2, divideByTwo.apply(4));
+
+The interface of `partialFirst` and `partialSecond` doesn't look very nice
+and concise, because you need to select the right function when applying the
+function arguments partially. This is even more true for functions with higher
+arity - we'll come to such functions in a second. From an API point of view, it
+would be nicer to have just one overloaded `partial` function, to which you
+provide _all_ arguments, some fixed, others denoted with placeholders. Let's
+first define a placeholder class and instance:
+
+  static class Matches {
+    public static Matches _any;
+  }
+
+This placeholder is then used when defining the overloaded `partial` function:
+
+  public static <T, U, R> Function<U, R> partial(BiFunction<T, U, R> f, T x, Matches m) {
+    return (y) -> f.apply(x, y);
+  }
+
+  public static <T, U, R> Function<T, R> partial(BiFunction<T, U, R> f, Matches m, U x) {
+    return (y) -> f.apply(y, x);
+  }
+
+When statically importing the placeholder instance `Matcher._any` the partial
+application looks like:
+
+  Function<Integer, Integer> divideByFour = partial(divide, _any, 4);
+  Assertions.assertEquals(2, divideByFour.apply(8));
+
+  Function<Integer, Integer> divideSixBy = assume(divide, 6, _any);
+  Assertions.assertEquals(3, divideSixBy.apply(2));
+
+The overloaded `partial` function feels more concise on usage, because one
+don't need to worry about the name of the function for partial application
+and can provide the all arguments of the original function in the same order.
+
+The next step would be to apply this pattern to functions of higher arity.
+Functions taking three arguments and map those arguments to one result
+are usually called tri-function and can be defined in Java as:
+
+  @FunctionalInterface
+  public interface TriFunction<T, U, V, R> {
+    R apply(T t, U u, V v);
+  }
+
+[NOTE]
+Increasing the arity would result in QuadFunction (4 arguments),
+QuintFunction (5), SextFunction (6), SeptFunction (7), OctFunction(8)
+and so on.
+
+The definition of partial applications to generate bi-functions out of
+tri-functions are straight forward:
+
+  public static <T, U, V, R> BiFunction<U, V, R> partial(TriFunction<T, U, V, R> f, T a1, Matches m2, Matches m3) {
+    return (x, y) -> f.apply(a1, x, y);
+  }
+
+  public static <T, U, V, R> BiFunction<T, V, R> partial(TriFunction<T, U, V, R> f, Matches m1, U a2, Matches m3) {
+    return (x, y) -> f.apply(x, a2, y);
+  }
+
+  public static <T, U, V, R> BiFunction<T, U, R> partial(TriFunction<T, U, V, R> f, Matches m1, Matches m2, V a3) {
+    return (x, y) -> f.apply(x, y, a3);
+  }
+
+The `partial` function for tri-function arguments can be used very the same way
+as we've done for bi-functions:
+
+  TriFunction<Integer, String, List<String>, String> formatter =
+     (indent, delimiter, strings) -> " ".repeat(indent) + strings.stream()
+                                                                 .collect(joining(delimiter));
+  BiFunction<Integer, List<String>, String> commaSeparatingFormatter = partial(formatter, _any, ",", _any);
+  Assertions.assertEquals("   one,two,three",
+                          commaSeparatingFormatter.apply(3, Arrays.asList("one", "two", "three")));
+
+Because the tri-function's `partial` return a bi-function, for which `partial`
+functions are already defined, the calls can be cascaded to partially apply
+even more arguments:
+
+  Function<List<String>, String>
+     indentThreeCommaSeparatingFormatter = partial(
+                                              partial(formatter, _any, ",", _any), 3, ._any);
+
+  Assertions.assertEquals("   one,two,three",
+      indentThreeCommaSeparatingFormatter.apply(Arrays.asList("one", "two", "three")));
+
+The implementation of partial application for functions with higher arity is
+basically the same as for bi- or tri-function.
+
+== Conclusion
+
+Lambdas introduced functional programming features into the Java ecosystem.
+With the exception of processing of streams functional programming techniques
+seem to be less used by Java programmers, maybe because of the imperative and
+object oriented history of Java. Nevertheless, adapting functional programming
+style can be beneficial in Java, too. The partial application of functions shown
+in this Blog post demonstrated the power of the functional programming style in
+Java.
+
+== Links
+
+- https://en.wikipedia.org/wiki/Partial_application[Wikipedia - Partial Application]
+
+- https://en.wikipedia.org/wiki/Higher-order_function[Wikipedia - Higher-order Function]
