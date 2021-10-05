@@ -1,0 +1,194 @@
+= Framework-less Dependency Injection Applied, Part 1
+Gunther Rotsch
+2021-09-30
+:jbake-type: post
+:jbake-tags: java, software-design, dependency-injection
+:jbake-status: published
+:jbake-summary: In the article "DI without Framework" (https://guntherrotsch.github.io/blog_2020/di-without-framework.html) the principles of Dependency Injection have already be entangled. Here I'll discuss possible applications and potential improvements.
+
+&nbsp;
+
+DI frameworks like Spring, Jakarta EE's CDI or Guice come with a rich feature
+set, but also convey a certain complexity and feels sometimes like _black
+magic_, which some people try to avoid. Manual dependency injection is an
+alternative and might even make the design of an application more obvious.
+
+== Bean Wiring
+
+Typical business applications follow a _Boundary-Control-Entity (BCE)_ design,
+in which case the boundary layer receives requests. Those requests origin from
+message queues, are received by Servlets as HTTP requests, are triggered by
+users by interacting with a GUI, or even caused by timely events (cron-like
+schedulers). Anyhow a request arrives at a _Boundary_ bean, the first step in
+processing the request requires to assemble the objects (a.k.a. beans),
+which create the result returned on the request. If you don't rely on the
+dependency injection by a framework, this assembling of components need to be
+accomplished explicitly, for example as follows:
+
+[source, java]
+----
+   Response response =
+     new OrderSubmission(
+         new ShippingHandler(),
+         new CreditCardPayment(),
+         new DirectDebitPayment()
+     )
+      .process(request);
+----
+
+This sample is entirely hypothetical and is not related to any real-world project.
+The article
+https://hackernoon.com/you-dont-need-a-dependency-injection-container-10a5d4a5f878[
+You don't need a dependency injection controller] gives another example of how
+the wiring of request processing beans could look like.
+
+The downside of giving up DI frameworks is that you need to explicitly wire
+the beans which process requests, i.e. there are more lines of code to write
+and maintain. The advantage is that the wiring of beans is explicit and you're
+always aware of the objects involved in request processing, no guessing of
+resolved and injected beans anymore.
+
+[quote, Zen of Python]
+_Explicit is better than implicit_.
+
+To step away from DI frameworks may be tempting, but you might miss some of the
+features of those frameworks. Before diving into the different scopes provided
+by for example Jakarta's CDI - that's left for the next part of this series of
+articles -, we focus on a practical issue which the example provided above might
+suffer from. Let's assume that
+
+. An order is payed by either credit card or direct debit, but never by both
+of them
+. Instantiation of both components, `CreditCardPayment` as well as
+`DirectDebitPayment` is rather expensive
+
+then we want to instantiate only the payment type required by respective user's
+request. Or in other words, we want to lazily initialize the required payment
+type.
+
+== Lazy Initialization
+
+As long as the already created instances are injected into the constructor of
+`OrderSubmission` bean, the initialization can only delayed by some application
+specific logic. As a generic solution we could alternatively inject simple
+factories from which the actual bean can be retrieved on demand. The functional
+`Supplier` object is such an simple factory. So let's rephrase the sample a
+little bit:
+
+[source]
+----
+   Response response =
+     OrderSubmission.supplier(
+         ShippingHandler.supplier(),
+         CreditCardPayment.supplier(),
+         DirectDebitPayment.supplier()
+     )
+      .get().process(request);
+----
+
+There are a few things to note:
+
+* Every (injectable) bean provides a static method named `supplier`, which
+returns a `Supplier` of the bean type; this `supplier` method takes the same
+arguments the corresponding constructor would take (if there are any at all)
+* Beans should keep a reference to the supplier of the collaborating bean
+instead to the bean itself
+* Instead of working with the beans directly, we need to call the `Supplier#get`
+method before each method call
+
+But how does this pattern solve out lazy initialization problem?
+To understand this we need to look into the static `supplier` methods, i.e.
+have a look at the simple factories of our beans.
+
+The `CreditCardPayment#supplier` decorates the call of `new` method with the
+lazy initialization feature:
+
+[source]
+----
+    public static Supplier<CreditCardPayment> supplier() {
+        return LazilyInitialized.of(CreditCardPayment::new);
+    }
+----
+
+And also the lazy initialization itself is very simple:
+
+[source]
+----
+public class LazilyInitialized<T> implements Supplier<T> {
+
+	private T instance;
+
+	private Supplier<T> delegate;
+
+	private LazilyInitialized(Supplier<T> delegate) {
+		this.delegate = delegate;
+	}
+
+	public static <T> Supplier<T> of(Supplier<T> delegate) {
+		return new LazilyInitialized<>(delegate);
+	}
+
+	@Override
+	public T get() {
+		if (instance == null) {
+			instance = delegate.get();
+		}
+		return instance;
+	}
+}
+----
+
+Lazy initialization wraps the `Supplier` of the generic type and returns a
+`Supplier` for the same type. With the first call of the `get` the actual
+instance of the bean type is created, but not before. An instance of
+`CreditCardPayment` is only created if the `get` of the (decorated) factory
+is called, i.e. when the bean is used the first time, hence the bean is created
+and initialized lazily. On the other side, if `DirectDebitPayment` is used
+instead of `CreditCardPayment`, then the supplier's `get` is not called and
+no instance of the `CreditCardPayment` is created at all.
+
+When we have lazy initialization, eager initialization is not far away and even
+more simple:
+
+[source]
+----
+public class EagerlyInitialized<T> implements Supplier<T> {
+
+	private T instance;
+
+	private EagerlyInitialized(Supplier<T> delegate) {
+		this.instance = delegate.get();
+	}
+
+	public static <T> Supplier<T> of(Supplier<T> delegate) {
+		return new EagerlyInitialized<>(delegate);
+	}
+
+	@Override
+	public T get() {
+		return instance;
+	}
+}
+----
+
+In case of eager initialization, the bean's instance is already created when
+the `Supplier` is prepared. This instance is returned by each call of the `get`
+method, i.e. on each usage of the bean.
+
+== Summary
+
+DI frameworks can be replaced by assembling of the components an application
+manually. Even functionality like lazy initialization can be accomplished by
+applying appropriate patterns and conventions. The design of the application
+becomes more transparent and obvious with explicit wiring of the request
+processing beans.
+
+In the next article, I'll demonstrate how different scopes can be implemented
+for the beans. So, stay tuned...
+
+== Links
+
+- https://guntherrotsch.github.io/blog_2020/di-without-framework.html[Blog Post -
+Dependency Injection without Framework]
+- https://hackernoon.com/you-dont-need-a-dependency-injection-container-10a5d4a5f878[
+You don't need a dependency injection container]
