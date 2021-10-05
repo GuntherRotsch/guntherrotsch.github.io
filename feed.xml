@@ -6,9 +6,265 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sat, 28 Aug 2021 14:56:07 +0200</pubDate>
-    <lastBuildDate>Sat, 28 Aug 2021 14:56:07 +0200</lastBuildDate>
+    <pubDate>Tue, 5 Oct 2021 17:25:49 +0200</pubDate>
+    <lastBuildDate>Tue, 5 Oct 2021 17:25:49 +0200</lastBuildDate>
 
+    <item>
+      <title>Framework-less Dependency Injection Applied, Part 1</title>
+      <link>https://guntherrotsch.github.io/blog_2021/dependency-injection-part-1.html</link>
+      <pubDate>Thu, 30 Sep 2021 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2021/dependency-injection-part-1.html</guid>
+      	<description>
+	&lt;div id=&quot;preamble&quot;&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;DI frameworks like Spring, Jakarta EE&amp;#8217;s CDI or Guice come with a rich feature
+set, but also convey a certain complexity and feels sometimes like &lt;em&gt;black
+magic&lt;/em&gt;, which some people try to avoid. Manual dependency injection is an
+alternative and might even make the design of an application more obvious.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_bean_wiring&quot;&gt;Bean Wiring&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Typical business applications follow a &lt;em&gt;Boundary-Control-Entity (BCE)&lt;/em&gt; design,
+in which case the boundary layer receives requests. Those requests origin from
+message queues, are received by Servlets as HTTP requests, are triggered by
+users by interacting with a GUI, or even caused by timely events (cron-like
+schedulers). Anyhow a request arrives at a &lt;em&gt;Boundary&lt;/em&gt; bean, the first step in
+processing the request requires to assemble the objects (a.k.a. beans),
+which create the result returned on the request. If you don&amp;#8217;t rely on the
+dependency injection by a framework, this assembling of components need to be
+accomplished explicitly, for example as follows:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;   Response response =
+     new OrderSubmission(
+         new ShippingHandler(),
+         new CreditCardPayment(),
+         new DirectDebitPayment()
+     )
+      .process(request);&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;This sample is entirely hypothetical and is not related to any real-world project.
+The article
+&lt;a href=&quot;https://hackernoon.com/you-dont-need-a-dependency-injection-container-10a5d4a5f878&quot;&gt;
+You don&amp;#8217;t need a dependency injection controller&lt;/a&gt; gives another example of how
+the wiring of request processing beans could look like.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The downside of giving up DI frameworks is that you need to explicitly wire
+the beans which process requests, i.e. there are more lines of code to write
+and maintain. The advantage is that the wiring of beans is explicit and you&amp;#8217;re
+always aware of the objects involved in request processing, no guessing of
+resolved and injected beans anymore.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;quoteblock&quot;&gt;
+&lt;blockquote&gt;
+&lt;em&gt;Explicit is better than implicit&lt;/em&gt;.
+&lt;/blockquote&gt;
+&lt;div class=&quot;attribution&quot;&gt;
+&amp;#8212; Zen of Python
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;To step away from DI frameworks may be tempting, but you might miss some of the
+features of those frameworks. Before diving into the different scopes provided
+by for example Jakarta&amp;#8217;s CDI - that&amp;#8217;s left for the next part of this series of
+articles -, we focus on a practical issue which the example provided above might
+suffer from. Let&amp;#8217;s assume that&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;olist arabic&quot;&gt;
+&lt;ol class=&quot;arabic&quot;&gt;
+&lt;li&gt;
+&lt;p&gt;An order is payed by either credit card or direct debit, but never by both
+of them&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Instantiation of both components, &lt;code&gt;CreditCardPayment&lt;/code&gt; as well as
+&lt;code&gt;DirectDebitPayment&lt;/code&gt; is rather expensive&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;then we want to instantiate only the payment type required by respective user&amp;#8217;s
+request. Or in other words, we want to lazily initialize the required payment
+type.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_lazy_initialization&quot;&gt;Lazy Initialization&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;As long as the already created instances are injected into the constructor of
+&lt;code&gt;OrderSubmission&lt;/code&gt; bean, the initialization can only delayed by some application
+specific logic. As a generic solution we could alternatively inject simple
+factories from which the actual bean can be retrieved on demand. The functional
+&lt;code&gt;Supplier&lt;/code&gt; object is such an simple factory. So let&amp;#8217;s rephrase the sample a
+little bit:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;   Response response =
+     OrderSubmission.supplier(
+         ShippingHandler.supplier(),
+         CreditCardPayment.supplier(),
+         DirectDebitPayment.supplier()
+     )
+      .get().process(request);&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;There are a few things to note:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Every (injectable) bean provides a static method named &lt;code&gt;supplier&lt;/code&gt;, which
+returns a &lt;code&gt;Supplier&lt;/code&gt; of the bean type; this &lt;code&gt;supplier&lt;/code&gt; method takes the same
+arguments the corresponding constructor would take (if there are any at all)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Beans should keep a reference to the supplier of the collaborating bean
+instead to the bean itself&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Instead of working with the beans directly, we need to call the &lt;code&gt;Supplier#get&lt;/code&gt;
+method before each method call&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;But how does this pattern solve out lazy initialization problem?
+To understand this we need to look into the static &lt;code&gt;supplier&lt;/code&gt; methods, i.e.
+have a look at the simple factories of our beans.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The &lt;code&gt;CreditCardPayment#supplier&lt;/code&gt; decorates the call of &lt;code&gt;new&lt;/code&gt; method with the
+lazy initialization feature:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;    public static Supplier&amp;lt;CreditCardPayment&amp;gt; supplier() {
+        return LazilyInitialized.of(CreditCardPayment::new);
+    }&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;And also the lazy initialization itself is very simple:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public class LazilyInitialized&amp;lt;T&amp;gt; implements Supplier&amp;lt;T&amp;gt; {
+
+	private T instance;
+
+	private Supplier&amp;lt;T&amp;gt; delegate;
+
+	private LazilyInitialized(Supplier&amp;lt;T&amp;gt; delegate) {
+		this.delegate = delegate;
+	}
+
+	public static &amp;lt;T&amp;gt; Supplier&amp;lt;T&amp;gt; of(Supplier&amp;lt;T&amp;gt; delegate) {
+		return new LazilyInitialized&amp;lt;&amp;gt;(delegate);
+	}
+
+	@Override
+	public T get() {
+		if (instance == null) {
+			instance = delegate.get();
+		}
+		return instance;
+	}
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Lazy initialization wraps the &lt;code&gt;Supplier&lt;/code&gt; of the generic type and returns a
+&lt;code&gt;Supplier&lt;/code&gt; for the same type. With the first call of the &lt;code&gt;get&lt;/code&gt; the actual
+instance of the bean type is created, but not before. An instance of
+&lt;code&gt;CreditCardPayment&lt;/code&gt; is only created if the &lt;code&gt;get&lt;/code&gt; of the (decorated) factory
+is called, i.e. when the bean is used the first time, hence the bean is created
+and initialized lazily. On the other side, if &lt;code&gt;DirectDebitPayment&lt;/code&gt; is used
+instead of &lt;code&gt;CreditCardPayment&lt;/code&gt;, then the supplier&amp;#8217;s &lt;code&gt;get&lt;/code&gt; is not called and
+no instance of the &lt;code&gt;CreditCardPayment&lt;/code&gt; is created at all.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;When we have lazy initialization, eager initialization is not far away and even
+more simple:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public class EagerlyInitialized&amp;lt;T&amp;gt; implements Supplier&amp;lt;T&amp;gt; {
+
+	private T instance;
+
+	private EagerlyInitialized(Supplier&amp;lt;T&amp;gt; delegate) {
+		this.instance = delegate.get();
+	}
+
+	public static &amp;lt;T&amp;gt; Supplier&amp;lt;T&amp;gt; of(Supplier&amp;lt;T&amp;gt; delegate) {
+		return new EagerlyInitialized&amp;lt;&amp;gt;(delegate);
+	}
+
+	@Override
+	public T get() {
+		return instance;
+	}
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;In case of eager initialization, the bean&amp;#8217;s instance is already created when
+the &lt;code&gt;Supplier&lt;/code&gt; is prepared. This instance is returned by each call of the &lt;code&gt;get&lt;/code&gt;
+method, i.e. on each usage of the bean.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;DI frameworks can be replaced by assembling of the components an application
+manually. Even functionality like lazy initialization can be accomplished by
+applying appropriate patterns and conventions. The design of the application
+becomes more transparent and obvious with explicit wiring of the request
+processing beans.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;In the next article, I&amp;#8217;ll demonstrate how different scopes can be implemented
+for the beans. So, stay tuned&amp;#8230;&amp;#8203;&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://guntherrotsch.github.io/blog_2020/di-without-framework.html&quot;&gt;Blog Post -
+Dependency Injection without Framework&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://hackernoon.com/you-dont-need-a-dependency-injection-container-10a5d4a5f878&quot;&gt;
+You don&amp;#8217;t need a dependency injection container&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Functional Java: Partial Application</title>
       <link>https://guntherrotsch.github.io/blog_2021/partial-application-java.html</link>

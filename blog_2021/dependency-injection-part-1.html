@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Framework-less Dependency Injection Applied, Part 1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Framework-less Dependency Injection Applied, Part 1</h1>
+	</div>
+
+	<p><em>30 September 2021</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>In the article "DI without Framework" (https://guntherrotsch.github.io/blog_2020/di-without-framework.html) the principles of Dependency Injection have already be entangled. Here I'll discuss possible applications and potential improvements.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>&nbsp;</p>
+</div>
+<div class="paragraph">
+<p>DI frameworks like Spring, Jakarta EE&#8217;s CDI or Guice come with a rich feature
+set, but also convey a certain complexity and feels sometimes like <em>black
+magic</em>, which some people try to avoid. Manual dependency injection is an
+alternative and might even make the design of an application more obvious.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_bean_wiring">Bean Wiring</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Typical business applications follow a <em>Boundary-Control-Entity (BCE)</em> design,
+in which case the boundary layer receives requests. Those requests origin from
+message queues, are received by Servlets as HTTP requests, are triggered by
+users by interacting with a GUI, or even caused by timely events (cron-like
+schedulers). Anyhow a request arrives at a <em>Boundary</em> bean, the first step in
+processing the request requires to assemble the objects (a.k.a. beans),
+which create the result returned on the request. If you don&#8217;t rely on the
+dependency injection by a framework, this assembling of components need to be
+accomplished explicitly, for example as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">   Response response =
+     new OrderSubmission(
+         new ShippingHandler(),
+         new CreditCardPayment(),
+         new DirectDebitPayment()
+     )
+      .process(request);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This sample is entirely hypothetical and is not related to any real-world project.
+The article
+<a href="https://hackernoon.com/you-dont-need-a-dependency-injection-container-10a5d4a5f878">
+You don&#8217;t need a dependency injection controller</a> gives another example of how
+the wiring of request processing beans could look like.</p>
+</div>
+<div class="paragraph">
+<p>The downside of giving up DI frameworks is that you need to explicitly wire
+the beans which process requests, i.e. there are more lines of code to write
+and maintain. The advantage is that the wiring of beans is explicit and you&#8217;re
+always aware of the objects involved in request processing, no guessing of
+resolved and injected beans anymore.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<em>Explicit is better than implicit</em>.
+</blockquote>
+<div class="attribution">
+&#8212; Zen of Python
+</div>
+</div>
+<div class="paragraph">
+<p>To step away from DI frameworks may be tempting, but you might miss some of the
+features of those frameworks. Before diving into the different scopes provided
+by for example Jakarta&#8217;s CDI - that&#8217;s left for the next part of this series of
+articles -, we focus on a practical issue which the example provided above might
+suffer from. Let&#8217;s assume that</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>An order is payed by either credit card or direct debit, but never by both
+of them</p>
+</li>
+<li>
+<p>Instantiation of both components, <code>CreditCardPayment</code> as well as
+<code>DirectDebitPayment</code> is rather expensive</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>then we want to instantiate only the payment type required by respective user&#8217;s
+request. Or in other words, we want to lazily initialize the required payment
+type.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lazy_initialization">Lazy Initialization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As long as the already created instances are injected into the constructor of
+<code>OrderSubmission</code> bean, the initialization can only delayed by some application
+specific logic. As a generic solution we could alternatively inject simple
+factories from which the actual bean can be retrieved on demand. The functional
+<code>Supplier</code> object is such an simple factory. So let&#8217;s rephrase the sample a
+little bit:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">   Response response =
+     OrderSubmission.supplier(
+         ShippingHandler.supplier(),
+         CreditCardPayment.supplier(),
+         DirectDebitPayment.supplier()
+     )
+      .get().process(request);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There are a few things to note:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Every (injectable) bean provides a static method named <code>supplier</code>, which
+returns a <code>Supplier</code> of the bean type; this <code>supplier</code> method takes the same
+arguments the corresponding constructor would take (if there are any at all)</p>
+</li>
+<li>
+<p>Beans should keep a reference to the supplier of the collaborating bean
+instead to the bean itself</p>
+</li>
+<li>
+<p>Instead of working with the beans directly, we need to call the <code>Supplier#get</code>
+method before each method call</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>But how does this pattern solve out lazy initialization problem?
+To understand this we need to look into the static <code>supplier</code> methods, i.e.
+have a look at the simple factories of our beans.</p>
+</div>
+<div class="paragraph">
+<p>The <code>CreditCardPayment#supplier</code> decorates the call of <code>new</code> method with the
+lazy initialization feature:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">    public static Supplier&lt;CreditCardPayment&gt; supplier() {
+        return LazilyInitialized.of(CreditCardPayment::new);
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And also the lazy initialization itself is very simple:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">public class LazilyInitialized&lt;T&gt; implements Supplier&lt;T&gt; {
+
+	private T instance;
+
+	private Supplier&lt;T&gt; delegate;
+
+	private LazilyInitialized(Supplier&lt;T&gt; delegate) {
+		this.delegate = delegate;
+	}
+
+	public static &lt;T&gt; Supplier&lt;T&gt; of(Supplier&lt;T&gt; delegate) {
+		return new LazilyInitialized&lt;&gt;(delegate);
+	}
+
+	@Override
+	public T get() {
+		if (instance == null) {
+			instance = delegate.get();
+		}
+		return instance;
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lazy initialization wraps the <code>Supplier</code> of the generic type and returns a
+<code>Supplier</code> for the same type. With the first call of the <code>get</code> the actual
+instance of the bean type is created, but not before. An instance of
+<code>CreditCardPayment</code> is only created if the <code>get</code> of the (decorated) factory
+is called, i.e. when the bean is used the first time, hence the bean is created
+and initialized lazily. On the other side, if <code>DirectDebitPayment</code> is used
+instead of <code>CreditCardPayment</code>, then the supplier&#8217;s <code>get</code> is not called and
+no instance of the <code>CreditCardPayment</code> is created at all.</p>
+</div>
+<div class="paragraph">
+<p>When we have lazy initialization, eager initialization is not far away and even
+more simple:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">public class EagerlyInitialized&lt;T&gt; implements Supplier&lt;T&gt; {
+
+	private T instance;
+
+	private EagerlyInitialized(Supplier&lt;T&gt; delegate) {
+		this.instance = delegate.get();
+	}
+
+	public static &lt;T&gt; Supplier&lt;T&gt; of(Supplier&lt;T&gt; delegate) {
+		return new EagerlyInitialized&lt;&gt;(delegate);
+	}
+
+	@Override
+	public T get() {
+		return instance;
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In case of eager initialization, the bean&#8217;s instance is already created when
+the <code>Supplier</code> is prepared. This instance is returned by each call of the <code>get</code>
+method, i.e. on each usage of the bean.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_summary">Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>DI frameworks can be replaced by assembling of the components an application
+manually. Even functionality like lazy initialization can be accomplished by
+applying appropriate patterns and conventions. The design of the application
+becomes more transparent and obvious with explicit wiring of the request
+processing beans.</p>
+</div>
+<div class="paragraph">
+<p>In the next article, I&#8217;ll demonstrate how different scopes can be implemented
+for the beans. So, stay tuned&#8230;&#8203;</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://guntherrotsch.github.io/blog_2020/di-without-framework.html">Blog Post -
+Dependency Injection without Framework</a></p>
+</li>
+<li>
+<p><a href="https://hackernoon.com/you-dont-need-a-dependency-injection-container-10a5d4a5f878">
+You don&#8217;t need a dependency injection container</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/software-design.html">software-design</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/dependency-injection.html">dependency-injection</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>
