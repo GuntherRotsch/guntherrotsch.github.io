@@ -6,9 +6,342 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Tue, 5 Oct 2021 17:25:49 +0200</pubDate>
-    <lastBuildDate>Tue, 5 Oct 2021 17:25:49 +0200</lastBuildDate>
+    <pubDate>Fri, 29 Oct 2021 11:25:51 +0200</pubDate>
+    <lastBuildDate>Fri, 29 Oct 2021 11:25:51 +0200</lastBuildDate>
 
+    <item>
+      <title>Framework-less Dependency Injection Applied, Part 2</title>
+      <link>https://guntherrotsch.github.io/blog_2021/dependency-injection-part-2.html</link>
+      <pubDate>Fri, 29 Oct 2021 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2021/dependency-injection-part-2.html</guid>
+      	<description>
+	&lt;div id=&quot;preamble&quot;&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;In the last article we looked at the application of dependency injection in real-world software development. By applying a simple design patterns it was possible to implement lazy initialization of injected beans. In this article scopes of injected beans are discussed.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;&amp;nbsp;
+In the first part of the series
+&lt;a href=&quot;https://guntherrotsch.github.io/blog_2021/dependency-injection-part-1.html&quot;&gt;
+Framework-less Dependency Injection Applied&lt;/a&gt; a simple software design, has
+been presented to wire beans by dependency injection. The design is based on
+Java&amp;#8217;s functional suppliers. In this series we&amp;#8217;ll take a look at implementing
+scoped beans. Because the design pattern applied is very similar, it might be
+a good idea to revisit part 1.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;admonitionblock note&quot;&gt;
+&lt;table&gt;
+&lt;tr&gt;
+&lt;td class=&quot;icon&quot;&gt;
+&lt;i class=&quot;fa icon-note&quot; title=&quot;Note&quot;&gt;&lt;/i&gt;
+&lt;/td&gt;
+&lt;td class=&quot;content&quot;&gt;
+When I in the following compare the properties of scoped beans of the
+&quot;Dependency Injection without Framework&quot; with CDI, it&amp;#8217;s because I&amp;#8217;m familar
+with Jakarta EE CDI. But Spring and most other DI containers work
+very similar.
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;With Jakarta EE&amp;#8217;s CDI (&lt;a href=&quot;https://jakarta.ee/specifications/cdi/&quot;&gt;Specification&lt;/a&gt;)
+every bean does have a certain scope, which can be a real scope or a pseudo
+scope. In terms of CDI the manually wired beans described in the previous
+article of the series are beans in pseudo-scope &lt;code&gt;@Dependent&lt;/code&gt;. For each
+injection point a new instance of the injected bean is created. This is
+not always desired. Therefore, CDI provides other scopes in addition, for
+example&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;@ApplicationScoped&lt;/code&gt; for singletons over the lifetime of an application&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;@RequestScoped&lt;/code&gt; for beans created per request&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;In the following the request scope is discussed in detail. Other scopes are
+similar to implement, if not even simpler. You can find the code of the example
+in this
+&lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/di-without-framework&quot;&gt;
+Github repository&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_request_scoped_beans&quot;&gt;Request Scoped Beans&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;For the implementation we assume the classical execution model, which is
+defined as &quot;request per thread&quot;. The thread to process a request&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;is taken from a thread pool&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;is occupied for the entire request processing&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;does not take part in the processing of other requests at the same time&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;is returned into a thread pool when request processing is finished&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;This Jakarta EE programming and execution model allows the implementation of
+request scoped beans by using &lt;code&gt;ThreadLocal&lt;/code&gt; variables.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The request scope beans are different to dependent scoped beans in regard to:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;olist arabic&quot;&gt;
+&lt;ol class=&quot;arabic&quot;&gt;
+&lt;li&gt;
+&lt;p&gt;The same instance of request scoped bean is used for every injection point
+during a single request processing.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;The request context need to be started and stopped explicitly. Request scoped
+beans can be injected outside an active request context, but resolution of
+request scoped beans outside of an active context gives a runtime error.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;These two properties drives the implementation in the following chapters.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect2&quot;&gt;
+&lt;h3 id=&quot;_request_scope_implementation&quot;&gt;Request Scope Implementation&lt;/h3&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;In order to address the first property, we need to keep track of instantiated
+beans per request. This can be accomplished by utilizing a thread local map
+of instantiated beans keyed by the class of the bean.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public final class RequestScoped&amp;lt;T&amp;gt; implements Supplier&amp;lt;T&amp;gt; {
+
+	private static ThreadLocal&amp;lt;Map&amp;lt;Class&amp;lt;?&amp;gt;, Object&amp;gt;&amp;gt; instances = new ThreadLocal&amp;lt;&amp;gt;();
+
+    private final Supplier&amp;lt;T&amp;gt; delegate;
+    private final Class&amp;lt;T&amp;gt; clazz;
+
+    private RequestScoped(Supplier&amp;lt;T&amp;gt; delegate, Class&amp;lt;T&amp;gt; clazz) {
+        this.delegate = delegate;
+        this.clazz = clazz;
+    }
+
+    public static &amp;lt;T&amp;gt; RequestScoped&amp;lt;T&amp;gt; of(Supplier&amp;lt;T&amp;gt; delegate, Class&amp;lt;T&amp;gt; clazz) {
+        return new RequestScoped&amp;lt;&amp;gt;(delegate, clazz);
+    }
+
+    @Override
+    public T get() {
+        if (instances.get() == null) {
+            throw new RequestScopeNotActiveException();
+        }
+        return clazz.cast(instances.get().computeIfAbsent(clazz, clazz -&amp;gt; delegate.get()));
+    }
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The definition of request scoped beans looks almost the same as dependent
+scoped beans that are initialized eagerly or lazily:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public class MyRequestScopedBean {
+
+	public static Supplier&amp;lt;MyRequestScopedBean&amp;gt; supplier() {
+		return RequestScoped.of(MyRequestScopedBean::new, MyRequestScopedBean.class);
+	}
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The only difference is the bean&amp;#8217;s class which has to be passed to the
+&lt;code&gt;RequestScoped.of&lt;/code&gt; method. The class becomes the key of the map of instances
+in request scope.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Please also note that request scoped beans are always initialized lazily.
+This allows the injection of such beans without request context.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect2&quot;&gt;
+&lt;h3 id=&quot;_request_context_implementation&quot;&gt;Request Context Implementation&lt;/h3&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The actual functionality to start a request scope is hosted in the
+&lt;code&gt;RequestScoped&lt;/code&gt; class. The &lt;code&gt;start&lt;/code&gt; method is called at the beginning of the
+request processing (on start of the request scope). The method creates the
+thread-local map of bean instances for the new request.
+When the request processing finishes (on close of the request scope), the map
+is destroyed by calling the &lt;code&gt;stop&lt;/code&gt; method.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;    ...
+    void start() {
+        synchronized (instances) {
+            if (instances.get() != null) {
+                throw new RequestScopeAlreadyActiveException();
+            }
+            instances.set(new ConcurrentHashMap&amp;lt;Class&amp;lt;?&amp;gt;, Object&amp;gt;());
+        }
+    }
+
+    void stop() {
+        synchronized (instances) {
+            instances.set(null);
+        }
+    }
+    ...&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;To encapsulate starting and stopping into a nice API, a factory method for
+instances of &lt;code&gt;RequestContext&lt;/code&gt; has been added to the &lt;code&gt;RequestScoped&lt;/code&gt; class:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public static RequestContext getContext() {
+    return new RequestContext(new RequestScoped&amp;lt;&amp;gt;());
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The &lt;code&gt;RequestContext&lt;/code&gt; is defined as &lt;code&gt;AutoCloseable&lt;/code&gt; as follows:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public class RequestContext implements AutoCloseable {
+
+	private RequestScoped&amp;lt;Void&amp;gt; scope;
+
+	RequestContext(RequestScoped&amp;lt;Void&amp;gt; requestScoped) {
+		this.scope = requestScoped;
+		this.scope.start();
+	}
+
+	@Override
+	public void close() throws Exception {
+		scope.stop();
+	}
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Because of the &lt;code&gt;AutoCloseable&lt;/code&gt; the request context can be activated and
+deactivated by:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;    try (RequestContext ctx = RequestScoped.getContext()) {
+
+        // REQUEST PROCESSING GOES HERE
+    }&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The try-resource block starts and ends the request context, i.e. inside
+this block request scoped beans can be resolved and used.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Please note, that request scoped beans can be injected into beans of any other
+scope (dependent scoped, application scoped, etc.) and vice versa.
+The supplier redirects the call to the desired bean instance. Do you have
+performance concerns because of the additional level of indirection of the
+call? You shouldn&amp;#8217;t, CDI and other dependency injection containers work very
+similar. The main difference is that redirecting the call
+is not coded explicitly with suppliers, but via a proxy, typically byte-code
+generated. The impact on the performance at runtime is approximately the same.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;As already demonstrated in the first part of the series injecting collaborating
+beans is easy. With a simple functional supplier design and few conventions,
+even eager and lazy initialization of the injected beans is possible.
+Similarly, scoped beans can be implemented.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;However, I personally would dispense CDI only in small projects, because
+typically other features of CDI are beneficial, for example:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Life-cycle Management of Beans&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Producers&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Interceptors&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Events&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Decorator&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Extensions&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Nevertheless, it&amp;#8217;s always good to &lt;em&gt;look behind the scenes&lt;/em&gt; to get a better
+understanding of what&amp;#8217;s going on in dependency injection frameworks. And for
+small projects with extreme limitations on memory resources the presented
+framework-less DI approach might come in handy&amp;#8230;&amp;#8203;&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://guntherrotsch.github.io/blog_2021/dependency-injection-part-1.html&quot;&gt;
+Blog Post - Framework-less Dependency Injection Applied, part 1&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/di-without-framework&quot;&gt;
+Github Repo - Sample Implementation&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://jakarta.ee/specifications/cdi/&quot;&gt;Specification - Jakarta EE CDI&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://guntherrotsch.github.io/blog_2020/di-without-framework.html&quot;&gt;Blog Post -
+Dependency Injection without Framework&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://hackernoon.com/you-dont-need-a-dependency-injection-container-10a5d4a5f878&quot;&gt;
+Blog Post - You don&amp;#8217;t need a dependency injection container&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Framework-less Dependency Injection Applied, Part 1</title>
       <link>https://guntherrotsch.github.io/blog_2021/dependency-injection-part-1.html</link>
