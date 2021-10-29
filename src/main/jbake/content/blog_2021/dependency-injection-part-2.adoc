@@ -1,0 +1,235 @@
+= Framework-less Dependency Injection Applied, Part 2
+Gunther Rotsch
+2021-10-29
+:jbake-type: post
+:jbake-tags: java, software-design, dependency-injection
+:jbake-status: published
+:jbake-summary: ...
+In the last article we looked at the application of dependency injection in real-world software development. By applying a simple design patterns it was possible to implement lazy initialization of injected beans. In this article scopes of injected beans are discussed.
+
+&nbsp;
+In the first part of the series
+https://guntherrotsch.github.io/blog_2021/dependency-injection-part-1.html[
+Framework-less Dependency Injection Applied] a simple software design, has
+been presented to wire beans by dependency injection. The design is based on
+Java's functional suppliers. In this series we'll take a look at implementing
+scoped beans. Because the design pattern applied is very similar, it might be
+a good idea to revisit part 1.
+
+[NOTE]
+When I in the following compare the properties of scoped beans of the
+"Dependency Injection without Framework" with CDI, it's because I'm familar
+with Jakarta EE CDI. But Spring and most other DI containers work
+very similar.
+
+With Jakarta EE's CDI (https://jakarta.ee/specifications/cdi/[Specification])
+every bean does have a certain scope, which can be a real scope or a pseudo
+scope. In terms of CDI the manually wired beans described in the previous
+article of the series are beans in pseudo-scope `@Dependent`. For each
+injection point a new instance of the injected bean is created. This is
+not always desired. Therefore, CDI provides other scopes in addition, for
+example
+
+* `@ApplicationScoped` for singletons over the lifetime of an application
+* `@RequestScoped` for beans created per request
+
+In the following the request scope is discussed in detail. Other scopes are
+similar to implement, if not even simpler. You can find the code of the example
+in this
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/di-without-framework[
+Github repository].
+
+== Request Scoped Beans
+
+For the implementation we assume the classical execution model, which is
+defined as "request per thread". The thread to process a request
+
+* is taken from a thread pool
+* is occupied for the entire request processing
+* does not take part in the processing of other requests at the same time
+* is returned into a thread pool when request processing is finished
+
+This Jakarta EE programming and execution model allows the implementation of
+request scoped beans by using `ThreadLocal` variables.
+
+The request scope beans are different to dependent scoped beans in regard to:
+
+1. The same instance of request scoped bean is used for every injection point
+during a single request processing.
+1. The request context need to be started and stopped explicitly. Request scoped
+beans can be injected outside an active request context, but resolution of
+request scoped beans outside of an active context gives a runtime error.
+
+These two properties drives the implementation in the following chapters.
+
+=== Request Scope Implementation
+
+In order to address the first property, we need to keep track of instantiated
+beans per request. This can be accomplished by utilizing a thread local map
+of instantiated beans keyed by the class of the bean.
+
+[source]
+----
+public final class RequestScoped<T> implements Supplier<T> {
+
+	private static ThreadLocal<Map<Class<?>, Object>> instances = new ThreadLocal<>();
+
+    private final Supplier<T> delegate;
+    private final Class<T> clazz;
+
+    private RequestScoped(Supplier<T> delegate, Class<T> clazz) {
+        this.delegate = delegate;
+        this.clazz = clazz;
+    }
+
+    public static <T> RequestScoped<T> of(Supplier<T> delegate, Class<T> clazz) {
+        return new RequestScoped<>(delegate, clazz);
+    }
+
+    @Override
+    public T get() {
+        if (instances.get() == null) {
+            throw new RequestScopeNotActiveException();
+        }
+        return clazz.cast(instances.get().computeIfAbsent(clazz, clazz -> delegate.get()));
+    }
+}
+
+----
+
+The definition of request scoped beans looks almost the same as dependent
+scoped beans that are initialized eagerly or lazily:
+
+[source]
+----
+public class MyRequestScopedBean {
+
+	public static Supplier<MyRequestScopedBean> supplier() {
+		return RequestScoped.of(MyRequestScopedBean::new, MyRequestScopedBean.class);
+	}
+}
+
+----
+
+The only difference is the bean's class which has to be passed to the
+`RequestScoped.of` method. The class becomes the key of the map of instances
+in request scope.
+
+Please also note that request scoped beans are always initialized lazily.
+This allows the injection of such beans without request context.
+
+=== Request Context Implementation
+
+The actual functionality to start a request scope is hosted in the
+`RequestScoped` class. The `start` method is called at the beginning of the
+request processing (on start of the request scope). The method creates the
+thread-local map of bean instances for the new request.
+When the request processing finishes (on close of the request scope), the map
+is destroyed by calling the `stop` method.
+
+[source]
+----
+    ...
+    void start() {
+        synchronized (instances) {
+            if (instances.get() != null) {
+                throw new RequestScopeAlreadyActiveException();
+            }
+            instances.set(new ConcurrentHashMap<Class<?>, Object>());
+        }
+    }
+
+    void stop() {
+        synchronized (instances) {
+            instances.set(null);
+        }
+    }
+    ...
+----
+
+To encapsulate starting and stopping into a nice API, a factory method for
+instances of `RequestContext` has been added to the `RequestScoped` class:
+
+[source]
+----
+public static RequestContext getContext() {
+    return new RequestContext(new RequestScoped<>());
+}
+----
+
+The `RequestContext` is defined as `AutoCloseable` as follows:
+
+[source]
+----
+public class RequestContext implements AutoCloseable {
+
+	private RequestScoped<Void> scope;
+
+	RequestContext(RequestScoped<Void> requestScoped) {
+		this.scope = requestScoped;
+		this.scope.start();
+	}
+
+	@Override
+	public void close() throws Exception {
+		scope.stop();
+	}
+}
+----
+
+Because of the `AutoCloseable` the request context can be activated and
+deactivated by:
+
+[source]
+----
+    try (RequestContext ctx = RequestScoped.getContext()) {
+
+        // REQUEST PROCESSING GOES HERE
+    }
+----
+
+The try-resource block starts and ends the request context, i.e. inside
+this block request scoped beans can be resolved and used.
+
+Please note, that request scoped beans can be injected into beans of any other
+scope (dependent scoped, application scoped, etc.) and vice versa.
+The supplier redirects the call to the desired bean instance. Do you have
+performance concerns because of the additional level of indirection of the
+call? You shouldn't, CDI and other dependency injection containers work very
+similar. The main difference is that redirecting the call
+is not coded explicitly with suppliers, but via a proxy, typically byte-code
+generated. The impact on the performance at runtime is approximately the same.
+
+== Summary
+
+As already demonstrated in the first part of the series injecting collaborating
+beans is easy. With a simple functional supplier design and few conventions,
+even eager and lazy initialization of the injected beans is possible.
+Similarly, scoped beans can be implemented.
+
+However, I personally would dispense CDI only in small projects, because
+typically other features of CDI are beneficial, for example:
+
+* Life-cycle Management of Beans
+* Producers
+* Interceptors
+* Events
+* Decorator
+* Extensions
+
+Nevertheless, it's always good to _look behind the scenes_ to get a better
+understanding of what's going on in dependency injection frameworks. And for
+small projects with extreme limitations on memory resources the presented
+framework-less DI approach might come in handy...
+
+== Links
+
+- https://guntherrotsch.github.io/blog_2021/dependency-injection-part-1.html[
+Blog Post - Framework-less Dependency Injection Applied, part 1]
+- https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/di-without-framework[
+Github Repo - Sample Implementation].
+- https://jakarta.ee/specifications/cdi/[Specification - Jakarta EE CDI]
+- https://guntherrotsch.github.io/blog_2020/di-without-framework.html[Blog Post -
+Dependency Injection without Framework]
+- https://hackernoon.com/you-dont-need-a-dependency-injection-container-10a5d4a5f878[
+Blog Post - You don't need a dependency injection container]
