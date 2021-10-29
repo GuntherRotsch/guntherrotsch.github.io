@@ -4,8 +4,7 @@ Gunther Rotsch
 :jbake-type: post
 :jbake-tags: java, software-design, dependency-injection
 :jbake-status: published
-:jbake-summary: ...
-In the last article we looked at the application of dependency injection in real-world software development. By applying a simple design patterns it was possible to implement lazy initialization of injected beans. In this article scopes of injected beans are discussed.
+:jbake-summary: In the last article we looked at the application of dependency injection in real-world software development. By applying a simple design patterns it was possible to implement lazy initialization of injected beans. In this article scopes of injected beans are discussed.
 
 &nbsp;
 In the first part of the series
