@@ -4,7 +4,7 @@ public class RequestContext implements AutoCloseable {
 
 	private RequestScoped<Void> scope;
 
-	public RequestContext(RequestScoped<Void> requestScoped) {
+	RequestContext(RequestScoped<Void> requestScoped) {
 		this.scope = requestScoped;
 		this.scope.start();
 	}

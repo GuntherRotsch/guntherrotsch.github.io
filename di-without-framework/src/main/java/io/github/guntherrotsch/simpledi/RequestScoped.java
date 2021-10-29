@@ -4,25 +4,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-public class RequestScoped<T> implements Supplier<T> {
+public final class RequestScoped<T> implements Supplier<T> {
 
-	private static Map<Class<?>, Supplier<?>> suppliers = new ConcurrentHashMap<>();
 	private static ThreadLocal<Map<Class<?>, Object>> instances = new ThreadLocal<>();
 
-	private Class<T> clazz;
+	private final Supplier<T> delegate;
+	private final Class<T> clazz;
 
 	private RequestScoped() {
+		this.delegate = null;
+		this.clazz=null;
 	}
 
-	private RequestScoped(Supplier<T> supplier, Class<T> clazz) {
-		suppliers.putIfAbsent(clazz, supplier);
+	private RequestScoped(Supplier<T> delegate, Class<T> clazz) {
+		this.delegate = delegate;
 		this.clazz = clazz;
 	}
 
 	public static <T> RequestScoped<T> of(Supplier<T> delegate, Class<T> clazz) {
-//		if (suppliers.get(clazz) != null) {
-//			throw new RuntimeException("Ambiguous registration of application scoped bean");
-//		}
 		return new RequestScoped<>(delegate, clazz);
 	}
 
@@ -35,19 +34,19 @@ public class RequestScoped<T> implements Supplier<T> {
 		if (instances.get() == null) {
 			throw new RequestScopeNotActiveException();
 		}
-		return clazz.cast(instances.get().computeIfAbsent(clazz, clazz -> suppliers.get(clazz).get()));
+		return clazz.cast(instances.get().computeIfAbsent(clazz, clazz -> delegate.get()));
 	}
 
-	public void start() {
+	void start() {
 		synchronized (instances) {
 			if (instances.get() != null) {
-				throw new RuntimeException("Request scope is already active.");
+				throw new RequestScopeAlreadyActiveException();
 			}
 			instances.set(new ConcurrentHashMap<Class<?>, Object>());
 		}
 	}
 
-	public void stop() {
+	void stop() {
 		synchronized (instances) {
 			instances.set(null);
 		}
