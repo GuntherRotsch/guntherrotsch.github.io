@@ -1,0 +1,229 @@
+= Code-First REST API Development
+Gunther Rotsch
+2021-11-20
+:jbake-type: post
+:jbake-tags: rest-api, java, jakarta-ee, jaxrs, openapi, microprofile
+:jbake-status: published
+:jbake-summary: REST APIs are ubiquitous nowadays. For development of REST APIs you can follow various philosophies and approaches. In this Blog Post we're going to discover how Eclipse MicroProfile supports the Code-First development approach.
+
+== REST API Development Approaches
+
+In general, REST API design is about specifying a contract that end users
+can utilize to understand how to work best with an API.
+
+The two most popular approaches for developing REST APIs are Design-First and
+Code-First.
+According to
+https://swagger.io/blog/api-design/design-first-or-code-first-api-development/[
+Design First or Code First: What’s the Best Approach to API Development?]:
+
+Design-First::
+The planned API is converted to a human readable contract, such as OpenAPI
+specification, from which the code is built.
+
+Code-First::
+The API is based on the business requirements directly coded. From this code
+a human and/or machine readable document, such as OpenAPI specification, can
+be generated.
+
+API design is a matter of experience. The Design-First approach emphasizes
+this fact by bringing the API into the center of focus from the very
+beginning. Well designed APIs help users quickly understand and integrate
+APIs into their applications. This is especially important if target audience
+is external. The Design-First approach also ensures good communication to
+the end users.
+
+For mentioned reasons the Design-First seems to be a very decent development
+approach. Why should we go for Code-First - apart from the fact that I
+personally practiced Design-First a lot but never followed the Code-First way
+and are keen to learn something new :-).
+
+The Code-First approach starts with implementing an executable version of the
+REST API. Thus, when delivery speed matters it is favored over Design-First.
+The Code-First is often applied for development of internal APIs.
+For (Java) developers coding is often easier to get started with a project.
+Furthermore, the generation of code from an OpenAPI specification when
+practicing Design-First typically requires additional tooling, e.g. code
+generators, which brings an additional level of complexity to the development
+environment. This can be avoided with Code-First development.
+
+Today both approaches, Design-First as well as Code-First, are usually based
+on API specifications in OpenAPI format. I.e. the API specification is human
+and machine readable in any case.
+
+== Code-First
+
+In order to demonstrate the support of Code-First by Eclipse MicroProfile,
+the https://start.microprofile.io/[MicroProfile Starter Page] can be visited.
+After selecting MicroProfile Version 4.0, Wildfly Runtime, and at least
+check OpenAPI, you can download a project skeleton as zipped archive.
+
+The downloaded project skeleton comes with some sample resources already.
+Here for example parts of the JAX/RS resource class:
+
+[source]
+----
+import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.info.Info;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+
+@Path("/booking")
+@ApplicationScoped
+@OpenAPIDefinition(info = @Info(title = "Booking endpoint", version = "1.0"))
+public class BookingController {
+
+    @APIResponses(value = {
+            @APIResponse(
+                    responseCode = "200",
+                    description = "Booking for id",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(ref = "Booking")
+                    )
+            ),
+            @APIResponse(
+                    responseCode = "404",
+                    description = "No booking found for the id.")
+    })
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{bookingId}")
+    public Response getBooking(@PathParam("bookingId") String bookingId) {
+        ...
+    }
+}
+----
+
+In addition to the JAX/RS Java code, the annotations of the MicroProfile
+OpenAPI package describe the REST API in more detail. The referenced
+REST resource is also included in the sample code:
+
+[source]
+----
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+
+@Schema(name="Booking")
+public class Booking {
+    @Schema(required = true, description = "Booking id")
+    private String id;
+    @Schema(required = true, description = "Description of the destination")
+    private Destination destination;
+    ...
+}
+----
+
+Again the MicroProfile OpenAPI annotation marks the class as a REST resource.
+The https://microprofile.io/project/eclipse/microprofile-open-api[Eclipse
+MicroProfile OpenAPI specification] documents supported annotations in detail.
+
+Without any further coding the sample project can be built and started with
+
+* unzip downloaded archive
+* change working directory of shell to the project root
+* build the sample project with `mvn clean package`
+* start the application with `java -jar target/code-first-api-bootable.jar`
+(given you named the project `code-first-api`)
+
+The application offers an `/openapi` endpoint, which can be requested
+as follows:
+
+[source]
+----
+$ curl localhost:8080/openapi
+---
+openapi: 3.0.3
+info:
+  title: ROOT.war
+  version: "1.0"
+servers:
+- url: /
+paths:
+  /booking/{bookingId}:
+    get:
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Booking for id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        "404":
+          description: No booking found for the id.
+  /hello:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    Booking:
+      required:
+      - id
+      - destination
+      type: object
+      properties:
+        id:
+          description: Booking id
+          type: string
+        destination:
+          allOf:
+          - $ref: '#/components/schemas/Destination'
+          - description: Description of the destination
+    Destination:
+      type: object
+      properties:
+        country:
+          type: string
+        city:
+          type: string
+----
+
+Do you recognize the definitions from the sample code? Beside the
+introspected JAX/RS definitions, the annotation values have also been
+collected and assembled into a standard OpenAPI specification.
+
+== Conclusion
+
+The Code-First development approach is well supported by Eclipse
+MicroProfile. As an experienced Java developer you can start by implementing
+the JAX/RS REST API. Users of the API immediately get an executable
+API to work with. Actually, I suggest the following process:
+
+1. Implement REST API with JAX/RS
+2. Add dummy functionality to the controller classes
+3. Add minimal documentation by attaching MicroProfile OpenAPI annotations
+4. Publish draft API to discuss and adjust with users
+5. Enhance documentation and add actual functionality
+6. Iteratively go to 4. till users are satisfied with the API
+7. Finalize the application and its documentation
+
+This way you benefit from having an executable version of the API very
+early. Users will appreciate the ability to _practice_ with the API
+and not just _theoretically_ study the OpenAPI specification as with
+the Design-First approach footnote:[An iterative approach with involvement
+of users is always recommended to get a usable API, even in Design-First
+development. Also with Design-First an early (dummy) implementation is
+beneficial, which can be accomplished by applying OpenAPI generators with
+little effort.].
+
+== Links
+
+- https://swagger.io/blog/api-design/design-first-or-code-first-api-development/[
+Swagger Blog: Design First or Code First: What’s the Best Approach to API
+Development?]
+- https://microprofile.io/project/eclipse/microprofile-open-api[Eclipse MicroProfile OpenApi]
+- https://start.microprofile.io/[MicroProfile Starter Page]
