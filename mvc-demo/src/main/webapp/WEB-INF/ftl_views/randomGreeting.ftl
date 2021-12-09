@@ -3,6 +3,6 @@
   <title>Welcome!</title>
 </head>
 <body>
-  <h1>Hello, ${visitor}!</h1>
+  <h1>${named("greetingGenerator").select(visitor)}!</h1>
 </body>
 </html>

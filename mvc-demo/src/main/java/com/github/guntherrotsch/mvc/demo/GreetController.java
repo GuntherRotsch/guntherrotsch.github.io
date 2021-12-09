@@ -8,9 +8,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 
-import org.eclipse.krazo.engine.Viewable;
-
-@Path("hello")
+@Path("/")
 @Controller
 @RequestScoped
 public class GreetController {
@@ -26,9 +24,17 @@ public class GreetController {
 		this.models = models;
 	}
 
+	@Path("hello")
 	@GET
-	public Viewable greet(@QueryParam("name") String name) {
+	public String hello(@QueryParam("name") String name) {
 		models.put("visitor", name);
-		return new Viewable("greeting.ftl");
+		return "greeting.ftl";
+	}
+
+	@Path("hi")
+	@GET
+	public String hi(@QueryParam("name") String name) {
+		models.put("visitor", name);
+		return "randomGreeting.ftl";
 	}
 }

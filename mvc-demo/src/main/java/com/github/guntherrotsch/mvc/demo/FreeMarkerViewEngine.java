@@ -7,7 +7,9 @@ import java.util.Map;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.mvc.Models;
+import javax.mvc.MvcContext;
 import javax.mvc.engine.ViewEngine;
 import javax.mvc.engine.ViewEngineContext;
 import javax.mvc.engine.ViewEngineException;
@@ -25,6 +27,9 @@ public class FreeMarkerViewEngine implements ViewEngine {
 	// FreeMarker configuration is initialized lazily
 	private volatile Configuration cfg;
 
+	@Inject
+	MvcContext mvcContext;
+
 	@Override
 	public boolean supports(String view) {
 		return view.endsWith(".ftl");
@@ -35,6 +40,17 @@ public class FreeMarkerViewEngine implements ViewEngine {
 		ensureInit(context);
 
 		Models models = context.getModels();
+		// if model does not contain 'mvc' setting, the 'MvcContext' bean is added under
+		// this key
+		if (models.get("mvc") == null) {
+			models.put("mvc", mvcContext);
+		}
+		// if model does not contain 'named' setting, an instance of 'NamedBeanResolver'
+		// is added under this key
+		if (models.get("named") == null) {
+			models.put("named", new NamedBeanResolver());
+		}
+
 		try {
 			Template temp = cfg.getTemplate(context.getView());
 			/* Merge data-model with template */
