@@ -2,9 +2,9 @@
 Gunther Rotsch
 2021-04-22
 :jbake-type: post
-:jbake-tags: java, jakarta-ee, mvc, freemarker
+:jbake-tags: java, cdi, jaxrs, jakarta-ee, mvc, freemarker
 :jbake-status: published
-:jbake-summary: Jakarta MVC is the coming web UI framework under the hood of Jakarta EE. One exceptional feature of Jakarta MVC is the pluggable view engine architecture, which allows to integrate different template engines. This Blog post is about the integration of FreeMarker Template Engine with Jakarta MVC.
+:jbake-summary: Jakarta MVC is the coming web UI framework under the hood of Jakarta EE. One exceptional feature of Jakarta MVC is the plugable view engine architecture, which allows to integrate different template engines. This Blog post is about the integration of FreeMarker Template Engine with Jakarta MVC.
 
 == Jakarta MVC
 
@@ -90,7 +90,7 @@ template file `greeting.ftl` as:
 
 The application should render as follows when visited by a user:
 
-image::JakartaMvcApp_Hello.png[Jakarta MVC sample application]
+image::/assets/img/JakartaMvcApp_Hello.png[Jakarta MVC sample application]
 
 The visitor's name, which has been placed into the Jakarta MVC `Models` object,
 ends up in the processed FreeMarker template.

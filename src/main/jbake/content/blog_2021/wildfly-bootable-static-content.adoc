@@ -11,7 +11,7 @@ Gunther Rotsch
 Users of JBoss/Wildfly know the welcome page, which is returned when navigating
 to the application server's root.
 
-image::JBoss_Welcome_Page.png[JBoss Welcome Page]
+image::/assets/img/JBoss_Welcome_Page.png[JBoss Welcome Page]
 
 The shown page is actually static content hosted in the file
 `$JBOSS_HOME/welcome-content/index.html`. The last two lines displayed on the

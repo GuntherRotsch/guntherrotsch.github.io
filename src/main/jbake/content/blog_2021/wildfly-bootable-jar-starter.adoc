@@ -11,7 +11,7 @@ Gunther Rotsch
 The https://start.microprofile.io/[Microprofile Starter Page] lists Wildfly as
 supported runtime:
 
-image::Microprofile_Starter.png[Microprofile Starter Page]
+image::/assets/img/Microprofile_Starter.png[Microprofile Starter Page]
 
 After extracting the downloaded project package, you'll happily notice that a
 Wildfly Bootable JAR project is setup. The configured Galleon layers are

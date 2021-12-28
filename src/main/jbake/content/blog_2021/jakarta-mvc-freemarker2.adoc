@@ -1,0 +1,308 @@
+= Jakarta MVC with FreeMarker, part 2
+Gunther Rotsch
+2021-12-28
+:jbake-type: post
+:jbake-tags: java, cdi, jaxrs, jakarta-ee, mvc, freemarker, wildfly
+:jbake-status: published
+:jbake-summary: In April of this year (2021) I published a Blog Post about the integration of the Freemarker Template Engine into Jakarta MVC, the action-based Web UI framework under the hood of Jakarta EE. This Post adds some interesting features to this integration.
+
+&nbsp;
+
+The Blog Post
+https://guntherrotsch.github.io/blog_2021/jakarta-mvc-freemarker.html[
+Jakarta MVC with FreeMarker] demonstrated the integration of the
+https://freemarker.apache.org/[FreeMarker Java Template Engine]
+as _ViewEngine_ into Jakarta EE MVC in a very basic way. Only the
+implementation of mandatory features have been included. Please have a
+look at linked article for more about Jakarta EE MVC in general and
+the integration approach taken.
+
+Beside the mandatory features, the
+https://jakarta.ee/specifications/mvc/[Jakarta MVC specification] recommends
+the implementation of the following features:
+
+- The `MvcConext` object should be available in the view engine's templates
+- Named CDI beans should be resolved and made available for view templates
+
+In this Blog Post we'll have a look at these features and how they can be
+implemented with the Freemarker View Engine described in the previous article.
+
+[NOTE]
+The code snippets presented below are shortened to concentrate to the crucial
+parts. The complete sample code is hosted on
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo[
+code branch in Github repo].
+
+== MvcContext
+
+First we'll have a look at the `MvcContext` object and how to integrate it
+into Freemarker templates.
+Let's start with the description of the expected behavior, i.e. with a the
+specification of the requirement.
+
+For demonstration purposes we create a simple page with endpoint `/context`,
+that displays the content of the `MvcContext` of requests:
+
+[source, java]
+----
+@Path("/context")
+@Controller
+@RequestScoped
+public class ContextController {
+
+	@GET
+	public String show() {
+		return "context.ftl";
+	}
+}
+----
+
+The MVC controller just serves as entry point to the `/context` page. The
+referenced Freemarker template will use the `mvc` field of the template
+model object to generate the HTML view:
+
+[source, xml]
+----
+<html lang="en">
+<head>
+  <title>MVC Context</title>
+</head>
+<body>
+  <h1>MVC Context</h1>
+  <pre>
+  Application's base path     : ${mvc.basePath}
+  Local                       : ${mvc.locale}
+  URI (GreetController#hello) : ${mvc.uri("GreetController#hello")}
+  URI (GreetController#hi)    : ${mvc.uri("GreetController#hi")}
+  </pre>
+</body>
+</html>
+----
+
+Please note, that we do not only access plain properties of `MvcContext`
+like `basePath` or `locale`, but also call the convenience method `uri` to
+generate the URI from a controller method's reference.
+
+To accomplish the described behavior we extend the `FreeMarkerViewEngine`
+already described in the first article as follows:
+
+[source, java]
+----
+public class FreeMarkerViewEngine implements ViewEngine {
+
+	@Inject
+	MvcContext mvcContext; // <1>
+
+    ...
+
+	@Override
+	public void processView(ViewEngineContext context) throws ViewEngineException {
+
+		Models models = context.getModels();
+		models.put("mvc", mvcContext); // <2>
+
+	    ...
+    }
+}
+----
+
+<1> Injection of `MvcContext` object which is to be made available in templates.
+<2> Adding injected `MvcContext` under key `mvc` to the `MvcModel` object.
+
+The `MvcContext` is a request scoped CDI bean, which can be injected into
+our Freemarker View Engine. Adding the context under key `mvc` to the
+MVC model makes the context available to the Freemarker template.
+
+The MVC's `Model` object holds named substitutions to be used in templates.
+This map-like object is passed into the Freemarker method to process templates.
+
+Requesting the sample controller shown above renders in the Browser to:
+
+image::/assets/img/Mvc_Context.png[MvcContext View]
+
+This works fine because Freemarker wraps Java objects contained in the passed
+in template model into `TemplateModel` objects. The interface `TemplateModel`
+founds the base of a hierarchy of objects, which can be used in Freemarker
+templates to:
+
+- resolve simple scalar values
+- reference properties of Java beans
+- call any methods on wrapped Java objects
+
+You'll find more details in the
+https://freemarker.apache.org/docs/ref.html[Freemarker Reference].
+
+
+== Named Bean Resolution
+
+The resolution of named CDI beans is more a bit of challenge. If we look at
+the standard view engine JSP, which is shipped with Jakarta MVC, named
+CDI beans are resolved by embedded Jakarta Expression Language (EL).
+However, Freemarker does not embed EL, but instead has its own powerful
+template language to evaluate expressions, whicj are eventually relying on
+Java functionality. Instead of extending Freemarker with the standard
+Expression Language, it's a more natural choice to make named CDI beans
+available to the Freemarker Template Language.
+
+Before diving into the implementation details of named CDI bean resolution
+for our Freemarker integration, we're going to describe the expected behavior.
+This again is not a formal specification of the requirement, but rather a
+_spec by example_ definition.
+
+=== Specification
+
+The entry point of our test page is a `/hi`, whereby this the controller's
+method expects a `name` query parameter denoting the person to greet:
+
+[source, java]
+----
+    ...
+
+    @Path("hi")
+    @GET
+    public String hi(@QueryParam("name") String name) {
+        models.put("visitor", name);
+        return "randomGreeting.ftl";
+    }
+
+    ...
+----
+
+The MVC controller forwards the request for rendering to the Freemarker
+template `randomGreeting.ftl`.
+As the name suggests, the greeting returned to the user is not hard-coded,
+but randomly selected from a list of available greetings. The selection
+mechanism is actually provided by named CDI `greetingGenerator`:
+
+[source, java]
+----
+@Named("greetingGenerator")
+public class GreetingGenerator {
+
+	private static final List<String> greetingTemplates
+                                = Arrays.asList("Hi %s", "Hello %s", "Ciao %s");
+
+	public String select(String name) {
+		String greetingTemplate = greetingTemplates
+				.get(ThreadLocalRandom.current().nextInt(0, greetingTemplates.size()));
+		return String.format(greetingTemplate, name);
+	}
+}
+
+----
+
+The `select` method of this CDI bean takes the name of the person to greet
+as argument and integrates the given name into a randomly selected greeting
+pattern. With this program logic in place, we're going to use the named CDI
+bean in the Freemarker template, i.e. our view, as follows:
+
+[source, xml]
+----
+<html lang="en">
+<head>
+  <title>Welcome!</title>
+</head>
+<body>
+  <h1>${named("greetingGenerator").select(visitor)}!</h1>
+</body>
+</html>
+----
+
+The named CDI bean is explicitly resolved by the `named` function. On the
+returned bean arbitrary methods, like the `select`, can be called. But it's
+also possible to access plain and simple properties from those objects.
+
+=== Implementation
+
+The implementation of the described feature is based on the fact, that the
+Freemarker template engine can be extended by methods on demand. The `named`
+method used in the sample template is such a method extension, which need
+to be registered in the template model in the first place:
+
+[source, java]
+----
+public class FreeMarkerViewEngine implements ViewEngine {
+
+    ...
+
+    @Override
+    public void processView(ViewEngineContext context) throws ViewEngineException {
+
+    	Models models = context.getModels();
+        models.put("named", new NamedBeanResolver());
+
+        ...
+    }
+    ....
+}
+----
+
+This registration of the `named` method is very much the same as we've already
+seen with the `mvc` context above. In this case the `named` method is an
+instance of the `NamedBeanResolver` class, which implements a standard
+extension pattern for the Freemarker template engine:
+
+[source, java]
+----
+public class NamedBeanResolver implements TemplateMethodModelEx {
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public TemplateModel exec(List args) throws TemplateModelException {
+		if (args.size() != 1) {
+			throw new TemplateModelException("Wrong arguments");
+		}
+		SimpleScalar beanName = (SimpleScalar) args.get(0); // <1>
+		Object namedBean = CDI.current().select(Object.class,
+                                                new NamedAnnotation(beanName.getAsString())).get(); // <2>
+		DefaultObjectWrapper objectWrapper = new DefaultObjectWrapperBuilder(new Version("2.3.31")).build();
+		return objectWrapper.wrap(namedBean); // <3>
+	}
+}
+----
+
+<1> The first (and only) argument of the `named` method is of type
+`SimpleScalar`, which should contain the name of the CDI bean to be resolved.
+<2> The CDI container is used to resolve the named bean.
+<3> The resolved CDI bean is eventually wrapped into a object, that can be
+consumed by Freemarker templates.
+
+[NOTE]
+The `SimpleScalar` object and the wrapped named bean are derived from
+the earlier mentioned `TemplateModel`. Please have a look at the
+https://freemarker.apache.org/docs/ref.html[Freemarker Reference] for
+more information about Freemarker, its capabilities and extensibility.
+
+If we now several times navigate to out test page on endpoint
+`/hi?name=Gunther` times, a mix of the following three result pages are
+shown in random order:
+
+image::/assets/img/Mvc_Greeting_Hi.png['Hi Gunther' Greeting View]
+image::/assets/img/Mvc_Greeting_Hello.png['Hello Gunther' Greeting View]
+image::/assets/img/Mvc_Greeting_Ciao.png['Ciao Gunther' Greeting View]
+
+The displayed pages clearly indicates that the (random) output is actually
+based on the named CDI bean `greetingController`. The `greetingController`
+is a dependent-scoped bean, but the named beans resolved by the
+`NamedBeanResolver` class can be of any scope, as long as the scope is
+active during the processing of the view.
+
+== Conclusion
+
+The demo project shows the ease of use of the Jakarta MVC view technology
+and the simplicity of integrating different template engines. The main
+reasons for this are mainly because Jakarta MVC is based on the well-known
+and mature technologies CDI and JAX/RS.
+
+The introduced integration of Freemarker as view engine, in particular the
+named CDI bean resolution, also demonstrates the power of the Freemarker
+template engine.
+
+== Links
+
+- https://guntherrotsch.github.io/blog_2021/jakarta-mvc-freemarker.html[
+Blog Post - Jakarta MVC with FreeMarker, part 1]
+- https://jakarta.ee/specifications/mvc/[Jakarta MVC]
+- https://freemarker.apache.org/[FreeMarker Java Template Engine]
+- https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo[
+Sample Project Code on Github]

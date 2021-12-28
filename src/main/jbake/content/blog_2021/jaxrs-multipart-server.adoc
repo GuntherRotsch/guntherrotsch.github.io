@@ -1,4 +1,4 @@
-= JAXRS Multipart Server
+= JAX/RS Multipart Server
 Gunther Rotsch
 2021-03-13
 :jbake-type: post
@@ -145,7 +145,7 @@ message given as input stream. While the `MultiPartMessageBodyReader` parses
 individual parts, the separating of the parts of the input stream is delegated
 to the `PartInputStream`. The following diagram show the principle behind:
 
-image::Multipart_Message_Parsing.png[Multi-part Message Input Streams]
+image::/assets/img/Multipart_Message_Parsing.png[Multi-part Message Input Streams]
 
 The `InputStream` is wrapped by a `PartInputStream`, which returns bytes until
 the boundary is reached. The `InputStream` can then be wrapped by another

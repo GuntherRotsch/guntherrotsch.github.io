@@ -1,4 +1,4 @@
-= JAXRS Multipart Client
+= JAX/RS Multipart Client
 Gunther Rotsch
 2021-02-22
 :jbake-type: post
@@ -44,7 +44,7 @@ binary files.
 
 The above HTML document renders in a Browser without any styling to:
 
-image::File_Upload_Form.png[File Upload Form]
+image::/assets/img/File_Upload_Form.png[File Upload Form]
 
 == HTTP Multipart Message
 
