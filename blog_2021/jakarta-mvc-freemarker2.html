@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Jakarta MVC with FreeMarker, part 2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Jakarta MVC with FreeMarker, part 2</h1>
+	</div>
+
+	<p><em>28 December 2021</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>In April of this year (2021) I published a Blog Post about the integration of the Freemarker Template Engine into Jakarta MVC, the action-based Web UI framework under the hood of Jakarta EE. This Post adds some interesting features to this integration.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>&nbsp;</p>
+</div>
+<div class="paragraph">
+<p>The Blog Post
+<a href="https://guntherrotsch.github.io/blog_2021/jakarta-mvc-freemarker.html">
+Jakarta MVC with FreeMarker</a> demonstrated the integration of the
+<a href="https://freemarker.apache.org/">FreeMarker Java Template Engine</a>
+as <em>ViewEngine</em> into Jakarta EE MVC in a very basic way. Only the
+implementation of mandatory features have been included. Please have a
+look at linked article for more about Jakarta EE MVC in general and
+the integration approach taken.</p>
+</div>
+<div class="paragraph">
+<p>Beside the mandatory features, the
+<a href="https://jakarta.ee/specifications/mvc/">Jakarta MVC specification</a> recommends
+the implementation of the following features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>MvcConext</code> object should be available in the view engine&#8217;s templates</p>
+</li>
+<li>
+<p>Named CDI beans should be resolved and made available for view templates</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In this Blog Post we&#8217;ll have a look at these features and how they can be
+implemented with the Freemarker View Engine described in the previous article.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The code snippets presented below are shortened to concentrate to the crucial
+parts. The complete sample code is hosted on
+<a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo">
+code branch in Github repo</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_mvccontext">MvcContext</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>First we&#8217;ll have a look at the <code>MvcContext</code> object and how to integrate it
+into Freemarker templates.
+Let&#8217;s start with the description of the expected behavior, i.e. with a the
+specification of the requirement.</p>
+</div>
+<div class="paragraph">
+<p>For demonstration purposes we create a simple page with endpoint <code>/context</code>,
+that displays the content of the <code>MvcContext</code> of requests:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Path("/context")
+@Controller
+@RequestScoped
+public class ContextController {
+
+	@GET
+	public String show() {
+		return "context.ftl";
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The MVC controller just serves as entry point to the <code>/context</code> page. The
+referenced Freemarker template will use the <code>mvc</code> field of the template
+model object to generate the HTML view:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;title&gt;MVC Context&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;MVC Context&lt;/h1&gt;
+  &lt;pre&gt;
+  Application's base path     : ${mvc.basePath}
+  Local                       : ${mvc.locale}
+  URI (GreetController#hello) : ${mvc.uri("GreetController#hello")}
+  URI (GreetController#hi)    : ${mvc.uri("GreetController#hi")}
+  &lt;/pre&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Please note, that we do not only access plain properties of <code>MvcContext</code>
+like <code>basePath</code> or <code>locale</code>, but also call the convenience method <code>uri</code> to
+generate the URI from a controller method&#8217;s reference.</p>
+</div>
+<div class="paragraph">
+<p>To accomplish the described behavior we extend the <code>FreeMarkerViewEngine</code>
+already described in the first article as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class FreeMarkerViewEngine implements ViewEngine {
+
+	@Inject
+	MvcContext mvcContext; <i class="conum" data-value="1"></i><b>(1)</b>
+
+    ...
+
+	@Override
+	public void processView(ViewEngineContext context) throws ViewEngineException {
+
+		Models models = context.getModels();
+		models.put("mvc", mvcContext); <i class="conum" data-value="2"></i><b>(2)</b>
+
+	    ...
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Injection of <code>MvcContext</code> object which is to be made available in templates.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Adding injected <code>MvcContext</code> under key <code>mvc</code> to the <code>MvcModel</code> object.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The <code>MvcContext</code> is a request scoped CDI bean, which can be injected into
+our Freemarker View Engine. Adding the context under key <code>mvc</code> to the
+MVC model makes the context available to the Freemarker template.</p>
+</div>
+<div class="paragraph">
+<p>The MVC&#8217;s <code>Model</code> object holds named substitutions to be used in templates.
+This map-like object is passed into the Freemarker method to process templates.</p>
+</div>
+<div class="paragraph">
+<p>Requesting the sample controller shown above renders in the Browser to:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/img/Mvc_Context.png" alt="MvcContext View">
+</div>
+</div>
+<div class="paragraph">
+<p>This works fine because Freemarker wraps Java objects contained in the passed
+in template model into <code>TemplateModel</code> objects. The interface <code>TemplateModel</code>
+founds the base of a hierarchy of objects, which can be used in Freemarker
+templates to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>resolve simple scalar values</p>
+</li>
+<li>
+<p>reference properties of Java beans</p>
+</li>
+<li>
+<p>call any methods on wrapped Java objects</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You&#8217;ll find more details in the
+<a href="https://freemarker.apache.org/docs/ref.html">Freemarker Reference</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_named_bean_resolution">Named Bean Resolution</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The resolution of named CDI beans is more a bit of challenge. If we look at
+the standard view engine JSP, which is shipped with Jakarta MVC, named
+CDI beans are resolved by embedded Jakarta Expression Language (EL).
+However, Freemarker does not embed EL, but instead has its own powerful
+template language to evaluate expressions, whicj are eventually relying on
+Java functionality. Instead of extending Freemarker with the standard
+Expression Language, it&#8217;s a more natural choice to make named CDI beans
+available to the Freemarker Template Language.</p>
+</div>
+<div class="paragraph">
+<p>Before diving into the implementation details of named CDI bean resolution
+for our Freemarker integration, we&#8217;re going to describe the expected behavior.
+This again is not a formal specification of the requirement, but rather a
+<em>spec by example</em> definition.</p>
+</div>
+<div class="sect2">
+<h3 id="_specification">Specification</h3>
+<div class="paragraph">
+<p>The entry point of our test page is a <code>/hi</code>, whereby this the controller&#8217;s
+method expects a <code>name</code> query parameter denoting the person to greet:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    ...
+
+    @Path("hi")
+    @GET
+    public String hi(@QueryParam("name") String name) {
+        models.put("visitor", name);
+        return "randomGreeting.ftl";
+    }
+
+    ...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The MVC controller forwards the request for rendering to the Freemarker
+template <code>randomGreeting.ftl</code>.
+As the name suggests, the greeting returned to the user is not hard-coded,
+but randomly selected from a list of available greetings. The selection
+mechanism is actually provided by named CDI <code>greetingGenerator</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Named("greetingGenerator")
+public class GreetingGenerator {
+
+	private static final List&lt;String&gt; greetingTemplates
+                                = Arrays.asList("Hi %s", "Hello %s", "Ciao %s");
+
+	public String select(String name) {
+		String greetingTemplate = greetingTemplates
+				.get(ThreadLocalRandom.current().nextInt(0, greetingTemplates.size()));
+		return String.format(greetingTemplate, name);
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>select</code> method of this CDI bean takes the name of the person to greet
+as argument and integrates the given name into a randomly selected greeting
+pattern. With this program logic in place, we&#8217;re going to use the named CDI
+bean in the Freemarker template, i.e. our view, as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;title&gt;Welcome!&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;${named("greetingGenerator").select(visitor)}!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The named CDI bean is explicitly resolved by the <code>named</code> function. On the
+returned bean arbitrary methods, like the <code>select</code>, can be called. But it&#8217;s
+also possible to access plain and simple properties from those objects.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_implementation">Implementation</h3>
+<div class="paragraph">
+<p>The implementation of the described feature is based on the fact, that the
+Freemarker template engine can be extended by methods on demand. The <code>named</code>
+method used in the sample template is such a method extension, which need
+to be registered in the template model in the first place:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class FreeMarkerViewEngine implements ViewEngine {
+
+    ...
+
+    @Override
+    public void processView(ViewEngineContext context) throws ViewEngineException {
+
+    	Models models = context.getModels();
+        models.put("named", new NamedBeanResolver());
+
+        ...
+    }
+    ....
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This registration of the <code>named</code> method is very much the same as we&#8217;ve already
+seen with the <code>mvc</code> context above. In this case the <code>named</code> method is an
+instance of the <code>NamedBeanResolver</code> class, which implements a standard
+extension pattern for the Freemarker template engine:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class NamedBeanResolver implements TemplateMethodModelEx {
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public TemplateModel exec(List args) throws TemplateModelException {
+		if (args.size() != 1) {
+			throw new TemplateModelException("Wrong arguments");
+		}
+		SimpleScalar beanName = (SimpleScalar) args.get(0); <i class="conum" data-value="1"></i><b>(1)</b>
+		Object namedBean = CDI.current().select(Object.class,
+                                                new NamedAnnotation(beanName.getAsString())).get(); <i class="conum" data-value="2"></i><b>(2)</b>
+		DefaultObjectWrapper objectWrapper = new DefaultObjectWrapperBuilder(new Version("2.3.31")).build();
+		return objectWrapper.wrap(namedBean); <i class="conum" data-value="3"></i><b>(3)</b>
+	}
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The first (and only) argument of the <code>named</code> method is of type
+<code>SimpleScalar</code>, which should contain the name of the CDI bean to be resolved.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The CDI container is used to resolve the named bean.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The resolved CDI bean is eventually wrapped into a object, that can be
+consumed by Freemarker templates.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>SimpleScalar</code> object and the wrapped named bean are derived from
+the earlier mentioned <code>TemplateModel</code>. Please have a look at the
+<a href="https://freemarker.apache.org/docs/ref.html">Freemarker Reference</a> for
+more information about Freemarker, its capabilities and extensibility.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If we now several times navigate to out test page on endpoint
+<code>/hi?name=Gunther</code> times, a mix of the following three result pages are
+shown in random order:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/img/Mvc_Greeting_Hi.png" alt="Hi Gunther" width="Greeting View">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/img/Mvc_Greeting_Hello.png" alt="Hello Gunther" width="Greeting View">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/img/Mvc_Greeting_Ciao.png" alt="Ciao Gunther" width="Greeting View">
+</div>
+</div>
+<div class="paragraph">
+<p>The displayed pages clearly indicates that the (random) output is actually
+based on the named CDI bean <code>greetingController</code>. The <code>greetingController</code>
+is a dependent-scoped bean, but the named beans resolved by the
+<code>NamedBeanResolver</code> class can be of any scope, as long as the scope is
+active during the processing of the view.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The demo project shows the ease of use of the Jakarta MVC view technology
+and the simplicity of integrating different template engines. The main
+reasons for this are mainly because Jakarta MVC is based on the well-known
+and mature technologies CDI and JAX/RS.</p>
+</div>
+<div class="paragraph">
+<p>The introduced integration of Freemarker as view engine, in particular the
+named CDI bean resolution, also demonstrates the power of the Freemarker
+template engine.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://guntherrotsch.github.io/blog_2021/jakarta-mvc-freemarker.html">
+Blog Post - Jakarta MVC with FreeMarker, part 1</a></p>
+</li>
+<li>
+<p><a href="https://jakarta.ee/specifications/mvc/">Jakarta MVC</a></p>
+</li>
+<li>
+<p><a href="https://freemarker.apache.org/">FreeMarker Java Template Engine</a></p>
+</li>
+<li>
+<p><a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/mvc-demo">
+Sample Project Code on Github</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/wildfly.html">wildfly</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/cdi.html">cdi</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jaxrs.html">jaxrs</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/mvc.html">mvc</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/freemarker.html">freemarker</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jakarta-ee.html">jakarta-ee</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2021 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>
