@@ -6,8 +6,8 @@
     <atom:link href="http://www.jbake.org/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Tue, 28 Dec 2021 13:50:08 +0100</pubDate>
-    <lastBuildDate>Tue, 28 Dec 2021 13:50:08 +0100</lastBuildDate>
+    <pubDate>Sat, 8 Jan 2022 11:45:12 +0100</pubDate>
+    <lastBuildDate>Sat, 8 Jan 2022 11:45:12 +0100</lastBuildDate>
 
     <item>
       <title>Jakarta MVC with FreeMarker, part 2</title>
@@ -81,7 +81,7 @@ that displays the content of the &lt;code&gt;MvcContext&lt;/code&gt; of requests
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@Path(&quot;/context&quot;)
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@Path(&quot;/context&quot;)
 @Controller
 @RequestScoped
 public class ContextController {
@@ -100,7 +100,7 @@ model object to generate the HTML view:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;html lang=&quot;en&quot;&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;html lang=&quot;en&quot;&amp;gt;
 &amp;lt;head&amp;gt;
   &amp;lt;title&amp;gt;MVC Context&amp;lt;/title&amp;gt;
 &amp;lt;/head&amp;gt;
@@ -127,7 +127,7 @@ already described in the first article as follows:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class FreeMarkerViewEngine implements ViewEngine {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class FreeMarkerViewEngine implements ViewEngine {
 
 	@Inject
 	MvcContext mvcContext; &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
@@ -226,7 +226,7 @@ method expects a &lt;code&gt;name&lt;/code&gt; query parameter denoting the pers
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;    ...
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;    ...
 
     @Path(&quot;hi&quot;)
     @GET
@@ -247,7 +247,7 @@ mechanism is actually provided by named CDI &lt;code&gt;greetingGenerator&lt;/co
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@Named(&quot;greetingGenerator&quot;)
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@Named(&quot;greetingGenerator&quot;)
 public class GreetingGenerator {
 
 	private static final List&amp;lt;String&amp;gt; greetingTemplates
@@ -269,7 +269,7 @@ bean in the Freemarker template, i.e. our view, as follows:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;html lang=&quot;en&quot;&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;html lang=&quot;en&quot;&amp;gt;
 &amp;lt;head&amp;gt;
   &amp;lt;title&amp;gt;Welcome!&amp;lt;/title&amp;gt;
 &amp;lt;/head&amp;gt;
@@ -295,7 +295,7 @@ to be registered in the template model in the first place:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class FreeMarkerViewEngine implements ViewEngine {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class FreeMarkerViewEngine implements ViewEngine {
 
     ...
 
@@ -319,7 +319,7 @@ extension pattern for the Freemarker template engine:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class NamedBeanResolver implements TemplateMethodModelEx {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class NamedBeanResolver implements TemplateMethodModelEx {
 
 	@Override
 	@SuppressWarnings(&quot;rawtypes&quot;)
@@ -521,7 +521,7 @@ Here for example parts of the JAX/RS resource class:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -562,7 +562,7 @@ REST resource is also included in the sample code:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;import org.eclipse.microprofile.openapi.annotations.media.Schema;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 
 @Schema(name=&quot;Booking&quot;)
@@ -606,7 +606,7 @@ as follows:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ curl localhost:8080/openapi
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/openapi
 ---
 openapi: 3.0.3
 info:
@@ -858,7 +858,7 @@ of instantiated beans keyed by the class of the bean.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public final class RequestScoped&amp;lt;T&amp;gt; implements Supplier&amp;lt;T&amp;gt; {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;public final class RequestScoped&amp;lt;T&amp;gt; implements Supplier&amp;lt;T&amp;gt; {
 
 	private static ThreadLocal&amp;lt;Map&amp;lt;Class&amp;lt;?&amp;gt;, Object&amp;gt;&amp;gt; instances = new ThreadLocal&amp;lt;&amp;gt;();
 
@@ -890,7 +890,7 @@ scoped beans that are initialized eagerly or lazily:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public class MyRequestScopedBean {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;public class MyRequestScopedBean {
 
 	public static Supplier&amp;lt;MyRequestScopedBean&amp;gt; supplier() {
 		return RequestScoped.of(MyRequestScopedBean::new, MyRequestScopedBean.class);
@@ -920,7 +920,7 @@ is destroyed by calling the &lt;code&gt;stop&lt;/code&gt; method.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;    ...
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;    ...
     void start() {
         synchronized (instances) {
             if (instances.get() != null) {
@@ -944,7 +944,7 @@ instances of &lt;code&gt;RequestContext&lt;/code&gt; has been added to the &lt;c
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public static RequestContext getContext() {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;public static RequestContext getContext() {
     return new RequestContext(new RequestScoped&amp;lt;&amp;gt;());
 }&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -954,7 +954,7 @@ instances of &lt;code&gt;RequestContext&lt;/code&gt; has been added to the &lt;c
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public class RequestContext implements AutoCloseable {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;public class RequestContext implements AutoCloseable {
 
 	private RequestScoped&amp;lt;Void&amp;gt; scope;
 
@@ -976,7 +976,7 @@ deactivated by:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;    try (RequestContext ctx = RequestScoped.getContext()) {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;    try (RequestContext ctx = RequestScoped.getContext()) {
 
         // REQUEST PROCESSING GOES HERE
     }&lt;/code&gt;&lt;/pre&gt;
@@ -1107,7 +1107,7 @@ accomplished explicitly, for example as follows:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;   Response response =
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;   Response response =
      new OrderSubmission(
          new ShippingHandler(),
          new CreditCardPayment(),
@@ -1177,7 +1177,7 @@ little bit:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;   Response response =
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;   Response response =
      OrderSubmission.supplier(
          ShippingHandler.supplier(),
          CreditCardPayment.supplier(),
@@ -1217,7 +1217,7 @@ lazy initialization feature:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;    public static Supplier&amp;lt;CreditCardPayment&amp;gt; supplier() {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;    public static Supplier&amp;lt;CreditCardPayment&amp;gt; supplier() {
         return LazilyInitialized.of(CreditCardPayment::new);
     }&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -1227,7 +1227,7 @@ lazy initialization feature:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public class LazilyInitialized&amp;lt;T&amp;gt; implements Supplier&amp;lt;T&amp;gt; {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;public class LazilyInitialized&amp;lt;T&amp;gt; implements Supplier&amp;lt;T&amp;gt; {
 
 	private T instance;
 
@@ -1267,7 +1267,7 @@ more simple:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;public class EagerlyInitialized&amp;lt;T&amp;gt; implements Supplier&amp;lt;T&amp;gt; {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;public class EagerlyInitialized&amp;lt;T&amp;gt; implements Supplier&amp;lt;T&amp;gt; {
 
 	private T instance;
 
@@ -1714,7 +1714,7 @@ be nice if we could write the following test code:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;System.clearProperty(&quot;KEY&quot;);
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;System.clearProperty(&quot;KEY&quot;);
 
 try (SystemPropertiesContext testee = SystemPropertiesContext
         .of(entry(&quot;KEY&quot;, &quot;VALUE&quot;))) {
@@ -1734,7 +1734,7 @@ The implementation of the &lt;code&gt;SystemPropertiesContext&lt;/code&gt; looks
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class SystemPropertiesContext implements AutoCloseable {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class SystemPropertiesContext implements AutoCloseable {
 
 	public static class Entry {
 		private final String key;
@@ -1797,7 +1797,7 @@ in addition the complete unit test of the &lt;code&gt;SystemPropertiesContext&lt
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;package io.github.guntherrotsch.demo.contextmanager;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;package io.github.guntherrotsch.demo.contextmanager;
 
 import static io.github.guntherrotsch.demo.contextmanager.SystemPropertiesContext.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -1974,7 +1974,7 @@ which is based on Google&amp;#8217;s &lt;em&gt;distroless&lt;/em&gt; image for J
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;FROM gcr.io/distroless/java:11
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;FROM gcr.io/distroless/java:11
 
 COPY target/mvc-demo-bootable.jar /app/main.jar
 WORKDIR /app
@@ -1988,7 +1988,7 @@ The regular &lt;code&gt;docker build&lt;/code&gt; command creates the image:&lt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ docker build -t mvc-app .
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ docker build -t mvc-app .
 Sending build context to Docker daemon  204.7MB
 Step 1/4 : FROM gcr.io/distroless/java:11
  ---&amp;gt; 6395a77cb03c
@@ -2011,7 +2011,7 @@ Successfully tagged mvc-app:latest&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ docker run --sysctl net.ipv4.ip_forward=1 --network=host -p 8080:8080 --rm -it mvc-app:latest
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ docker run --sysctl net.ipv4.ip_forward=1 --network=host -p 8080:8080 --rm -it mvc-app:latest
 WARNING: Published ports are discarded when using host network mode
 05:26:38,437 INFO  [org.wildfly.jar] (main) WFLYJAR0007: Installed server and application in /tmp/wildfly-bootable-server5397933122926229342, took 932ms
 05:26:38,684 INFO  [org.wildfly.jar] (main) WFLYJAR0008: Server options: [--read-only-server-config=standalone.xml]
@@ -2033,7 +2033,7 @@ distribution based images:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ docker images
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ docker images
 REPOSITORY           TAG              IMAGE ID            CREATED             SIZE
 mvc-app              latest           d21a6c599d58        4 minutes ago       265MB
 ...&lt;/code&gt;&lt;/pre&gt;
@@ -2149,7 +2149,7 @@ server&amp;#8217;s &lt;code&gt;standalone.xml&lt;/code&gt; (stripped down to the
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;subsystem xmlns=&quot;urn:jboss:domain:undertow:3.0&quot;&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;subsystem xmlns=&quot;urn:jboss:domain:undertow:3.0&quot;&amp;gt;
     &amp;lt;buffer-cache name=&quot;default&quot;/&amp;gt;
     &amp;lt;server name=&quot;default-server&quot;&amp;gt;
         &amp;lt;http-listener name=&quot;default&quot; redirect-socket=&quot;https&quot; socket-binding=&quot;http&quot;/&amp;gt;
@@ -2230,7 +2230,7 @@ into the project&amp;#8217;s &lt;code&gt;extra-content&lt;/code&gt; directory:&l
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-html hljs&quot; data-lang=&quot;html&quot;&gt;&amp;lt;!DOCTYPE html&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;html&quot;&gt;&amp;lt;!DOCTYPE html&amp;gt;
 &amp;lt;html lang=&quot;en&quot;&amp;gt;
 &amp;lt;head&amp;gt;
   &amp;lt;meta charset=&quot;utf-8&quot; /&amp;gt;
@@ -2250,7 +2250,7 @@ The CLI scripts are hosted in &lt;code&gt;scripts/setup.cli&lt;/code&gt;  file:&
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;/subsystem=undertow/configuration=handler/file=public-content:add(path=&quot;${jboss.home.dir}/web-root&quot;)
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;/subsystem=undertow/configuration=handler/file=public-content:add(path=&quot;${jboss.home.dir}/web-root&quot;)
 /subsystem=undertow/server=default-server/host=default-host/location=&quot;/public&quot;:add(handler=&quot;public-content&quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -2265,7 +2265,7 @@ Wildfly Bootable JAR packaging by the Maven plugin:&lt;/p&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;title&quot;&gt;Maven pom.xml:&lt;/div&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;...
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;...
 &amp;lt;build&amp;gt;
     ...
     &amp;lt;plugins&amp;gt;
@@ -2312,7 +2312,7 @@ Wildfly Bootable JAR packaging by the Maven plugin:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-shell hljs&quot; data-lang=&quot;shell&quot;&gt;# build and execute the application
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;shell&quot;&gt;# build and execute the application
 $ mvn clean package
 ...
 $ java -jar target/mvc-demo-bootable.jar
@@ -2360,7 +2360,7 @@ Maven plugin configuration of the Wildfly Bootable JAR need to be amended with:&
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;/subsystem=undertow/configuration=handler/file=public-content:add(path=&quot;${jboss.home.dir}/web-root&quot;)
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;/subsystem=undertow/configuration=handler/file=public-content:add(path=&quot;${jboss.home.dir}/web-root&quot;)
 /subsystem=undertow/server=default-server/host=default-host/location=&quot;/&quot;:add(handler=&quot;public-content&quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -2370,7 +2370,7 @@ pre-defined welcome page of the classical Wildfly application server:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-shell hljs&quot; data-lang=&quot;shell&quot;&gt;# build and execute the application
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;shell&quot;&gt;# build and execute the application
 $ mvn clean package
 ...
 $ java -jar target/mvc-demo-bootable.jar --deployment=target/mvc-demo.war
@@ -2495,7 +2495,7 @@ be possible, to define a controller like the following:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;@Path(&quot;hello&quot;)
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;@Path(&quot;hello&quot;)
 @Controller
 @RequestScoped
 public class GreetController {
@@ -2526,7 +2526,7 @@ template file &lt;code&gt;greeting.ftl&lt;/code&gt; as:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;html&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;html&amp;gt;
 &amp;lt;head&amp;gt;
   &amp;lt;title&amp;gt;Welcome!&amp;lt;/title&amp;gt;
 &amp;lt;/head&amp;gt;
@@ -2562,7 +2562,7 @@ interface:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;@ApplicationScoped
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;@ApplicationScoped
 @Priority(ViewEngine.PRIORITY_APPLICATION)
 public class FreeMarkerViewEngine implements ViewEngine {
 
@@ -2669,7 +2669,7 @@ actual integration into Jakarta MVC boils down to the lines:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;   Writer out = new OutputStreamWriter(context.getOutputStream());
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;   Writer out = new OutputStreamWriter(context.getOutputStream());
    temp.process(models, out);&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -2759,7 +2759,7 @@ POM. In this case the &lt;code&gt;&amp;lt;properties&amp;gt;&lt;/code&gt; sectio
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;properties&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;properties&amp;gt;
   &amp;lt;maven.compiler.target&amp;gt;11&amp;lt;/maven.compiler.target&amp;gt;
   &amp;lt;version.wildfly&amp;gt;22.0.1.Final&amp;lt;/version.wildfly&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
   &amp;lt;failOnMissingWebXml&amp;gt;false&amp;lt;/failOnMissingWebXml&amp;gt;
@@ -2794,7 +2794,7 @@ shell:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-shell hljs&quot; data-lang=&quot;shell&quot;&gt;$ curl localhost:8080/data/hello -v
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;shell&quot;&gt;$ curl localhost:8080/data/hello -v
 *   Trying 127.0.0.1:8080...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 8080 (#0)
@@ -2887,7 +2887,7 @@ RestEasy Multipart Providers&lt;/a&gt;. The API looks simple and straight-forwar
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@POST
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@POST
 @Consumes(&quot;multipart/form-data&quot;)
 public Response postForm(MultipartFormDataInput input) {
     ...
@@ -2916,7 +2916,7 @@ objects, the integration of the APIs is very easy:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@POST
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@POST
 @Consumes(&quot;multipart/form-data&quot;)
 public Response formPost(@Context javax.servlet.http.HttpServletRequest request) {
     ...
@@ -2953,7 +2953,7 @@ server-side. The JAXRS resource would as follows:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@POST
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@POST
 @Consumes(&quot;multipart/form-data&quot;)
 public Response postFormData(MultiPartMessage message) {
     ...
@@ -2984,7 +2984,7 @@ Multipart/Form-Data Project&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@Provider
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@Provider
 @Consumes(&quot;multipart/form-data&quot;)
 public class MultiPartMessageBodyReader implements MessageBodyReader&amp;lt;MultiPartMessage&amp;gt; {
 
@@ -3079,7 +3079,7 @@ wrapped into a &lt;code&gt;BufferedInputStream&lt;/code&gt; on demand:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;if (!entityStream.markSupported()) {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;if (!entityStream.markSupported()) {
     LOGGER.debug(&quot;Wrap entity input stream to buffered input stream to support mark and reset operations.&quot;);
     return new BufferedInputStream(inputStream);
 } else {
@@ -3185,7 +3185,7 @@ Such HTTP requests are typically submitted by HTML forms like the following:&lt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;h2&amp;gt;File Upload Example&amp;lt;/h2&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;h2&amp;gt;File Upload Example&amp;lt;/h2&amp;gt;
 &amp;lt;form action=&quot;form&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&amp;gt;
        &amp;lt;p&amp;gt;Select a file : &amp;lt;input type=&quot;file&quot; name=&quot;file&quot; /&amp;gt;
        &amp;lt;p&amp;gt;Input your name: &amp;lt;input type=&quot;string&quot; name=&quot;name&quot; /&amp;gt;
@@ -3263,7 +3263,7 @@ think of an API like the following:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;Client client = ClientBuilder.newBuilder()
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;Client client = ClientBuilder.newBuilder()
                              .register(MultipartMessageBodyWriter.class)
                              .build(); &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
 
@@ -3328,7 +3328,7 @@ multipart message is basically a list of parts:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class MultiPartMessage {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class MultiPartMessage {
 
 	private List&amp;lt;Part&amp;gt; parts = new ArrayList&amp;lt;&amp;gt;();
 
@@ -3349,7 +3349,7 @@ multipart message is basically a list of parts:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public interface Part {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public interface Part {
 
 	List&amp;lt;String&amp;gt; getContentHeaders();
 
@@ -3368,7 +3368,7 @@ like:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class FieldPart implements Part {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class FieldPart implements Part {
 
 	private String name;
 	private String value;
@@ -3394,7 +3394,7 @@ like:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class FilePart implements Part {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class FilePart implements Part {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FilePart.class);
 
@@ -3455,7 +3455,7 @@ to avoid resource leaking:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class MultipartMessageBodyWriter implements MessageBodyWriter&amp;lt;MultiPartMessage&amp;gt; {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class MultipartMessageBodyWriter implements MessageBodyWriter&amp;lt;MultiPartMessage&amp;gt; {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MultipartMessageBodyWriter.class);
 
@@ -3592,7 +3592,7 @@ the predefined Wildfly layers &lt;code&gt;jaxrs&lt;/code&gt; and &lt;code&gt;man
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;build&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;build&amp;gt;
     ...
     &amp;lt;plugins&amp;gt;
         &amp;lt;plugin&amp;gt;
@@ -3633,7 +3633,7 @@ it from another shell with:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ curl localhost:8080/hello
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/hello
 Hello from Wildfly JAR&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -3690,7 +3690,7 @@ be started with:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn wildfly-jar:dev-watch
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn wildfly-jar:dev-watch
 
 [INFO] Scanning for projects...
 [INFO]
@@ -3721,7 +3721,7 @@ console:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;...
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;...
 [INFO] Changes detected - recompiling the module!
 [INFO] Compiling 2 source files to /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/classes
 [INFO] Exploding webapp
@@ -3758,7 +3758,7 @@ easy as adding the following to the plugin configuration:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;    &amp;lt;hollow-jar&amp;gt;true&amp;lt;/hollow-jar&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;    &amp;lt;hollow-jar&amp;gt;true&amp;lt;/hollow-jar&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -3787,7 +3787,7 @@ which need to be provided when testing the application:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ curl localhost:8080/wildfly/hello
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/wildfly/hello
 Hello from Wildfly JAR&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -3812,7 +3812,7 @@ plugin&amp;#8217;s configuration. For example:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;    &amp;lt;cli-sessions&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;    &amp;lt;cli-sessions&amp;gt;
         &amp;lt;cli-session&amp;gt;
             &amp;lt;script-files&amp;gt;
                 &amp;lt;script&amp;gt;scripts/logging.cli&amp;lt;/script&amp;gt;
@@ -3828,7 +3828,7 @@ plugin&amp;#8217;s configuration. For example:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;keystore.path=/etc/wf-secrets/keystore.jks
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;keystore.path=/etc/wf-secrets/keystore.jks
 keystore.password=password
 undertow.server=default-server
 config.path=/etc/config
@@ -3841,7 +3841,7 @@ are for example:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;/subsystem=logging/logger=net.gunther.wildfly.demo:add(level=ALL)
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;/subsystem=logging/logger=net.gunther.wildfly.demo:add(level=ALL)
 /subsystem=logging/json-formatter=json-formatter:add(exception-output-type=formatted, pretty-print=false, meta-data={version=&quot;1&quot;}, key-overrides={timestamp=&quot;@timestamp&quot;})
 /subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=ALL)
 /subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter, value=json-formatter)&lt;/code&gt;&lt;/pre&gt;
@@ -3852,7 +3852,7 @@ are for example:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;...
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;...
 {&quot;@timestamp&quot;:&quot;2021-01-28T19:45:13.323+01:00&quot;,&quot;sequence&quot;:34,&quot;loggerClassName&quot;:&quot;org.slf4j.impl.Slf4jLogger&quot;,&quot;loggerName&quot;:&quot;net.gunther.wildfly.demo.app.HelloResource&quot;,&quot;level&quot;:&quot;DEBUG&quot;,&quot;message&quot;:&quot;GET HelloResource called.&quot;,&quot;threadName&quot;:&quot;default task-1&quot;,&quot;threadId&quot;:65,&quot;mdc&quot;:{},&quot;ndc&quot;:&quot;&quot;,&quot;hostName&quot;:&quot;gunther-k501uq&quot;,&quot;processName&quot;:&quot;wildfly-bootable.jar&quot;,&quot;processId&quot;:32887,&quot;version&quot;:&quot;1&quot;}
 ...&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -3932,7 +3932,7 @@ illustrate the principle.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class Foo {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class Foo {
 
    private A a;
    private B b;
@@ -3958,7 +3958,7 @@ method &lt;code&gt;bar&lt;/code&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class Foo {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class Foo {
 
    private A a;
    private B b;
@@ -4136,7 +4136,7 @@ detail:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn dependency:tree
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn dependency:tree
 [INFO] Scanning for projects...
 [INFO]
 [INFO] ---------------------&amp;lt; net.gunther.cli:json2yaml &amp;gt;----------------------
@@ -4172,7 +4172,7 @@ The sample project is my playground to get familiar with JSON-P functionality.&l
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn dependency:build-classpath
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn dependency:build-classpath
 [INFO] Scanning for projects...
 [INFO]
 [INFO] ---------------------&amp;lt; net.gunther.cli:json2yaml &amp;gt;----------------------
@@ -4209,7 +4209,7 @@ the &lt;code&gt;includeScope&lt;/code&gt; option has to be set as System propert
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn dependency:build-classpath -DincludeScope=compile
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn dependency:build-classpath -DincludeScope=compile
 [INFO] Scanning for projects...
 [INFO]
 [INFO] ---------------------&amp;lt; net.gunther.cli:json2yaml &amp;gt;----------------------
@@ -4255,7 +4255,7 @@ beneficial because of:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn exec:exec -Dexec.executable=echo -Dexec.args=&quot;%classpath&quot;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn exec:exec -Dexec.executable=echo -Dexec.args=&quot;%classpath&quot;
 [INFO] Scanning for projects...
 [INFO]
 [INFO] ---------------------&amp;lt; net.gunther.cli:json2yaml &amp;gt;----------------------
@@ -4285,7 +4285,7 @@ execute Java applications, eg.:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ echo &apos;{ &quot;f1&quot;: &quot;v1&quot;, &quot;f2&quot;: &quot;v2&quot; }&apos; | mvn exec:exec -Dexec.executable=java -Dexec.args=&quot;-cp %classpath net.gunther.cli.json.PrettyPrinter&quot;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ echo &apos;{ &quot;f1&quot;: &quot;v1&quot;, &quot;f2&quot;: &quot;v2&quot; }&apos; | mvn exec:exec -Dexec.executable=java -Dexec.args=&quot;-cp %classpath net.gunther.cli.json.PrettyPrinter&quot;
 [INFO] Scanning for projects...
 [INFO]
 [INFO] ---------------------&amp;lt; net.gunther.cli:json2yaml &amp;gt;----------------------
@@ -4400,7 +4400,7 @@ executed like a shell script:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ ./hellojava.sh
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ ./hellojava.sh
 Hello, Java!&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -4643,7 +4643,7 @@ executed by the Quarkus&apos; development server:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ ./mvnw quarkus:dev
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ ./mvnw quarkus:dev
 [INFO] Scanning for projects...
 [INFO]
 [INFO] --------------------&amp;lt; net.gunther:quarkus-chat-sse &amp;gt;--------------------
@@ -4708,7 +4708,7 @@ the other clients as Server-Sent Events&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;&amp;lt;div id=&quot;history&quot;&amp;gt;&amp;lt;/div&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;&amp;lt;div id=&quot;history&quot;&amp;gt;&amp;lt;/div&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
 
 &amp;lt;textarea id=&quot;inputbox&quot; name=&quot;inputbox&quot;&amp;gt;&amp;lt;/textarea&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;
 &amp;lt;button id=&quot;submitButton&quot;&amp;gt;Submit&amp;lt;/button&amp;gt;
@@ -4789,7 +4789,7 @@ chat-room.&lt;/td&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@ApplicationScoped
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@ApplicationScoped
 @Path(&quot;/chat&quot;)
 public class ChatResource {
 
@@ -4877,7 +4877,7 @@ create an executable single JAR:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ ./mvnw clean install
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ ./mvnw clean install
 $ ll target
 ...
 -rw-rw-r--  1 gunther gunther 285458 Aug 17 19:16 quarkus-chat-sse-0-SNAPSHOT-runner.jar
@@ -4944,7 +4944,7 @@ following command:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ ./mvnw quarkus:add-extension -Dextensions=&quot;container-image-jib&quot;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ ./mvnw quarkus:add-extension -Dextensions=&quot;container-image-jib&quot;
 [INFO] Scanning for projects...
 [INFO]
 [INFO] --------------------&amp;lt; net.gunther:quarkus-chat-sse &amp;gt;--------------------
@@ -4966,7 +4966,7 @@ Downloading from central: https://repo.maven.apache.org/maven2/io/vertx/vertx-rx
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ ./mvnw clean package -Dquarkus.container-image.build=true
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ ./mvnw clean package -Dquarkus.container-image.build=true
 [INFO] Scanning for projects...
 [INFO]
 [INFO] --------------------&amp;lt; net.gunther:quarkus-chat-sse &amp;gt;--------------------
@@ -4984,7 +4984,7 @@ images might be an alternative.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ docker run -it --rm gunther/quarkus-chat-sse:0-SNAPSHOT
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ docker run -it --rm gunther/quarkus-chat-sse:0-SNAPSHOT
 __  ____  __  _____   ___  __ ____  ______
  --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
  -/ /_/ / /_/ / __ |/ , _/ ,&amp;lt; / /_/ /\ \
@@ -5100,7 +5100,7 @@ repository, executing the IDE is as easy as submitting the command:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ docker run -it --init -p 3000:3000 \
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ docker run -it --init -p 3000:3000 \
              -v &quot;$(pwd):/home/project:cached&quot; \
              theiaide/theia-java:next&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -5145,7 +5145,7 @@ fails with:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;[ERROR] Failed to execute goal org.apache.maven.plugins:maven-clean-plugin:3.1.0:clean (default-clean) on project bean-validation: Failed to clean project: Failed to delete /home/project/target/generated-test-sources/test-annotations -&amp;gt; [Help 1]: value&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;[ERROR] Failed to execute goal org.apache.maven.plugins:maven-clean-plugin:3.1.0:clean (default-clean) on project bean-validation: Failed to clean project: Failed to delete /home/project/target/generated-test-sources/test-annotations -&amp;gt; [Help 1]: value&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -5154,7 +5154,7 @@ with the user &lt;code&gt;theia&lt;/code&gt;, which is apparently not the owner 
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;theia@466d3953d9e1:/home/project$ id
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;theia@466d3953d9e1:/home/project$ id
 uid=1001(theia) gid=1001(theia) groups=1001(theia)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -5165,7 +5165,7 @@ user &lt;code&gt;gunther&lt;/code&gt;:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ ls -al
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ ls -al
 total 40
 drwxrwxr-x  5 gunther gunther 4096 Mai 24 12:04 .
 drwxrwxr-x  4 gunther gunther 4096 Mai 20 20:00 ..
@@ -5189,7 +5189,7 @@ ID as the user &lt;code&gt;node&lt;/code&gt; in the Theia container:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ id
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ id
 uid=1000(gunther) gid=1000(gunther) groups=1000(gunther),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),118(lpadmin),129(sambashare),999(microk8s),1001(docker)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -5205,7 +5205,7 @@ the container as follows:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;docker run -it --rm --init -p 3000:3000 \
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;docker run -it --rm --init -p 3000:3000 \
            -u $UID:$(id -g) \
            -v &quot;$(pwd):/home/project:cached&quot; \
            theiaide/theia-java:next&lt;/code&gt;&lt;/pre&gt;
@@ -5217,7 +5217,7 @@ on the host system:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;node@11e14537a344:/home/project$ id
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;node@11e14537a344:/home/project$ id
 uid=1000(node) gid=1000(node) groups=1000(node)&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -5356,7 +5356,7 @@ can be started locally with&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;gunther@gunther-K501UQ:~/Downloads$ curl localhost:8080/hello -v
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;gunther@gunther-K501UQ:~/Downloads$ curl localhost:8080/hello -v
 *   Trying 127.0.0.1:8080...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 8080 (#0)
@@ -5386,7 +5386,7 @@ an image by using the following &lt;code&gt;Dockerfile&lt;/code&gt;:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;FROM openjdk:14-jdk-alpine
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;FROM openjdk:14-jdk-alpine
 
 COPY target/demo-thorntail.jar /app/demo-thorntail.jar
 
@@ -5514,7 +5514,7 @@ minimum and maximum integer values. The following OpenAPI snippet defines the
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-yaml hljs&quot; data-lang=&quot;yaml&quot;&gt;  components:
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;yaml&quot;&gt;  components:
     schemas:
       Range:
         properties:
@@ -5533,7 +5533,7 @@ minimum and maximum integer values. The following OpenAPI snippet defines the
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class Range   {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class Range   {
 
   private @Valid Integer min;
   private @Valid Integer max;
@@ -5625,7 +5625,7 @@ resource:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-yaml hljs&quot; data-lang=&quot;yaml&quot;&gt;  paths:
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;yaml&quot;&gt;  paths:
     /range:
       post:
         operationId: newRange
@@ -5648,7 +5648,7 @@ the generated API:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ curl localhost:8080/bean-validation/range -d &apos;{ &quot;min&quot;: 0, &quot;max&quot;: 1 }&apos; \
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/bean-validation/range -d &apos;{ &quot;min&quot;: 0, &quot;max&quot;: 1 }&apos; \
       -H &quot;Content-Type: application/json&quot; -H &quot;Accept: application/json&quot; -o - \
  | jq
 ...
@@ -5745,7 +5745,7 @@ validation as JSR 380 rule:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class ValidateableRange {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class ValidateableRange {
 
 	private final Range range;
 
@@ -5770,7 +5770,7 @@ validation as JSR 380 rule:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@ApplicationScoped
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@ApplicationScoped
 public class ApplicationValidator {
 
 	public void validate(@Valid ValidateableRange validateableRange) {
@@ -5792,7 +5792,7 @@ processing of the request is started:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@Inject ApplicationValidator appValidator;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@Inject ApplicationValidator appValidator;
 
 public Response newRange(Range range) {
   appValidator.validate(new ValidateableRange(range));
@@ -5868,7 +5868,7 @@ as a annotation like the following are needed in our &lt;em&gt;range&lt;/em&gt; 
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;public class RangeValidator implements ConstraintValidator&amp;lt;CheckMinLessOrEqualMax, Range&amp;gt; {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;public class RangeValidator implements ConstraintValidator&amp;lt;CheckMinLessOrEqualMax, Range&amp;gt; {
 
 	public void initialize(CheckMinLessOrEqualMax arg0) {
 	}
@@ -5881,7 +5881,7 @@ as a annotation like the following are needed in our &lt;em&gt;range&lt;/em&gt; 
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@Target({ FIELD, METHOD, PARAMETER, ANNOTATION_TYPE, TYPE_USE })
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@Target({ FIELD, METHOD, PARAMETER, ANNOTATION_TYPE, TYPE_USE })
 @Retention(RUNTIME)
 @Constraint(validatedBy = RangeValidator.class)
 @Documented
@@ -5905,7 +5905,7 @@ custom Bean Validation configurations:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;validation-config
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;validation-config
 	xmlns=&quot;http://xmlns.jcp.org/xml/ns/validation/configuration&quot;
 	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
 	xsi:schemaLocation=&quot;http://xmlns.jcp.org/xml/ns/validation/configuration
@@ -5925,7 +5925,7 @@ to the &lt;code&gt;Range&lt;/code&gt; model class:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;
 &amp;lt;constraint-mappings
 	xmlns=&quot;http://xmlns.jcp.org/xml/ns/validation/mapping&quot;
 	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
@@ -5952,7 +5952,7 @@ above:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ curl localhost:8080/bean-validation/range -d &apos;{ &quot;min&quot;: 1001, &quot;max&quot;: 0 }&apos; \
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/bean-validation/range -d &apos;{ &quot;min&quot;: 1001, &quot;max&quot;: 0 }&apos; \
        -H &quot;Content-Type: application/json&quot; -H &quot;Accept: application/json&quot; -o - -v \
      | jq
 ...
@@ -6007,7 +6007,7 @@ format is also considered, for example:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ curl localhost:8080/bean-validation/range -d &apos;{ &quot;min&quot;: 1001, &quot;max&quot;: 0 }&apos; \
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ curl localhost:8080/bean-validation/range -d &apos;{ &quot;min&quot;: 1001, &quot;max&quot;: 0 }&apos; \
        -H &quot;Content-Type: application/json&quot; -H &quot;Accept: application/xml&quot; -o - -v \
      | xmllint --format -
 ...
@@ -6116,7 +6116,7 @@ The code samples shown in this Blog post use the OpenAPI Maven plugin:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;plugin&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;plugin&amp;gt;
   &amp;lt;groupId&amp;gt;org.openapitools&amp;lt;/groupId&amp;gt;
   &amp;lt;artifactId&amp;gt;openapi-generator-maven-plugin&amp;lt;/artifactId&amp;gt;
   &amp;lt;version&amp;gt;4.2.3&amp;lt;/version&amp;gt;
@@ -6153,7 +6153,7 @@ convenient start of the sample application from the command-line by&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;mvn thorntail:run&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;mvn thorntail:run&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -6172,7 +6172,7 @@ annotation:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;    javax.ws.rs.core.Application
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;    javax.ws.rs.core.Application
     javax.ws.rs.core.HttpHeaders
     javax.ws.rs.core.Request
     javax.ws.rs.core.SecurityContext
@@ -6190,7 +6190,7 @@ deployed to a servlet container:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;    javax.servlet.HttpServletRequest
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;    javax.servlet.HttpServletRequest
     javax.servlet.HttpServletResponse
     javax.servlet.ServletConfig
     javax.servlet.ServletContext&lt;/code&gt;&lt;/pre&gt;
@@ -6211,7 +6211,7 @@ generator&amp;#8217;s option&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;  &amp;lt;interfaceOnly&amp;gt;true&amp;lt;/interfaceOnly&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;  &amp;lt;interfaceOnly&amp;gt;true&amp;lt;/interfaceOnly&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -6223,7 +6223,7 @@ this:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;  Path(&quot;/greeting&quot;)
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;  Path(&quot;/greeting&quot;)
   @Api(description = &quot;the greeting API&quot;)
   @javax.annotation.Generated(value = &quot;org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen&quot;, date = &quot;2020-03-23T19:02:54.718784+01:00[Europe/Zurich]&quot;)
   public interface GreetingApi {
@@ -6243,7 +6243,7 @@ manually, eg.:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;  public class GreetingApiImpl implements GreetingApi {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;  public class GreetingApiImpl implements GreetingApi {
 
   	private static final Logger LOGGER = LoggerFactory.getLogger(GreetingApiImpl.class);
 
@@ -6280,7 +6280,7 @@ OpenAPI generator to&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;  &amp;lt;interfaceOnly&amp;gt;false&amp;lt;/interfaceOnly&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;  &amp;lt;interfaceOnly&amp;gt;false&amp;lt;/interfaceOnly&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -6292,7 +6292,7 @@ object is now generated and must not longer provided with the application code.&
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;  @Path(&quot;/greeting&quot;)
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;  @Path(&quot;/greeting&quot;)
   @Api(description = &quot;the greeting API&quot;)
   @javax.annotation.Generated(value = &quot;org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen&quot;, date = &quot;2020-03-23T19:06:40.010561+01:00[Europe/Zurich]&quot;)
   public class GreetingApi {
@@ -6340,7 +6340,7 @@ the configuration&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;  &amp;lt;templateDirectory&amp;gt;${project.basedir}/src/main/templates&amp;lt;/templateDirectory&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;  &amp;lt;templateDirectory&amp;gt;${project.basedir}/src/main/templates&amp;lt;/templateDirectory&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -6369,7 +6369,7 @@ the equally named templates of the generator.
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;  @Inject {{package}}.services.{{classname}}Impl delegatee;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;  @Inject {{package}}.services.{{classname}}Impl delegatee;&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -6378,7 +6378,7 @@ in the &lt;code&gt;apiMethod.mustache&lt;/code&gt; template file:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;  public Response {{nickname}}({{#allParams}}{{&amp;gt;queryParams}}{{&amp;gt;pathParams}}{{&amp;gt;headerParams}}{{&amp;gt;bodyParams}}{{&amp;gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;  public Response {{nickname}}({{#allParams}}{{&amp;gt;queryParams}}{{&amp;gt;pathParams}}{{&amp;gt;headerParams}}{{&amp;gt;bodyParams}}{{&amp;gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
       return delegatee.{{nickname}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
   }&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -6389,7 +6389,7 @@ simplest form like:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;  package net.gunther.blog.codegen.api.services;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;  package net.gunther.blog.codegen.api.services;
 
   import javax.ws.rs.core.Response;
 
@@ -6410,7 +6410,7 @@ JAX/RS context:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;@RequestScoped
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;@RequestScoped
 public class JAXRSContext {
 
   private UriInfo uriInfo;
@@ -6454,7 +6454,7 @@ object to the customized &lt;code&gt;api.mustache&lt;/code&gt; template file:&lt
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;  ...
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;  ...
   @Context UriInfo uriInfo;
   @Context HttpHeaders httpHeaders;
 
@@ -6468,7 +6468,7 @@ template &lt;code&gt;apiMethod.mustache&lt;/code&gt; file can further customized
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;  public Response {{nickname}}({{#allParams}}{{&amp;gt;queryParams}}{{&amp;gt;pathParams}}{{&amp;gt;headerParams}}{{&amp;gt;bodyParams}}{{&amp;gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;  public Response {{nickname}}({{#allParams}}{{&amp;gt;queryParams}}{{&amp;gt;pathParams}}{{&amp;gt;headerParams}}{{&amp;gt;bodyParams}}{{&amp;gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
     context.setUriInfo(uriInfo);
     context.setHttpHeaders(httpHeaders);
     return delegatee.{{nickname}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
@@ -6489,7 +6489,7 @@ CDI bean, eg. the delegatee&amp;#8217;s service implementation:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;  public class GreetingApiImpl {
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;  public class GreetingApiImpl {
 
   	private static final Logger LOGGER = LoggerFactory.getLogger(GreetingApiImpl.class);
 
@@ -6513,7 +6513,7 @@ requested JAX/RS resource are logged, for example:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;2020-03-24 20:45:02,834 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) Headers:
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;2020-03-24 20:45:02,834 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) Headers:
 	DNT: [1]
 	Accept-Language: [en-US,en;q=0.5]
 	Host: [localhost:8080]
@@ -6606,7 +6606,7 @@ dependency of &lt;code&gt;jbake-maven-plugin&lt;/code&gt; on the &lt;em&gt;diagr
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-xml hljs&quot; data-lang=&quot;xml&quot;&gt;&amp;lt;dependency&amp;gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;dependency&amp;gt;
   &amp;lt;groupId&amp;gt;org.asciidoctor&amp;lt;/groupId&amp;gt;
   &amp;lt;artifactId&amp;gt;asciidoctorj-diagram&amp;lt;/artifactId&amp;gt;
   &amp;lt;version&amp;gt;1.5.18&amp;lt;/version&amp;gt;
@@ -6622,7 +6622,7 @@ dependency of &lt;code&gt;jbake-maven-plugin&lt;/code&gt; on the &lt;em&gt;diagr
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;asciidoctor.option.requires=asciidoctor-diagram
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;asciidoctor.option.requires=asciidoctor-diagram
 asciidoctor.attributes=sourceDir=src/main/jbake,imagesdir=assets/img/diagrams,imagesoutdir=../../assets/assets/img/diagrams,source-highlighter=highlight.js,icons=font&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -6642,7 +6642,7 @@ in Blog posts. The definition:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;[plantuml, &quot;asciidoctor-sequence-diagram&quot;, &quot;png&quot;]
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;[plantuml, &quot;asciidoctor-sequence-diagram&quot;, &quot;png&quot;]
 ----
 Alice -&amp;gt; Bob: Authentication Request
 Bob --&amp;gt; Alice: Authentication Response
@@ -6667,7 +6667,7 @@ diagrams of directory hierarchies for example. The definition:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;[plantuml, &quot;file-system-tree&quot;, &quot;png&quot;, opts=&quot;inline&quot;]
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;[plantuml, &quot;file-system-tree&quot;, &quot;png&quot;, opts=&quot;inline&quot;]
 ----
 @startuml
 skinparam {
@@ -6714,7 +6714,7 @@ end legend
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-yaml hljs&quot; data-lang=&quot;yaml&quot;&gt;  ....
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;yaml&quot;&gt;  ....
 definitions:
   SomeResponse:
     type: &quot;object&quot;
@@ -6748,7 +6748,7 @@ strategy on the server-side:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-java hljs&quot; data-lang=&quot;java&quot;&gt;import javax.json.bind.*;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;java&quot;&gt;import javax.json.bind.*;
 import javax.ws.rs.ext.*;
 
 /**
@@ -6795,7 +6795,7 @@ double-checking the dependencies of such a project with&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn dependency:analyse&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn dependency:analyse&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -6803,7 +6803,7 @@ double-checking the dependencies of such a project with&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;[WARNING] Unused declared dependencies found:
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;[WARNING] Unused declared dependencies found:
 [WARNING]    org.slf4j:slf4j-log4j12:jar:1.7.26:test&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -6879,7 +6879,7 @@ eg. the &lt;code&gt;header.ftl&lt;/code&gt; has to reference the right styleshee
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;...
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;...
 &amp;lt;link href=&quot;&amp;lt;#if (content.rootpath)??&amp;gt;${content.rootpath}&amp;lt;#else&amp;gt;&amp;lt;/#if&amp;gt;assets/css/bootstrap.min.css&quot; rel=&quot;stylesheet&quot;&amp;gt;
 &amp;lt;link href=&quot;&amp;lt;#if (content.rootpath)??&amp;gt;${content.rootpath}&amp;lt;#else&amp;gt;&amp;lt;/#if&amp;gt;assets/css/asciidoctor.css&quot; rel=&quot;stylesheet&quot;&amp;gt;
 &amp;lt;link href=&quot;&amp;lt;#if (content.rootpath)??&amp;gt;${content.rootpath}&amp;lt;#else&amp;gt;&amp;lt;/#if&amp;gt;assets/css/base.css&quot; rel=&quot;stylesheet&quot;&amp;gt;
@@ -6902,7 +6902,7 @@ follows:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;/
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;/
    ...
    index.html
    ...
@@ -7061,7 +7061,7 @@ plugin development and provides a &lt;code&gt;help&lt;/code&gt; goal:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -7105,7 +7105,7 @@ command-line by defining a Java System property as follows:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn jbake:seed -DoutputDirectory=./src/main/jbake&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:seed -DoutputDirectory=./src/main/jbake&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -7115,7 +7115,7 @@ jbake configuration, which is hosted in
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;#site.host=https://guntherrotsch.github.io
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;#site.host=https://guntherrotsch.github.io
 site.host=http://localhost:8080
 render.tags=false
 render.sitemap=true&lt;/code&gt;&lt;/pre&gt;
@@ -7146,7 +7146,7 @@ and generates the static site:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn jbake:generate&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:generate&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;
@@ -7158,7 +7158,7 @@ internal Web server:&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class=&quot;listingblock&quot;&gt;
 &lt;div class=&quot;content&quot;&gt;
-&lt;pre class=&quot;highlightjs highlight&quot;&gt;&lt;code class=&quot;language-none hljs&quot;&gt;$ mvn jbake:inline [ -Dport=8000 ]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code&gt;$ mvn jbake:inline [ -Dport=8000 ]&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class=&quot;paragraph&quot;&gt;

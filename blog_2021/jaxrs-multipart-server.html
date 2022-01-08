@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -123,7 +132,7 @@ RestEasy Multipart Providers</a>. The API looks simple and straight-forward:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@POST
+<pre class="prettyprint highlight"><code data-lang="java">@POST
 @Consumes("multipart/form-data")
 public Response postForm(MultipartFormDataInput input) {
     ...
@@ -152,7 +161,7 @@ objects, the integration of the APIs is very easy:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@POST
+<pre class="prettyprint highlight"><code data-lang="java">@POST
 @Consumes("multipart/form-data")
 public Response formPost(@Context javax.servlet.http.HttpServletRequest request) {
     ...
@@ -189,7 +198,7 @@ server-side. The JAXRS resource would as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@POST
+<pre class="prettyprint highlight"><code data-lang="java">@POST
 @Consumes("multipart/form-data")
 public Response postFormData(MultiPartMessage message) {
     ...
@@ -220,7 +229,7 @@ Multipart/Form-Data Project</a>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Provider
+<pre class="prettyprint highlight"><code data-lang="java">@Provider
 @Consumes("multipart/form-data")
 public class MultiPartMessageBodyReader implements MessageBodyReader&lt;MultiPartMessage&gt; {
 
@@ -315,7 +324,7 @@ wrapped into a <code>BufferedInputStream</code> on demand:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">if (!entityStream.markSupported()) {
+<pre class="prettyprint highlight"><code data-lang="java">if (!entityStream.markSupported()) {
     LOGGER.debug("Wrap entity input stream to buffered input stream to support mark and reset operations.");
     return new BufferedInputStream(inputStream);
 } else {

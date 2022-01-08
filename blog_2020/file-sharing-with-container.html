@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -109,7 +118,7 @@ repository, executing the IDE is as easy as submitting the command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ docker run -it --init -p 3000:3000 \
+<pre class="prettyprint highlight"><code>$ docker run -it --init -p 3000:3000 \
              -v "$(pwd):/home/project:cached" \
              theiaide/theia-java:next</code></pre>
 </div>
@@ -154,7 +163,7 @@ fails with:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">[ERROR] Failed to execute goal org.apache.maven.plugins:maven-clean-plugin:3.1.0:clean (default-clean) on project bean-validation: Failed to clean project: Failed to delete /home/project/target/generated-test-sources/test-annotations -&gt; [Help 1]: value</code></pre>
+<pre class="prettyprint highlight"><code>[ERROR] Failed to execute goal org.apache.maven.plugins:maven-clean-plugin:3.1.0:clean (default-clean) on project bean-validation: Failed to clean project: Failed to delete /home/project/target/generated-test-sources/test-annotations -&gt; [Help 1]: value</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -163,7 +172,7 @@ with the user <code>theia</code>, which is apparently not the owner of the files
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">theia@466d3953d9e1:/home/project$ id
+<pre class="prettyprint highlight"><code>theia@466d3953d9e1:/home/project$ id
 uid=1001(theia) gid=1001(theia) groups=1001(theia)</code></pre>
 </div>
 </div>
@@ -174,7 +183,7 @@ user <code>gunther</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ ls -al
+<pre class="prettyprint highlight"><code>$ ls -al
 total 40
 drwxrwxr-x  5 gunther gunther 4096 Mai 24 12:04 .
 drwxrwxr-x  4 gunther gunther 4096 Mai 20 20:00 ..
@@ -198,7 +207,7 @@ ID as the user <code>node</code> in the Theia container:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ id
+<pre class="prettyprint highlight"><code>$ id
 uid=1000(gunther) gid=1000(gunther) groups=1000(gunther),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),118(lpadmin),129(sambashare),999(microk8s),1001(docker)</code></pre>
 </div>
 </div>
@@ -214,7 +223,7 @@ the container as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">docker run -it --rm --init -p 3000:3000 \
+<pre class="prettyprint highlight"><code>docker run -it --rm --init -p 3000:3000 \
            -u $UID:$(id -g) \
            -v "$(pwd):/home/project:cached" \
            theiaide/theia-java:next</code></pre>
@@ -226,7 +235,7 @@ on the host system:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">node@11e14537a344:/home/project$ id
+<pre class="prettyprint highlight"><code>node@11e14537a344:/home/project$ id
 uid=1000(node) gid=1000(node) groups=1000(node)</code></pre>
 </div>
 </div>

@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -131,7 +140,7 @@ POM. In this case the <code>&lt;properties&gt;</code> section contains the confi
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;properties&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;properties&gt;
   &lt;maven.compiler.target&gt;11&lt;/maven.compiler.target&gt;
   &lt;version.wildfly&gt;22.0.1.Final&lt;/version.wildfly&gt; <i class="conum" data-value="1"></i><b>(1)</b>
   &lt;failOnMissingWebXml&gt;false&lt;/failOnMissingWebXml&gt;
@@ -166,7 +175,7 @@ shell:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ curl localhost:8080/data/hello -v
+<pre class="prettyprint highlight"><code data-lang="shell">$ curl localhost:8080/data/hello -v
 *   Trying 127.0.0.1:8080...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 8080 (#0)

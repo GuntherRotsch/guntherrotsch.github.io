@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -171,7 +180,7 @@ executed by the Quarkus' development server:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ ./mvnw quarkus:dev
+<pre class="prettyprint highlight"><code>$ ./mvnw quarkus:dev
 [INFO] Scanning for projects...
 [INFO]
 [INFO] --------------------&lt; net.gunther:quarkus-chat-sse &gt;--------------------
@@ -236,7 +245,7 @@ the other clients as Server-Sent Events</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">&lt;div id="history"&gt;&lt;/div&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="prettyprint highlight"><code data-lang="java">&lt;div id="history"&gt;&lt;/div&gt; <i class="conum" data-value="1"></i><b>(1)</b>
 
 &lt;textarea id="inputbox" name="inputbox"&gt;&lt;/textarea&gt; <i class="conum" data-value="2"></i><b>(2)</b>
 &lt;button id="submitButton"&gt;Submit&lt;/button&gt;
@@ -317,7 +326,7 @@ chat-room.</td>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ApplicationScoped
+<pre class="prettyprint highlight"><code data-lang="java">@ApplicationScoped
 @Path("/chat")
 public class ChatResource {
 
@@ -405,7 +414,7 @@ create an executable single JAR:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ ./mvnw clean install
+<pre class="prettyprint highlight"><code>$ ./mvnw clean install
 $ ll target
 ...
 -rw-rw-r--  1 gunther gunther 285458 Aug 17 19:16 quarkus-chat-sse-0-SNAPSHOT-runner.jar
@@ -472,7 +481,7 @@ following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ ./mvnw quarkus:add-extension -Dextensions="container-image-jib"
+<pre class="prettyprint highlight"><code>gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ ./mvnw quarkus:add-extension -Dextensions="container-image-jib"
 [INFO] Scanning for projects...
 [INFO]
 [INFO] --------------------&lt; net.gunther:quarkus-chat-sse &gt;--------------------
@@ -494,7 +503,7 @@ Downloading from central: https://repo.maven.apache.org/maven2/io/vertx/vertx-rx
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ ./mvnw clean package -Dquarkus.container-image.build=true
+<pre class="prettyprint highlight"><code>gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ ./mvnw clean package -Dquarkus.container-image.build=true
 [INFO] Scanning for projects...
 [INFO]
 [INFO] --------------------&lt; net.gunther:quarkus-chat-sse &gt;--------------------
@@ -512,7 +521,7 @@ images might be an alternative.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ docker run -it --rm gunther/quarkus-chat-sse:0-SNAPSHOT
+<pre class="prettyprint highlight"><code>gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/quarkus-chat-sse$ docker run -it --rm gunther/quarkus-chat-sse:0-SNAPSHOT
 __  ____  __  _____   ___  __ ____  ______
  --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
  -/ /_/ / /_/ / __ |/ , _/ ,&lt; / /_/ /\ \

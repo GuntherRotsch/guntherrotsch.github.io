@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -158,7 +167,7 @@ can be started locally with</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">gunther@gunther-K501UQ:~/Downloads$ curl localhost:8080/hello -v
+<pre class="prettyprint highlight"><code>gunther@gunther-K501UQ:~/Downloads$ curl localhost:8080/hello -v
 *   Trying 127.0.0.1:8080...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 8080 (#0)
@@ -188,7 +197,7 @@ an image by using the following <code>Dockerfile</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">FROM openjdk:14-jdk-alpine
+<pre class="prettyprint highlight"><code>FROM openjdk:14-jdk-alpine
 
 COPY target/demo-thorntail.jar /app/demo-thorntail.jar
 

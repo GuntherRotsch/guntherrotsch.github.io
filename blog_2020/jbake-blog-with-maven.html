@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -176,7 +185,7 @@ plugin development and provides a <code>help</code> goal:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]</code></pre>
+<pre class="prettyprint highlight"><code>$ mvn jbake:help   # -Ddetail=true -Dgoal=[seed|generate|watch|inline]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -220,7 +229,7 @@ command-line by defining a Java System property as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn jbake:seed -DoutputDirectory=./src/main/jbake</code></pre>
+<pre class="prettyprint highlight"><code>$ mvn jbake:seed -DoutputDirectory=./src/main/jbake</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -230,7 +239,7 @@ jbake configuration, which is hosted in
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">#site.host=https://guntherrotsch.github.io
+<pre class="prettyprint highlight"><code>#site.host=https://guntherrotsch.github.io
 site.host=http://localhost:8080
 render.tags=false
 render.sitemap=true</code></pre>
@@ -261,7 +270,7 @@ and generates the static site:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn jbake:generate</code></pre>
+<pre class="prettyprint highlight"><code>$ mvn jbake:generate</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -273,7 +282,7 @@ internal Web server:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn jbake:inline [ -Dport=8000 ]</code></pre>
+<pre class="prettyprint highlight"><code>$ mvn jbake:inline [ -Dport=8000 ]</code></pre>
 </div>
 </div>
 <div class="paragraph">

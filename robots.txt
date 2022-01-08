@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://guntherrotsch.github.io/sitemap.xml

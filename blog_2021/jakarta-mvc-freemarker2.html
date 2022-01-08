@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -151,7 +160,7 @@ that displays the content of the <code>MvcContext</code> of requests:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Path("/context")
+<pre class="prettyprint highlight"><code data-lang="java">@Path("/context")
 @Controller
 @RequestScoped
 public class ContextController {
@@ -170,7 +179,7 @@ model object to generate the HTML view:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;html lang="en"&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;html lang="en"&gt;
 &lt;head&gt;
   &lt;title&gt;MVC Context&lt;/title&gt;
 &lt;/head&gt;
@@ -197,7 +206,7 @@ already described in the first article as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class FreeMarkerViewEngine implements ViewEngine {
+<pre class="prettyprint highlight"><code data-lang="java">public class FreeMarkerViewEngine implements ViewEngine {
 
 	@Inject
 	MvcContext mvcContext; <i class="conum" data-value="1"></i><b>(1)</b>
@@ -296,7 +305,7 @@ method expects a <code>name</code> query parameter denoting the person to greet:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    ...
+<pre class="prettyprint highlight"><code data-lang="java">    ...
 
     @Path("hi")
     @GET
@@ -317,7 +326,7 @@ mechanism is actually provided by named CDI <code>greetingGenerator</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Named("greetingGenerator")
+<pre class="prettyprint highlight"><code data-lang="java">@Named("greetingGenerator")
 public class GreetingGenerator {
 
 	private static final List&lt;String&gt; greetingTemplates
@@ -339,7 +348,7 @@ bean in the Freemarker template, i.e. our view, as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;html lang="en"&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;html lang="en"&gt;
 &lt;head&gt;
   &lt;title&gt;Welcome!&lt;/title&gt;
 &lt;/head&gt;
@@ -365,7 +374,7 @@ to be registered in the template model in the first place:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class FreeMarkerViewEngine implements ViewEngine {
+<pre class="prettyprint highlight"><code data-lang="java">public class FreeMarkerViewEngine implements ViewEngine {
 
     ...
 
@@ -389,7 +398,7 @@ extension pattern for the Freemarker template engine:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class NamedBeanResolver implements TemplateMethodModelEx {
+<pre class="prettyprint highlight"><code data-lang="java">public class NamedBeanResolver implements TemplateMethodModelEx {
 
 	@Override
 	@SuppressWarnings("rawtypes")

@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -147,7 +156,7 @@ minimum and maximum integer values. The following OpenAPI snippet defines the
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">  components:
+<pre class="prettyprint highlight"><code data-lang="yaml">  components:
     schemas:
       Range:
         properties:
@@ -166,7 +175,7 @@ minimum and maximum integer values. The following OpenAPI snippet defines the
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class Range   {
+<pre class="prettyprint highlight"><code data-lang="java">public class Range   {
 
   private @Valid Integer min;
   private @Valid Integer max;
@@ -258,7 +267,7 @@ resource:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">  paths:
+<pre class="prettyprint highlight"><code data-lang="yaml">  paths:
     /range:
       post:
         operationId: newRange
@@ -281,7 +290,7 @@ the generated API:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ curl localhost:8080/bean-validation/range -d '{ "min": 0, "max": 1 }' \
+<pre class="prettyprint highlight"><code>$ curl localhost:8080/bean-validation/range -d '{ "min": 0, "max": 1 }' \
       -H "Content-Type: application/json" -H "Accept: application/json" -o - \
  | jq
 ...
@@ -378,7 +387,7 @@ validation as JSR 380 rule:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class ValidateableRange {
+<pre class="prettyprint highlight"><code data-lang="java">public class ValidateableRange {
 
 	private final Range range;
 
@@ -403,7 +412,7 @@ validation as JSR 380 rule:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@ApplicationScoped
+<pre class="prettyprint highlight"><code data-lang="java">@ApplicationScoped
 public class ApplicationValidator {
 
 	public void validate(@Valid ValidateableRange validateableRange) {
@@ -425,7 +434,7 @@ processing of the request is started:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Inject ApplicationValidator appValidator;
+<pre class="prettyprint highlight"><code data-lang="java">@Inject ApplicationValidator appValidator;
 
 public Response newRange(Range range) {
   appValidator.validate(new ValidateableRange(range));
@@ -501,7 +510,7 @@ as a annotation like the following are needed in our <em>range</em> sample:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class RangeValidator implements ConstraintValidator&lt;CheckMinLessOrEqualMax, Range&gt; {
+<pre class="prettyprint highlight"><code data-lang="java">public class RangeValidator implements ConstraintValidator&lt;CheckMinLessOrEqualMax, Range&gt; {
 
 	public void initialize(CheckMinLessOrEqualMax arg0) {
 	}
@@ -514,7 +523,7 @@ as a annotation like the following are needed in our <em>range</em> sample:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Target({ FIELD, METHOD, PARAMETER, ANNOTATION_TYPE, TYPE_USE })
+<pre class="prettyprint highlight"><code data-lang="java">@Target({ FIELD, METHOD, PARAMETER, ANNOTATION_TYPE, TYPE_USE })
 @Retention(RUNTIME)
 @Constraint(validatedBy = RangeValidator.class)
 @Documented
@@ -538,7 +547,7 @@ custom Bean Validation configurations:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation-config
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;validation-config
 	xmlns="http://xmlns.jcp.org/xml/ns/validation/configuration"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/validation/configuration
@@ -558,7 +567,7 @@ to the <code>Range</code> model class:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;constraint-mappings
 	xmlns="http://xmlns.jcp.org/xml/ns/validation/mapping"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -585,7 +594,7 @@ above:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ curl localhost:8080/bean-validation/range -d '{ "min": 1001, "max": 0 }' \
+<pre class="prettyprint highlight"><code>$ curl localhost:8080/bean-validation/range -d '{ "min": 1001, "max": 0 }' \
        -H "Content-Type: application/json" -H "Accept: application/json" -o - -v \
      | jq
 ...
@@ -640,7 +649,7 @@ format is also considered, for example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ curl localhost:8080/bean-validation/range -d '{ "min": 1001, "max": 0 }' \
+<pre class="prettyprint highlight"><code>$ curl localhost:8080/bean-validation/range -d '{ "min": 1001, "max": 0 }' \
        -H "Content-Type: application/json" -H "Accept: application/xml" -o - -v \
      | xmllint --format -
 ...

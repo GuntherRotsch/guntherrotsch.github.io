@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -118,7 +127,7 @@ the predefined Wildfly layers <code>jaxrs</code> and <code>management</code> for
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;build&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;build&gt;
     ...
     &lt;plugins&gt;
         &lt;plugin&gt;
@@ -159,7 +168,7 @@ it from another shell with:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ curl localhost:8080/hello
+<pre class="prettyprint highlight"><code>$ curl localhost:8080/hello
 Hello from Wildfly JAR</code></pre>
 </div>
 </div>
@@ -216,7 +225,7 @@ be started with:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ mvn wildfly-jar:dev-watch
+<pre class="prettyprint highlight"><code>$ mvn wildfly-jar:dev-watch
 
 [INFO] Scanning for projects...
 [INFO]
@@ -247,7 +256,7 @@ console:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">...
+<pre class="prettyprint highlight"><code>...
 [INFO] Changes detected - recompiling the module!
 [INFO] Compiling 2 source files to /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/classes
 [INFO] Exploding webapp
@@ -284,7 +293,7 @@ easy as adding the following to the plugin configuration:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">    &lt;hollow-jar&gt;true&lt;/hollow-jar&gt;</code></pre>
+<pre class="prettyprint highlight"><code data-lang="xml">    &lt;hollow-jar&gt;true&lt;/hollow-jar&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -313,7 +322,7 @@ which need to be provided when testing the application:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ curl localhost:8080/wildfly/hello
+<pre class="prettyprint highlight"><code>$ curl localhost:8080/wildfly/hello
 Hello from Wildfly JAR</code></pre>
 </div>
 </div>
@@ -338,7 +347,7 @@ plugin&#8217;s configuration. For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">    &lt;cli-sessions&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">    &lt;cli-sessions&gt;
         &lt;cli-session&gt;
             &lt;script-files&gt;
                 &lt;script&gt;scripts/logging.cli&lt;/script&gt;
@@ -354,7 +363,7 @@ plugin&#8217;s configuration. For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">keystore.path=/etc/wf-secrets/keystore.jks
+<pre class="prettyprint highlight"><code>keystore.path=/etc/wf-secrets/keystore.jks
 keystore.password=password
 undertow.server=default-server
 config.path=/etc/config
@@ -367,7 +376,7 @@ are for example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">/subsystem=logging/logger=net.gunther.wildfly.demo:add(level=ALL)
+<pre class="prettyprint highlight"><code>/subsystem=logging/logger=net.gunther.wildfly.demo:add(level=ALL)
 /subsystem=logging/json-formatter=json-formatter:add(exception-output-type=formatted, pretty-print=false, meta-data={version="1"}, key-overrides={timestamp="@timestamp"})
 /subsystem=logging/console-handler=CONSOLE:write-attribute(name=level,value=ALL)
 /subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter, value=json-formatter)</code></pre>
@@ -378,7 +387,7 @@ are for example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">...
+<pre class="prettyprint highlight"><code>...
 {"@timestamp":"2021-01-28T19:45:13.323+01:00","sequence":34,"loggerClassName":"org.slf4j.impl.Slf4jLogger","loggerName":"net.gunther.wildfly.demo.app.HelloResource","level":"DEBUG","message":"GET HelloResource called.","threadName":"default task-1","threadId":65,"mdc":{},"ndc":"","hostName":"gunther-k501uq","processName":"wildfly-bootable.jar","processId":32887,"version":"1"}
 ...</code></pre>
 </div>

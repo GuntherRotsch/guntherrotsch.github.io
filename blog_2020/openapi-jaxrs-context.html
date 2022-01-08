@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -109,7 +118,7 @@ The code samples shown in this Blog post use the OpenAPI Maven plugin:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;plugin&gt;
   &lt;groupId&gt;org.openapitools&lt;/groupId&gt;
   &lt;artifactId&gt;openapi-generator-maven-plugin&lt;/artifactId&gt;
   &lt;version&gt;4.2.3&lt;/version&gt;
@@ -146,7 +155,7 @@ convenient start of the sample application from the command-line by</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">mvn thorntail:run</code></pre>
+<pre class="prettyprint highlight"><code>mvn thorntail:run</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -165,7 +174,7 @@ annotation:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    javax.ws.rs.core.Application
+<pre class="prettyprint highlight"><code data-lang="java">    javax.ws.rs.core.Application
     javax.ws.rs.core.HttpHeaders
     javax.ws.rs.core.Request
     javax.ws.rs.core.SecurityContext
@@ -183,7 +192,7 @@ deployed to a servlet container:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">    javax.servlet.HttpServletRequest
+<pre class="prettyprint highlight"><code data-lang="java">    javax.servlet.HttpServletRequest
     javax.servlet.HttpServletResponse
     javax.servlet.ServletConfig
     javax.servlet.ServletContext</code></pre>
@@ -204,7 +213,7 @@ generator&#8217;s option</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;interfaceOnly&gt;true&lt;/interfaceOnly&gt;</code></pre>
+<pre class="prettyprint highlight"><code data-lang="xml">  &lt;interfaceOnly&gt;true&lt;/interfaceOnly&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -216,7 +225,7 @@ this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  Path("/greeting")
+<pre class="prettyprint highlight"><code data-lang="java">  Path("/greeting")
   @Api(description = "the greeting API")
   @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", date = "2020-03-23T19:02:54.718784+01:00[Europe/Zurich]")
   public interface GreetingApi {
@@ -236,7 +245,7 @@ manually, eg.:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public class GreetingApiImpl implements GreetingApi {
+<pre class="prettyprint highlight"><code data-lang="java">  public class GreetingApiImpl implements GreetingApi {
 
   	private static final Logger LOGGER = LoggerFactory.getLogger(GreetingApiImpl.class);
 
@@ -273,7 +282,7 @@ OpenAPI generator to</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;interfaceOnly&gt;false&lt;/interfaceOnly&gt;</code></pre>
+<pre class="prettyprint highlight"><code data-lang="xml">  &lt;interfaceOnly&gt;false&lt;/interfaceOnly&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -285,7 +294,7 @@ object is now generated and must not longer provided with the application code.<
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  @Path("/greeting")
+<pre class="prettyprint highlight"><code data-lang="java">  @Path("/greeting")
   @Api(description = "the greeting API")
   @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaJAXRSSpecServerCodegen", date = "2020-03-23T19:06:40.010561+01:00[Europe/Zurich]")
   public class GreetingApi {
@@ -333,7 +342,7 @@ the configuration</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;templateDirectory&gt;${project.basedir}/src/main/templates&lt;/templateDirectory&gt;</code></pre>
+<pre class="prettyprint highlight"><code data-lang="xml">  &lt;templateDirectory&gt;${project.basedir}/src/main/templates&lt;/templateDirectory&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -362,7 +371,7 @@ the equally named templates of the generator.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  @Inject {{package}}.services.{{classname}}Impl delegatee;</code></pre>
+<pre class="prettyprint highlight"><code data-lang="java">  @Inject {{package}}.services.{{classname}}Impl delegatee;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -371,7 +380,7 @@ in the <code>apiMethod.mustache</code> template file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public Response {{nickname}}({{#allParams}}{{&gt;queryParams}}{{&gt;pathParams}}{{&gt;headerParams}}{{&gt;bodyParams}}{{&gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+<pre class="prettyprint highlight"><code data-lang="java">  public Response {{nickname}}({{#allParams}}{{&gt;queryParams}}{{&gt;pathParams}}{{&gt;headerParams}}{{&gt;bodyParams}}{{&gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
       return delegatee.{{nickname}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
   }</code></pre>
 </div>
@@ -382,7 +391,7 @@ simplest form like:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  package net.gunther.blog.codegen.api.services;
+<pre class="prettyprint highlight"><code data-lang="java">  package net.gunther.blog.codegen.api.services;
 
   import javax.ws.rs.core.Response;
 
@@ -403,7 +412,7 @@ JAX/RS context:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@RequestScoped
+<pre class="prettyprint highlight"><code data-lang="java">@RequestScoped
 public class JAXRSContext {
 
   private UriInfo uriInfo;
@@ -447,7 +456,7 @@ object to the customized <code>api.mustache</code> template file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  ...
+<pre class="prettyprint highlight"><code data-lang="java">  ...
   @Context UriInfo uriInfo;
   @Context HttpHeaders httpHeaders;
 
@@ -461,7 +470,7 @@ template <code>apiMethod.mustache</code> file can further customized by adding:<
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public Response {{nickname}}({{#allParams}}{{&gt;queryParams}}{{&gt;pathParams}}{{&gt;headerParams}}{{&gt;bodyParams}}{{&gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
+<pre class="prettyprint highlight"><code data-lang="java">  public Response {{nickname}}({{#allParams}}{{&gt;queryParams}}{{&gt;pathParams}}{{&gt;headerParams}}{{&gt;bodyParams}}{{&gt;formParams}}{{#hasMore}},{{/hasMore}}{{/allParams}}) {
     context.setUriInfo(uriInfo);
     context.setHttpHeaders(httpHeaders);
     return delegatee.{{nickname}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
@@ -482,7 +491,7 @@ CDI bean, eg. the delegatee&#8217;s service implementation:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">  public class GreetingApiImpl {
+<pre class="prettyprint highlight"><code data-lang="java">  public class GreetingApiImpl {
 
   	private static final Logger LOGGER = LoggerFactory.getLogger(GreetingApiImpl.class);
 
@@ -506,7 +515,7 @@ requested JAX/RS resource are logged, for example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">2020-03-24 20:45:02,834 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) Headers:
+<pre class="prettyprint highlight"><code>2020-03-24 20:45:02,834 INFO  [net.gunther.blog.codegen.api.services.GreetingApiImpl] (default task-1) Headers:
 	DNT: [1]
 	Accept-Language: [en-US,en;q=0.5]
 	Host: [localhost:8080]

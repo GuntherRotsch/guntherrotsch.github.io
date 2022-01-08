@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -106,7 +115,7 @@ server&#8217;s <code>standalone.xml</code> (stripped down to the crucial parts):
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;subsystem xmlns="urn:jboss:domain:undertow:3.0"&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;subsystem xmlns="urn:jboss:domain:undertow:3.0"&gt;
     &lt;buffer-cache name="default"/&gt;
     &lt;server name="default-server"&gt;
         &lt;http-listener name="default" redirect-socket="https" socket-binding="http"/&gt;
@@ -187,7 +196,7 @@ into the project&#8217;s <code>extra-content</code> directory:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-html hljs" data-lang="html">&lt;!DOCTYPE html&gt;
+<pre class="prettyprint highlight"><code data-lang="html">&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;
   &lt;meta charset="utf-8" /&gt;
@@ -207,7 +216,7 @@ The CLI scripts are hosted in <code>scripts/setup.cli</code>  file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">/subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
+<pre class="prettyprint highlight"><code data-lang="xml">/subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
 /subsystem=undertow/server=default-server/host=default-host/location="/public":add(handler="public-content")</code></pre>
 </div>
 </div>
@@ -222,7 +231,7 @@ Wildfly Bootable JAR packaging by the Maven plugin:</p>
 <div class="listingblock">
 <div class="title">Maven pom.xml:</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">...
+<pre class="prettyprint highlight"><code data-lang="xml">...
 &lt;build&gt;
     ...
     &lt;plugins&gt;
@@ -269,7 +278,7 @@ Wildfly Bootable JAR packaging by the Maven plugin:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell"># build and execute the application
+<pre class="prettyprint highlight"><code data-lang="shell"># build and execute the application
 $ mvn clean package
 ...
 $ java -jar target/mvc-demo-bootable.jar
@@ -317,7 +326,7 @@ Maven plugin configuration of the Wildfly Bootable JAR need to be amended with:<
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">/subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
+<pre class="prettyprint highlight"><code data-lang="xml">/subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
 /subsystem=undertow/server=default-server/host=default-host/location="/":add(handler="public-content")</code></pre>
 </div>
 </div>
@@ -327,7 +336,7 @@ pre-defined welcome page of the classical Wildfly application server:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell"># build and execute the application
+<pre class="prettyprint highlight"><code data-lang="shell"># build and execute the application
 $ mvn clean package
 ...
 $ java -jar target/mvc-demo-bootable.jar --deployment=target/mvc-demo.war

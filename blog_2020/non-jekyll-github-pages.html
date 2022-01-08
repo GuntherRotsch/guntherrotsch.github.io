@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -123,7 +132,7 @@ eg. the <code>header.ftl</code> has to reference the right stylesheets:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">...
+<pre class="prettyprint highlight"><code>...
 &lt;link href="&lt;#if (content.rootpath)??&gt;${content.rootpath}&lt;#else&gt;&lt;/#if&gt;assets/css/bootstrap.min.css" rel="stylesheet"&gt;
 &lt;link href="&lt;#if (content.rootpath)??&gt;${content.rootpath}&lt;#else&gt;&lt;/#if&gt;assets/css/asciidoctor.css" rel="stylesheet"&gt;
 &lt;link href="&lt;#if (content.rootpath)??&gt;${content.rootpath}&lt;#else&gt;&lt;/#if&gt;assets/css/base.css" rel="stylesheet"&gt;
@@ -146,7 +155,7 @@ follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">/
+<pre class="prettyprint highlight"><code>/
    ...
    index.html
    ...

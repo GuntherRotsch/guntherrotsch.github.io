@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -173,7 +182,7 @@ which is based on Google&#8217;s <em>distroless</em> image for Java 11:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">FROM gcr.io/distroless/java:11
+<pre class="prettyprint highlight"><code>FROM gcr.io/distroless/java:11
 
 COPY target/mvc-demo-bootable.jar /app/main.jar
 WORKDIR /app
@@ -187,7 +196,7 @@ The regular <code>docker build</code> command creates the image:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ docker build -t mvc-app .
+<pre class="prettyprint highlight"><code>$ docker build -t mvc-app .
 Sending build context to Docker daemon  204.7MB
 Step 1/4 : FROM gcr.io/distroless/java:11
  ---&gt; 6395a77cb03c
@@ -210,7 +219,7 @@ Successfully tagged mvc-app:latest</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ docker run --sysctl net.ipv4.ip_forward=1 --network=host -p 8080:8080 --rm -it mvc-app:latest
+<pre class="prettyprint highlight"><code>$ docker run --sysctl net.ipv4.ip_forward=1 --network=host -p 8080:8080 --rm -it mvc-app:latest
 WARNING: Published ports are discarded when using host network mode
 05:26:38,437 INFO  [org.wildfly.jar] (main) WFLYJAR0007: Installed server and application in /tmp/wildfly-bootable-server5397933122926229342, took 932ms
 05:26:38,684 INFO  [org.wildfly.jar] (main) WFLYJAR0008: Server options: [--read-only-server-config=standalone.xml]
@@ -232,7 +241,7 @@ distribution based images:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">$ docker images
+<pre class="prettyprint highlight"><code>$ docker images
 REPOSITORY           TAG              IMAGE ID            CREATED             SIZE
 mvc-app              latest           d21a6c599d58        4 minutes ago       265MB
 ...</code></pre>

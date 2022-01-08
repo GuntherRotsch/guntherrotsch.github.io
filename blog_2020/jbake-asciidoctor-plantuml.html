@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -109,7 +118,7 @@ dependency of <code>jbake-maven-plugin</code> on the <em>diagram</em> extension:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;dependency&gt;
   &lt;groupId&gt;org.asciidoctor&lt;/groupId&gt;
   &lt;artifactId&gt;asciidoctorj-diagram&lt;/artifactId&gt;
   &lt;version&gt;1.5.18&lt;/version&gt;
@@ -125,7 +134,7 @@ dependency of <code>jbake-maven-plugin</code> on the <em>diagram</em> extension:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">asciidoctor.option.requires=asciidoctor-diagram
+<pre class="prettyprint highlight"><code data-lang="java">asciidoctor.option.requires=asciidoctor-diagram
 asciidoctor.attributes=sourceDir=src/main/jbake,imagesdir=assets/img/diagrams,imagesoutdir=../../assets/assets/img/diagrams,source-highlighter=highlight.js,icons=font</code></pre>
 </div>
 </div>
@@ -145,7 +154,7 @@ in Blog posts. The definition:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">[plantuml, "asciidoctor-sequence-diagram", "png"]
+<pre class="prettyprint highlight"><code>[plantuml, "asciidoctor-sequence-diagram", "png"]
 ----
 Alice -&gt; Bob: Authentication Request
 Bob --&gt; Alice: Authentication Response
@@ -170,7 +179,7 @@ diagrams of directory hierarchies for example. The definition:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">[plantuml, "file-system-tree", "png", opts="inline"]
+<pre class="prettyprint highlight"><code>[plantuml, "file-system-tree", "png", opts="inline"]
 ----
 @startuml
 skinparam {

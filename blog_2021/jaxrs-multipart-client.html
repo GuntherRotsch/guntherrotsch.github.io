@@ -27,6 +27,14 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
     <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
   </head>
   <body onload="prettyPrint()">
     <div id="wrap">
@@ -46,6 +54,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
             <li><a href="../about.html">About</a></li>
             <li><a href="../feed.xml">Subscribe</a></li>
 		<!--
@@ -116,7 +125,7 @@ Such HTTP requests are typically submitted by HTML forms like the following:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;h2&gt;File Upload Example&lt;/h2&gt;
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;h2&gt;File Upload Example&lt;/h2&gt;
 &lt;form action="form" method="post" enctype="multipart/form-data"&gt;
        &lt;p&gt;Select a file : &lt;input type="file" name="file" /&gt;
        &lt;p&gt;Input your name: &lt;input type="string" name="name" /&gt;
@@ -194,7 +203,7 @@ think of an API like the following:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">Client client = ClientBuilder.newBuilder()
+<pre class="prettyprint highlight"><code data-lang="java">Client client = ClientBuilder.newBuilder()
                              .register(MultipartMessageBodyWriter.class)
                              .build(); <i class="conum" data-value="1"></i><b>(1)</b>
 
@@ -259,7 +268,7 @@ multipart message is basically a list of parts:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MultiPartMessage {
+<pre class="prettyprint highlight"><code data-lang="java">public class MultiPartMessage {
 
 	private List&lt;Part&gt; parts = new ArrayList&lt;&gt;();
 
@@ -280,7 +289,7 @@ multipart message is basically a list of parts:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface Part {
+<pre class="prettyprint highlight"><code data-lang="java">public interface Part {
 
 	List&lt;String&gt; getContentHeaders();
 
@@ -299,7 +308,7 @@ like:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class FieldPart implements Part {
+<pre class="prettyprint highlight"><code data-lang="java">public class FieldPart implements Part {
 
 	private String name;
 	private String value;
@@ -325,7 +334,7 @@ like:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class FilePart implements Part {
+<pre class="prettyprint highlight"><code data-lang="java">public class FilePart implements Part {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FilePart.class);
 
@@ -386,7 +395,7 @@ to avoid resource leaking:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MultipartMessageBodyWriter implements MessageBodyWriter&lt;MultiPartMessage&gt; {
+<pre class="prettyprint highlight"><code data-lang="java">public class MultipartMessageBodyWriter implements MessageBodyWriter&lt;MultiPartMessage&gt; {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MultipartMessageBodyWriter.class);
 
