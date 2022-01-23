@@ -12,8 +12,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import org.eclipse.krazo.engine.Viewable;
-
 @Path("tasks")
 @Controller
 @RequestScoped
@@ -56,16 +54,16 @@ public class TaskController {
 	}
 
 	@GET
-	public Viewable showTasks() {
+	public String showTasks() {
 		models.put("tasks", tasksList);
-		return new Viewable("tasks/tasks.ftl");
+		return "tasks/tasks.ftl";
 	}
 
 	@POST
-	public Viewable addTask(@FormParam("description") String description,
+	public String addTask(@FormParam("description") String description,
 			@FormParam("priority") TaskPriority priority) {
 		tasksList.add(new Task(description, priority));
 		models.put("tasks", tasksList);
-		return new Viewable("tasks/tasks.ftl");
+		return "tasks/tasks.ftl";
 	}
 }

@@ -15,7 +15,7 @@ This will create an executable jar file **mvc-demo-wildfly.jar** within
 the _target_ maven folder. This can be started by executing the following
 command
 
-    java -jar target/mvc-demo-wildfly.jar
+    java -jar target/mvc-demo-bootable.jar
 
 To launch the test page, open your browser at the following URL
 
@@ -50,3 +50,4 @@ Commands to build the Docker image:
 
   docker build -t mvc-app .
   docker run --rm -it mvc-app:latest
+

@@ -1,0 +1,438 @@
+
+
+Definitions in POM are a bit fragile:
+
+- Packing needs to be jar: <packaging>jar</packaging>
+- however, it seems to be that the definition of the war plugin is required
+- Final name must be required: <finalName>${project.artifactId}</finalName>
+- In addition, the Wildfly jar config requires:
+ . <output-file-name>${project.artifactId}.jar</output-file-name>
+ . <hollow-jar>false</hollow-jar>
+- Final name and output-file-name the same is fine
+
+- additional settings to push image to Dockerhub
+
+
+Dockerhub token passed in as system property (for convenience defined as
+environment variable):
+
+```
+$ mvn verify jib:build -DDOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}
+
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -------------------< net.gunther.wildfly:jaxrs-jar >--------------------
+[INFO] Building jaxrs-jar 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- maven-resources-plugin:3.0.2:resources (default-resources) @ jaxrs-jar ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/src/main/resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.0:compile (default-compile) @ jaxrs-jar ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-resources-plugin:3.0.2:testResources (default-testResources) @ jaxrs-jar ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/src/test/resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.0:testCompile (default-testCompile) @ jaxrs-jar ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-surefire-plugin:3.0.0-M5:test (default-test) @ jaxrs-jar ---
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running net.gunther.wildfly.demo.app.HelloResourceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.114 s - in net.gunther.wildfly.demo.app.HelloResourceTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- maven-jar-plugin:3.0.2:jar (default-jar) @ jaxrs-jar ---
+[INFO]
+[INFO] --- maven-war-plugin:3.3.2:war (default) @ jaxrs-jar ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [jaxrs-jar] in [/home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/jaxrs-jar]
+[INFO] Processing war project
+[INFO] Building war: /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/jaxrs-jar.war
+[INFO]
+[INFO] --- wildfly-jar-maven-plugin:7.0.0.Final:package (default) @ jaxrs-jar ---
+[INFO] Provisioning server configuration based on the set of configured layers
+[INFO] Building server based on [[wildfly@maven(org.jboss.universe:community-universe)#26.0.0.Final inherit-packages=false inheritConfigs=false]] galleon feature-packs
+[INFO] Found boot artifact org.wildfly.core:wildfly-jar-boot:jar:18.0.0.Final:provided in org.wildfly:wildfly-ee-galleon-pack:26.0.0.Final
+[INFO] CLI executions are done in forked process
+[INFO] Executing CLI, Server configuration
+[INFO] CLI scripts execution done.
+[INFO] Executing CLI, CLI Session, scripts=[scripts/logging.cli], resolve-expressions=true, properties-file=scripts/cli.properties
+[INFO] CLI scripts execution done.
+[INFO]
+[INFO] --- jib-maven-plugin:3.2.0:build (default) @ jaxrs-jar ---
+[INFO]
+[INFO] Containerizing application to guntherrotsch/jaxrs-jar:jib...
+[WARNING] Base image 'gcr.io/distroless/java:11-debug' does not use a specific image digest - build may not be reproducible
+[INFO] Using credentials from <to><auth> for guntherrotsch/jaxrs-jar:jib
+[INFO] Using base image with digest: sha256:5aef525390e139abc5762b71c598289190d335f598b5159f726c2d5cfaf1e37d
+[INFO]
+[INFO] Container entrypoint set to [java, -cp, @/app/jib-classpath-file, org.wildfly.core.jar.boot.Main]
+[INFO] Container program arguments set to [-b=0.0.0.0]
+[INFO]
+[INFO] Built and pushed image as guntherrotsch/jaxrs-jar:jib
+[INFO] Executing tasks:
+[INFO] [============================  ] 91.7% complete
+[INFO] > launching layer pushers
+[INFO]
+[INFO]
+[INFO] --- jib-maven-plugin:3.2.0:build (default-cli) @ jaxrs-jar ---
+[INFO]
+[INFO] Containerizing application to guntherrotsch/jaxrs-jar:jib...
+[WARNING] Base image 'gcr.io/distroless/java:11-debug' does not use a specific image digest - build may not be reproducible
+[INFO] Using credentials from <to><auth> for guntherrotsch/jaxrs-jar:jib
+[INFO] Using base image with digest: sha256:5aef525390e139abc5762b71c598289190d335f598b5159f726c2d5cfaf1e37d
+[INFO]
+[INFO] Container entrypoint set to [java, -cp, @/app/jib-classpath-file, org.wildfly.core.jar.boot.Main]
+[INFO] Container program arguments set to [-b=0.0.0.0]
+[INFO]
+[INFO] Built and pushed image as guntherrotsch/jaxrs-jar:jib
+[INFO] Executing tasks:
+[INFO] [============================  ] 91.7% complete
+[INFO] > launching layer pushers
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  55.569 s
+[INFO] Finished at: 2022-01-23T13:18:45+01:00
+[INFO] ------------------------------------------------------------------------
+
+
+```
+
+Add output (at least snippets) should be provided for the commands (for debug
+container configuration):
+
+```
+$ podman pull docker.io/guntherrotsch/jaxrs-jar:jib
+Trying to pull docker.io/guntherrotsch/jaxrs-jar:jib...
+Getting image source signatures
+Copying blob 6748f1c8d3a9 done
+Copying blob c6f4d1a13b69 done
+Copying blob 2df365faf0e3 done
+Copying blob 6c435cae1aa4 done
+Copying blob a1f1879bb7de done
+Copying blob 7e061386ba97 done
+Copying blob 7184b4032cdf skipped: already exists
+Copying blob cb0722bc62de done
+Copying config 26cd06e55a done
+Writing manifest to image destination
+Storing signatures
+26cd06e55a87e2c0125c3c2d3f9ffd2eba86383f0690fecd05e9972f105db4ff
+
+$ podman images
+REPOSITORY                         TAG     IMAGE ID      CREATED       SIZE
+docker.io/guntherrotsch/jaxrs-jar  jib     26cd06e55a87  52 years ago  505 MB
+
+$ podman inspect docker.io/guntherrotsch/jaxrs-jar:jib
+[
+    {
+        "Id": "26cd06e55a87e2c0125c3c2d3f9ffd2eba86383f0690fecd05e9972f105db4ff",
+        "Digest": "sha256:2276d1ac9b659450439352a66c9a0a751428bfbd7b70c020ca1492e18577694f",
+        "RepoTags": [
+            "docker.io/guntherrotsch/jaxrs-jar:jib"
+        ],
+        "RepoDigests": [
+            "docker.io/guntherrotsch/jaxrs-jar@sha256:2276d1ac9b659450439352a66c9a0a751428bfbd7b70c020ca1492e18577694f"
+        ],
+        "Parent": "",
+        "Comment": "",
+        "Created": "1970-01-01T00:00:00Z",
+        "Config": {
+            "User": "0",
+            "ExposedPorts": {
+                "8080/tcp": {}
+            },
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/busybox",
+                "SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt",
+                "JAVA_VERSION=11.0.13",
+                "LANG=C.UTF-8"
+            ],
+            "Entrypoint": [
+                "java",
+                "-cp",
+                "@/app/jib-classpath-file",
+                "org.wildfly.core.jar.boot.Main"
+            ],
+            "Cmd": [
+                "-b=0.0.0.0"
+            ],
+            "WorkingDir": "/"
+        },
+        "Version": "",
+        "Author": "",
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 504660832,
+        "VirtualSize": 504660832,
+        "GraphDriver": {
+            "Name": "overlay",
+            "Data": {
+                "LowerDir": "/home/gunther/.local/share/containers/storage/overlay/68ccba614a02644c846b1356c6cf1653600a10f96163c7ebaac2573172431353/diff:/home/gunther/.local/share/containers/storage/overlay/fe9169df097d6dc8b0852d5b123e80c0c5fca6ea30d758faaa90be14a9e71102/diff:/home/gunther/.local/share/containers/storage/overlay/02db97bf3cf184836dd0fa5f227e224d6013f632fccf629b32fead74ee717674/diff:/home/gunther/.local/share/containers/storage/overlay/0da1288f638da30cee21921a2b6d225625352338ef80d13a5e06592857a2cba3/diff:/home/gunther/.local/share/containers/storage/overlay/c3b4d20c86734215df0ee24f2873ee3d73d5a25998ab6c352db7abcaf3e69f7b/diff:/home/gunther/.local/share/containers/storage/overlay/3940ed2f0225195a0f2d3c8abd92913594a551f7e5f9b79c002c4c1cc946377a/diff:/home/gunther/.local/share/containers/storage/overlay/5b1fa8e3e100361047c8bcd5553ab6329b9c713c1d4eb87a646760329cea5b3a/diff",
+                "UpperDir": "/home/gunther/.local/share/containers/storage/overlay/2984054ae5497500fd64b6a2cc6afabd39841dc7cbf9feebaaa7d9d8cf020e6e/diff",
+                "WorkDir": "/home/gunther/.local/share/containers/storage/overlay/2984054ae5497500fd64b6a2cc6afabd39841dc7cbf9feebaaa7d9d8cf020e6e/work"
+            }
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:5b1fa8e3e100361047c8bcd5553ab6329b9c713c1d4eb87a646760329cea5b3a",
+                "sha256:0b3d0512394dcbd9c121ea350abd85b2490f4b80e4d4dae4691f80d94915474b",
+                "sha256:fe430356f391b8e4916d61c41e6f69f6105311b93eaafbf9ae235bf75d31728e",
+                "sha256:e83d4114481dc897d49d5a9a8b68bf71c4f08f1a5c1adff44603c56b958fed53",
+                "sha256:d65df54102c31c05aea903d9841783c74986516e146af623a578de5d7ff62415",
+                "sha256:034e3b4b4d1ea17a8b672d73dade51c27b59a165e73012d629f08ca19d8a813c",
+                "sha256:6fe5ba4cd4601720f0453f6aa475e468b655e417dc76b876f4ca7d3da5d477be",
+                "sha256:caf1cdf56c5cc3d084a6ed13c63c7903032b25e92a7a79e2f63fa7b24ae26230"
+            ]
+        },
+        "Labels": {},
+        "Annotations": {},
+        "ManifestType": "application/vnd.docker.distribution.manifest.v2+json",
+        "User": "0",
+        "History": [
+            {
+                "created": "1970-01-01T00:00:00Z",
+                "created_by": "bazel build ...",
+                "author": "Bazel"
+            },
+            {
+                "created": "1970-01-01T00:00:00Z",
+                "created_by": "bazel build ...",
+                "author": "Bazel"
+            },
+            {
+                "created": "1970-01-01T00:00:00Z",
+                "created_by": "bazel build ...",
+                "author": "Bazel"
+            },
+            {
+                "created": "1970-01-01T00:00:00Z",
+                "created_by": "bazel build ...",
+                "author": "Bazel"
+            },
+            {
+                "created": "1970-01-01T00:00:00Z",
+                "created_by": "bazel build ...",
+                "author": "Bazel"
+            },
+            {
+                "created": "1970-01-01T00:00:00Z",
+                "created_by": "bazel build ...",
+                "author": "Bazel"
+            },
+            {
+                "created": "1970-01-01T00:00:00Z",
+                "created_by": "jib-maven-plugin:3.2.0",
+                "author": "Jib",
+                "comment": "extra files"
+            },
+            {
+                "created": "1970-01-01T00:00:00Z",
+                "created_by": "jib-maven-plugin:3.2.0",
+                "author": "Jib",
+                "comment": "jvm arg files"
+            }
+        ],
+        "NamesHistory": [
+            "docker.io/guntherrotsch/jaxrs-jar:jib"
+        ]
+    }
+]
+
+$ podman run --rm -it --publish "0.0.0.0:8080:8080" docker.io/guntherrotsch/jaxrs-jar:jib
+12:28:17,355 INFO  [org.wildfly.jar] (main) WFLYJAR0007: Installed server and application in /tmp/wildfly-bootable-server16817916357726508481, took 939ms
+12:28:17,673 INFO  [org.wildfly.jar] (main) WFLYJAR0008: Server options: [-b=0.0.0.0, --read-only-server-config=standalone.xml]
+12:28:17,789 INFO  [org.jboss.msc] (main) JBoss MSC version 1.4.13.Final
+12:28:17,799 INFO  [org.jboss.threads] (main) JBoss Threads version 2.4.0.Final
+12:28:17,924 INFO  [org.jboss.as] (MSC service thread 1-3) WFLYSRV0049: WildFly Full 26.0.0.Final (WildFly Core 18.0.0.Final) starting
+12:28:17,926 DEBUG [org.jboss.as.config] (MSC service thread 1-3) Configured system properties:
+	awt.toolkit = sun.awt.X11.XToolkit
+	file.encoding = UTF-8
+	file.separator = /
+	java.awt.graphicsenv = sun.awt.X11GraphicsEnvironment
+	java.awt.printerjob = sun.print.PSPrinterJob
+	java.class.path = /app/classpath/jaxrs-jar.jar
+	java.class.version = 55.0
+	java.home = /usr/lib/jvm/java-11-openjdk-amd64
+	java.io.tmpdir = /tmp
+	java.library.path = /usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
+	java.runtime.name = OpenJDK Runtime Environment
+	java.runtime.version = 11.0.13+8-post-Debian-1deb11u1
+	java.specification.name = Java Platform API Specification
+	java.specification.vendor = Oracle Corporation
+	java.specification.version = 11
+	java.util.logging.manager = org.jboss.logmanager.LogManager
+	java.vendor = Debian
+	java.vendor.url = https://tracker.debian.org/openjdk-11
+	java.vendor.url.bug = https://bugs.debian.org/openjdk-11
+	java.version = 11.0.13
+	java.version.date = 2021-10-19
+	java.vm.compressedOopsMode = Zero based
+	java.vm.info = mixed mode
+	java.vm.name = OpenJDK 64-Bit Server VM
+	java.vm.specification.name = Java Virtual Machine Specification
+	java.vm.specification.vendor = Oracle Corporation
+	java.vm.specification.version = 11
+	java.vm.vendor = Debian
+	java.vm.version = 11.0.13+8-post-Debian-1deb11u1
+	javax.management.builder.initial = org.jboss.as.jmx.PluggableMBeanServerBuilder
+	jboss.bind.address = 0.0.0.0
+	jboss.controller.temp.dir = /tmp/wildfly-bootable-server16817916357726508481/standalone/tmp
+	jboss.home.dir = /tmp/wildfly-bootable-server16817916357726508481
+	jboss.host.name = 515e5aa4a138
+	jboss.modules.dir = /tmp/wildfly-bootable-server16817916357726508481/modules
+	jboss.modules.system.pkgs = org.jboss.modules
+	jboss.node.name = 515e5aa4a138
+	jboss.qualified.host.name = 515e5aa4a138
+	jboss.server.base.dir = /tmp/wildfly-bootable-server16817916357726508481/standalone
+	jboss.server.config.dir = /tmp/wildfly-bootable-server16817916357726508481/standalone/configuration
+	jboss.server.data.dir = /tmp/wildfly-bootable-server16817916357726508481/standalone/data
+	jboss.server.deploy.dir = /tmp/wildfly-bootable-server16817916357726508481/standalone/data/content
+	jboss.server.log.dir = /tmp/wildfly-bootable-server16817916357726508481/standalone/log
+	jboss.server.name = 515e5aa4a138
+	jboss.server.persist.config = false
+	jboss.server.temp.dir = /tmp/wildfly-bootable-server16817916357726508481/standalone/tmp
+	jdk.debug = release
+	line.separator =
+
+	module.path = /tmp/wildfly-bootable-server16817916357726508481/modules
+	org.jboss.boot.log.file = /tmp/wildfly-bootable-server16817916357726508481/standalone/log/server.log
+	org.jboss.resolver.warning = true
+	os.arch = amd64
+	os.name = Linux
+	os.version = 5.13.0-27-generic
+	path.separator = :
+	sun.arch.data.model = 64
+	sun.boot.library.path = /usr/lib/jvm/java-11-openjdk-amd64/lib
+	sun.cpu.endian = little
+	sun.cpu.isalist =
+	sun.io.unicode.encoding = UnicodeLittle
+	sun.java.command = org.wildfly.core.jar.boot.Main -b=0.0.0.0
+	sun.java.launcher = SUN_STANDARD
+	sun.jnu.encoding = UTF-8
+	sun.management.compiler = HotSpot 64-Bit Tiered Compilers
+	sun.os.patch.level = unknown
+	user.dir = /
+	user.home = /root
+	user.language = en
+	user.name = root
+	user.timezone = GMT
+12:28:17,931 DEBUG [org.jboss.as.config] (MSC service thread 1-3) VM Arguments:
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.wildfly.extension.elytron.SSLDefinitions (jar:file:/tmp/wildfly-bootable-server16817916357726508481/modules/system/layers/base/org/wildfly/extension/elytron/main/wildfly-elytron-integration-18.0.0.Final.jar!/) to method com.sun.net.ssl.internal.ssl.Provider.isFIPS()
+WARNING: Please consider reporting this to the maintainers of org.wildfly.extension.elytron.SSLDefinitions
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+12:28:18,687 INFO  [org.wildfly.security] (ServerService Thread Pool -- 8) ELY00001: WildFly Elytron version 1.18.1.Final
+12:28:19,100 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0039: Creating http management service using socket-binding (management-http)
+12:28:19,127 INFO  [org.xnio] (MSC service thread 1-4) XNIO version 3.8.5.Final
+12:28:19,148 INFO  [org.xnio.nio] (MSC service thread 1-4) XNIO NIO Implementation Version 3.8.5.Final
+12:28:19,223 INFO  [org.jboss.as.jaxrs] (ServerService Thread Pool -- 17) WFLYRS0016: RESTEasy version 4.7.4.Final
+12:28:19,236 INFO  [org.jboss.as.naming] (ServerService Thread Pool -- 19) WFLYNAM0001: Activating Naming Subsystem
+12:28:19,255 INFO  [org.jboss.remoting] (MSC service thread 1-1) JBoss Remoting version 5.0.23.Final
+12:28:19,275 INFO  [org.wildfly.extension.microprofile.config.smallrye] (ServerService Thread Pool -- 18) WFLYCONF0001: Activating MicroProfile Config Subsystem
+12:28:19,273 INFO  [org.wildfly.extension.io] (ServerService Thread Pool -- 16) WFLYIO001: Worker 'default' has auto-configured to 8 IO threads with 64 max task threads based on your 4 available processors
+12:28:19,280 INFO  [org.jboss.as.naming] (MSC service thread 1-5) WFLYNAM0003: Starting Naming Service
+12:28:19,362 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) WFLYUT0003: Undertow 2.2.14.Final starting
+12:28:19,478 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0012: Started server default-server.
+12:28:19,488 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) Queuing requests.
+12:28:19,489 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) WFLYUT0018: Host default-host starting
+12:28:19,537 WARN  [org.wildfly.extension.elytron] (MSC service thread 1-5) WFLYELY00023: KeyStore file '/tmp/wildfly-bootable-server16817916357726508481/standalone/configuration/application.keystore' does not exist. Used blank.
+12:28:19,546 WARN  [org.wildfly.extension.elytron] (MSC service thread 1-3) WFLYELY01084: KeyStore /tmp/wildfly-bootable-server16817916357726508481/standalone/configuration/application.keystore not found, it will be auto generated on first use with a self-signed certificate for host localhost
+12:28:19,570 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-1) WFLYUT0006: Undertow HTTP listener default listening on [0:0:0:0:0:0:0:0]:8080
+12:28:19,587 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-6) WFLYSRV0027: Starting deployment of "jaxrs-jar.war" (runtime-name: "ROOT.war")
+12:28:19,593 WARN  [org.jboss.as.domain.http.api.undertow] (MSC service thread 1-7) WFLYDMHTTP0003: Unable to load console module for slot main, disabling console
+12:28:21,333 INFO  [org.jboss.resteasy.resteasy_jaxrs.i18n] (ServerService Thread Pool -- 22) RESTEASY002225: Deploying javax.ws.rs.core.Application: class net.gunther.wildfly.demo.app.RestApplication
+12:28:21,387 INFO  [org.hibernate.validator.internal.util.Version] (ServerService Thread Pool -- 22) HV000001: Hibernate Validator 6.0.22.Final
+12:28:21,438 INFO  [org.wildfly.extension.undertow] (ServerService Thread Pool -- 22) WFLYUT0021: Registered web context: '/' for server 'default-server'
+12:28:21,441 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0010: Deployed "jaxrs-jar.war" (runtime-name : "ROOT.war")
+12:28:21,476 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0212: Resuming server
+12:28:21,478 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Full 26.0.0.Final (WildFly Core 18.0.0.Final) started in 3799ms - Started 160 of 166 services (33 services are lazy, passive or on-demand)
+12:28:21,480 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0060: Http management interface listening on http://127.0.0.1:9990/management
+12:28:21,480 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0054: Admin console is not enabled
+
+```
+
+Testing the application:
+
+```
+$ curl localhost:8080/hello
+Hello from Wildfly JAR
+
+```
+
+Checking the Java version using another shell:
+
+```
+$ podman exec -it 1c46b504e801 sh
+/ # ps
+PID   USER     TIME  COMMAND
+    1 root      0:16 java -cp @/app/jib-classpath-file org.wildfly.core.jar.boot.Main -b=0.0.0.0
+   76 root      0:00 sh
+   77 root      0:00 ps
+/ # java -version
+openjdk version "11.0.13" 2021-10-19
+OpenJDK Runtime Environment (build 11.0.13+8-post-Debian-1deb11u1)
+OpenJDK 64-Bit Server VM (build 11.0.13+8-post-Debian-1deb11u1, mixed mode)
+/ #
+
+```
+
+The size of the non-debug image:
+
+```
+gunther@gunther-K501UQ:~/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar$ podman images
+REPOSITORY                         TAG     IMAGE ID      CREATED       SIZE
+docker.io/guntherrotsch/jaxrs-jar  jib     07440e12af76  52 years ago  276 MB
+
+```
+
+Switching between debug and non-debug image by Maven profiles:
+
+```
+<profiles>
+    <profile>
+        <id>jib-image</id>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+        <properties>
+            <from.image.tag>11</from.image.tag>
+            <to.image.tag>jib</to.image.tag>
+        </properties>
+    </profile>
+    <profile>
+        <id>jib-debug-image</id>
+        <activation>
+            <activeByDefault>false</activeByDefault>
+        </activation>
+        <properties>
+            <from.image.tag>11-debug</from.image.tag>
+            <to.image.tag>jib-debug</to.image.tag>
+        </properties>
+    </profile>
+</profiles>
+
+...
+
+$ mvn verify jib:build -DDOCKERHUB_TOKEN=${DOCKERHUB_TOKEN} -Pjib-debug-image
+
+```
+
+# Alternative:
+
+  docker pull docker.io/guntherrotsch/jaxrs-jar:jib
+  docker run --rm -it --publish "0.0.0.0:8080:8080" docker.io/guntherrotsch/jaxrs-jar:jib

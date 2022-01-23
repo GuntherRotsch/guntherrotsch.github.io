@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<groupId>net.gunther.wildfly</groupId>
 	<artifactId>jaxrs-jar</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<packaging>war</packaging>
-
-	<name>jaxrs-jar</name>
+	<packaging>jar</packaging>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,9 +15,36 @@
 
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 
-		<version.server.bom>22.0.0.Final</version.server.bom>
-		<version.junit>5.7.0</version.junit>
+		<plugin.fork.embedded>true</plugin.fork.embedded>
+
+		<docker.password>${DOCKERHUB_TOKEN}</docker.password>
+
+		<version.server.bom>26.0.0.Final</version.server.bom>
+		<version.junit>5.8.2</version.junit>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>jib-image</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<from.image.tag>11</from.image.tag>
+				<to.image.tag>jib</to.image.tag>
+			</properties>
+		</profile>
+		<profile>
+			<id>jib-debug-image</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<from.image.tag>11-debug</from.image.tag>
+				<to.image.tag>jib-debug</to.image.tag>
+			</properties>
+		</profile>
+	</profiles>
 
 	<dependencyManagement>
 		<dependencies>
@@ -47,7 +69,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-            <scope>provided</scope>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- TEST DEPENDENCIES -->
@@ -59,7 +81,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
+			<artifactId>resteasy-core</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -70,9 +92,8 @@
 	</dependencies>
 
 	<build>
-		<finalName>wildfly</finalName>
-
-		<pluginManagement><!-- lock down plugins versions to avoid using Maven
+		<pluginManagement>
+			<!-- lock down plugins versions to avoid using Maven
 				defaults (may be moved to parent pom) -->
 			<plugins>
 				<!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
@@ -111,6 +132,11 @@
 					<version>3.0.0</version>
 				</plugin>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>3.3.2</version>
+				</plugin>
+				<plugin>
 					<!-- Latest Surefire plugin is required to pick up JUnit5 tests. -->
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.0.0-M5</version>
@@ -119,12 +145,33 @@
 				<plugin>
 					<groupId>org.wildfly.plugins</groupId>
 					<artifactId>wildfly-jar-maven-plugin</artifactId>
-					<version>3.0.2.Final</version>
+					<version>7.0.0.Final</version>
+				</plugin>
+				<plugin>
+					<groupId>com.google.cloud.tools</groupId>
+					<artifactId>jib-maven-plugin</artifactId>
+					<version>3.2.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 
+
+		<finalName>${project.artifactId}</finalName>
+
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>war</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.wildfly.plugins</groupId>
 				<artifactId>wildfly-jar-maven-plugin</artifactId>
@@ -139,7 +186,8 @@
 					<excluded-layers>
 						<layer>deployment-scanner</layer>
 					</excluded-layers>
-					<hollow-jar>true</hollow-jar>
+					<!-- Hollow required to be disabled for jib build -->
+					<hollow-jar>false</hollow-jar>
 					<cli-sessions>
 						<cli-session>
 							<script-files>
@@ -150,13 +198,63 @@
 						</cli-session>
 					</cli-sessions>
 					<extra-server-content-dirs>
-                        <extra-content>extra-content</extra-content>
-                    </extra-server-content-dirs>
+						<extra-content>extra-content</extra-content>
+					</extra-server-content-dirs>
+					<plugin-options>
+						<jboss-fork-embedded>${plugin.fork.embedded}</jboss-fork-embedded>
+					</plugin-options>
+					<!-- required by jib to retrieve the bootable jar -->
+					<output-file-name>${project.artifactId}.jar</output-file-name>
 				</configuration>
 				<executions>
 					<execution>
 						<goals>
 							<goal>package</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<configuration>
+					<containerizingMode>packaged</containerizingMode>
+					<!-- Default base image is Distroless Openjdk. For debugging
+						 purposes an image with shell included might be helpful.
+					<from>
+						<image>gcr.io/distroless/java:11-debug</image>
+					</from>
+					-->
+					<from>
+						<image>gcr.io/distroless/java:${from.image.tag}</image>
+					</from>
+					<to>
+						<!-- to push to external Dockerhub repo -->
+						<image>docker.io/guntherrotsch/jaxrs-jar:${to.image.tag}</image>
+						<auth>
+							<username>guntherrotsch</username>
+							<password>${docker.password}</password>
+						</auth>
+					</to>
+
+					<container>
+						<args>
+							<!-- required to create a route -->
+							<arg>-b=0.0.0.0</arg>
+						</args>
+						<ports>
+							<port>8080</port>
+						</ports>
+						<mainClass>org.wildfly.core.jar.boot.Main</mainClass>
+					</container>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<!-- to push to external repo -->
+							<goal>build</goal>
 						</goals>
 					</execution>
 				</executions>

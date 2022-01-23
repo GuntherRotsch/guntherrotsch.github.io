@@ -17,7 +17,7 @@ public class HelloResource {
 	@Produces("text/plain")
 	public Response sayHello() {
 		LOGGER.debug("GET HelloResource called.");
-		
+
 		return Response.ok("Hello from Wildfly JAR\n").build();
 	}
 }

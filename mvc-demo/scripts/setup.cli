@@ -3,3 +3,4 @@
 
 /subsystem=undertow/configuration=handler/file=public-content:add(path="${jboss.home.dir}/web-root")
 /subsystem=undertow/server=default-server/host=default-host/location="/public":add(handler="public-content")
+
