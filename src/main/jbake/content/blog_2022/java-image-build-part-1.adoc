@@ -1,0 +1,361 @@
+= Java Image Build, Part 1
+Gunther Rotsch
+2022-01-30
+:jbake-type: post
+:jbake-tags: java, jib, maven, docker, container, wildfly, cloud-native
+:jbake-status: published
+:jbake-summary: Container images can be built in many ways, utilizing different tools. For Java developers a Java-only solution might be appealing. One of the more popular options in this area is jib, the Java Image Build tool from Google. In this Post we'll have at the look on how it can be used to package an MicroProfile application as container image.
+
+&nbsp;
+
+Historically, container images have been created predominantly by Docker. In
+the meantime several competing options to create container images emerged.
+All of them coming with their own pros and cons.
+
+
+=== What's wrong with Docker?
+
+The Docker architecture requires a daemon process running as `root`. Because
+privileged processes are not permitted in all environments, e.g. on container
+platforms, the usage of can be problematic. Although, there's nothing wrong
+with Docker in general, in some cases other tooling may be better.
+
+=== Why jib?
+
+Beside alternatives like `buildah/podman`, `Moby Buildkit` or `img`, pure
+Java tools are very appealing for a Java developer, because they don't have
+to leave their development environment they are familiar with. Just knowledge
+of Java and build tools like Maven (or Gradle) are required to create the
+final package/image the application is shipped.
+
+https://github.com/GoogleContainerTools/jib[jib - Containerize your Java
+application], the Java Image Build from Google, is one of the more popular
+tools available for building images with the Java development environment.
+Images build with `jib` can be directly pushed to a container registry.
+`jib` comes with a Maven plugin, we're going to use in the following.
+
+[NOTE]
+Jib also offers a Docker build mode, which utilizes Docker for creating the
+image. But in this Post we have a look at the _jib-native_ build, in
+which jib creates the image on its own and pushes it directly to a image
+registry.
+
+== Build Setup
+
+To demonstrate the image build with `jib`, I extended the existing
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-jar[
+JAX/RS Sample Project]. This project packages a REST API implemented as
+MicroProfile application based on https://docs.wildfly.org/bootablejar/[
+WildFly Bootable JAR] into an Single executable JAR file.
+
+To add the image build by `jib`, the build section requires the definition
+of an additional plugin:
+
+[source, xml]
+----
+<build>
+    <finalName>${project.artifactId}</finalName>
+
+    <plugins>
+        ...
+        <plugin>
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <configuration>
+                <containerizingMode>packaged</containerizingMode>
+                <!-- Default base image is Distroless Openjdk. For debugging
+                    purposes an image with shell included can be helpful. -->
+                <from>
+                    <image>gcr.io/distroless/java:${from.image.tag}</image>
+                </from>
+                <to>
+                    <!-- to push to external Dockerhub repo -->
+                    <image>docker.io/guntherrotsch/jaxrs-jar:${to.image.tag}</image>
+                    <auth>
+                        <username>guntherrotsch</username>
+                        <password>${docker.password}</password>
+                    </auth>
+                </to>
+                <container>
+                    <args>
+                        <!-- required to create a route -->
+                        <arg>-b=0.0.0.0</arg>
+                    </args>
+                    <ports>
+                        <port>8080</port>
+                    </ports>
+                    <mainClass>org.wildfly.core.jar.boot.Main</mainClass>
+                </container>
+            </configuration>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <!-- to push to external repo -->
+                        <goal>build</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+
+----
+
+The build configuration looks straight forward, but contains some pitfalls:
+
+- The packing of the POM needs to be: `<packaging>jar</packaging>`.
+- Nevertheless, the definition of the `war` plugin in the build section is
+required.
+- The final name must defined: `<finalName>${project.artifactId}</finalName>`.
+- The Wildfly Maven Jar plugin requires both:
+ . `<output-file-name>${project.artifactId}.jar</output-file-name>`
+ . `<hollow-jar>false</hollow-jar>`
+
+The build configuration shown above also contains settings to directly push
+the created image to Dockerhub. The required Dockerhub token is passed in as
+system property into the build.
+
+Actually, the `<from>` tag, which specifies the base image, is not required
+and defaults to https://github.com/GoogleContainerTools/distroless[Google
+Container Tools - Distroless] (also see
+https://guntherrotsch.github.io/blog_2021/distroless-distroless.html[
+Blog Post: Distroless? Distroless!]). The base image is explicitly defined
+here to allow the build of the debug image alternatively - more about this
+in a second.
+
+== Image Build and Execution
+
+With the Maven configuration in place the image can be build:
+
+[source, shell]
+----
+$ mvn verify jib:build -DDOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}
+
+[INFO] Scanning for projects...
+[INFO]
+[INFO] -------------------< net.gunther.wildfly:jaxrs-jar >--------------------
+[INFO] Building jaxrs-jar 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+
+...
+
+[INFO]
+[INFO] --- maven-jar-plugin:3.0.2:jar (default-jar) @ jaxrs-jar ---
+[INFO]
+[INFO] --- maven-war-plugin:3.3.2:war (default) @ jaxrs-jar ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [jaxrs-jar] in [/home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/jaxrs-jar]
+[INFO] Processing war project
+[INFO] Building war: /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-jar/target/jaxrs-jar.war
+[INFO]
+[INFO] --- wildfly-jar-maven-plugin:7.0.0.Final:package (default) @ jaxrs-jar ---
+[INFO] Provisioning server configuration based on the set of configured layers
+[INFO] Building server based on [[wildfly@maven(org.jboss.universe:community-universe)#26.0.0.Final inherit-packages=false inheritConfigs=false]] galleon feature-packs
+
+...
+
+[INFO] CLI scripts execution done.
+[INFO]
+[INFO] --- jib-maven-plugin:3.2.0:build (default) @ jaxrs-jar ---
+[INFO]
+[INFO] Containerizing application to guntherrotsch/jaxrs-jar:jib...
+[WARNING] Base image 'gcr.io/distroless/java:11-debug' does not use a specific image digest - build may not be reproducible
+[INFO] Using credentials from <to><auth> for guntherrotsch/jaxrs-jar:jib
+[INFO] Using base image with digest: sha256:5aef525390e139abc5762b71c598289190d335f598b5159f726c2d5cfaf1e37d
+[INFO]
+[INFO] Container entrypoint set to [java, -cp, @/app/jib-classpath-file, org.wildfly.core.jar.boot.Main]
+[INFO] Container program arguments set to [-b=0.0.0.0]
+[INFO]
+[INFO] Built and pushed image as guntherrotsch/jaxrs-jar:jib
+[INFO] Executing tasks:
+[INFO] [============================  ] 91.7% complete
+[INFO] > launching layer pushers
+[INFO]
+[INFO]
+[INFO] --- jib-maven-plugin:3.2.0:build (default-cli) @ jaxrs-jar ---
+[INFO]
+[INFO] Containerizing application to guntherrotsch/jaxrs-jar:jib...
+[WARNING] Base image 'gcr.io/distroless/java:11-debug' does not use a specific image digest - build may not be reproducible
+[INFO] Using credentials from <to><auth> for guntherrotsch/jaxrs-jar:jib
+[INFO] Using base image with digest: sha256:5aef525390e139abc5762b71c598289190d335f598b5159f726c2d5cfaf1e37d
+[INFO]
+[INFO] Container entrypoint set to [java, -cp, @/app/jib-classpath-file, org.wildfly.core.jar.boot.Main]
+[INFO] Container program arguments set to [-b=0.0.0.0]
+[INFO]
+[INFO] Built and pushed image as guntherrotsch/jaxrs-jar:jib
+[INFO] Executing tasks:
+[INFO] [============================  ] 91.7% complete
+[INFO] > launching layer pushers
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  55.569 s
+[INFO] Finished at: 2022-01-23T13:18:45+01:00
+[INFO] ------------------------------------------------------------------------
+
+----
+
+The image is directly pushed to the configured registry, Dockerhub in this
+case. Because there's no local copy of the image in Docker's cache for example,
+we need to pull it prior to executing it.
+
+[NOTE]
+I'm using Podman instead of Docker here, but Docker would do the job equally.
+
+[source, shell]
+----
+$ podman pull docker.io/guntherrotsch/jaxrs-jar:jib
+Trying to pull docker.io/guntherrotsch/jaxrs-jar:jib...
+Getting image source signatures
+Copying blob 6748f1c8d3a9 done
+Copying blob c6f4d1a13b69 done
+Copying blob 2df365faf0e3 done
+Copying blob 6c435cae1aa4 done
+Copying blob a1f1879bb7de done
+Copying blob 7e061386ba97 done
+Copying blob 7184b4032cdf skipped: already exists
+Copying blob cb0722bc62de done
+Copying config 26cd06e55a done
+Writing manifest to image destination
+Storing signatures
+26cd06e55a87e2c0125c3c2d3f9ffd2eba86383f0690fecd05e9972f105db4ff
+
+$ podman images
+REPOSITORY                         TAG     IMAGE ID      CREATED       SIZE
+docker.io/guntherrotsch/jaxrs-jar  jib     07440e12af76  52 years ago  276 MB
+----
+
+Surprisingly, the image dates from 52 years ago, which is the default behavior
+of jib: The creation timestamp is set to 1st of January 1970. The reasoning
+behind is that each time an image is built with a new creation timestamp, a
+different image results, at least in terms of the image checksum/id. With
+jib and its default creation timestamp setting identical images result in the
+same id. However, the setting can be configured differently.
+
+Please inspect the image to get more insights about it:
+
+    $ podman inspect docker.io/guntherrotsch/jaxrs-jar:jib
+
+After pulling the image successfully, we can start an container using the image
+and testing the application (from another shell):
+
+[source, shell]
+----
+$ podman run --rm -it --publish "0.0.0.0:8080:8080" docker.io/guntherrotsch/jaxrs-jar:jib
+12:28:17,355 INFO  [org.wildfly.jar] (main) WFLYJAR0007: Installed server and application in /tmp/wildfly-bootable-server16817916357726508481, took 939ms
+12:28:17,673 INFO  [org.wildfly.jar] (main) WFLYJAR0008: Server options: [-b=0.0.0.0, --read-only-server-config=standalone.xml]
+12:28:17,789 INFO  [org.jboss.msc] (main) JBoss MSC version 1.4.13.Final
+12:28:17,799 INFO  [org.jboss.threads] (main) JBoss Threads version 2.4.0.Final
+12:28:17,924 INFO  [org.jboss.as] (MSC service thread 1-3) WFLYSRV0049: WildFly Full 26.0.0.Final (WildFly Core 18.0.0.Final) starting
+...
+12:28:21,441 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0010: Deployed "jaxrs-jar.war" (runtime-name : "ROOT.war")
+12:28:21,476 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0212: Resuming server
+12:28:21,478 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Full 26.0.0.Final (WildFly Core 18.0.0.Final) started in 3799ms - Started 160 of 166 services (33 services are lazy, passive or on-demand)
+12:28:21,480 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0060: Http management interface listening on http://127.0.0.1:9990/management
+12:28:21,480 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0054: Admin console is not enabled
+
+
+# Testing the application (from different shell window):
+
+$ curl localhost:8080/hello
+Hello from Wildfly JAR
+$
+----
+
+=== Debug Image
+
+
+I already mentioned that I want to be able to switch to build a debug image of
+the distroless Java base image. For that reason the Maven POM contains an
+additional `jib-debug-image` profile with tag configurations as Maven
+properties:
+
+[source, xml]
+----
+<profiles>
+    <profile>
+        <id>jib-image</id>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+        <properties>
+            <from.image.tag>11</from.image.tag>
+            <to.image.tag>jib</to.image.tag>
+        </properties>
+    </profile>
+    <profile>
+        <id>jib-debug-image</id>
+        <activation>
+            <activeByDefault>false</activeByDefault>
+        </activation>
+        <properties>
+            <from.image.tag>11-debug</from.image.tag>
+            <to.image.tag>jib-debug</to.image.tag>
+        </properties>
+    </profile>
+</profiles>
+----
+
+This definition (together with the configuration of the Maven jib plugin above)
+allows to create a debug version of the application image:
+
+[source, sehll]
+----
+$ mvn verify jib:build -DDOCKERHUB_TOKEN=${DOCKERHUB_TOKEN} -Pjib-debug-image
+...
+
+$ podman pull docker.io/guntherrotsch/jaxrs-jar:jib-debug
+...
+
+$ podman images
+REPOSITORY                         TAG        IMAGE ID      CREATED       SIZE
+docker.io/guntherrotsch/jaxrs-jar  jib        07440e12af76  52 years ago  276 MB
+docker.io/guntherrotsch/jaxrs-jar  jib-debug  ad70cdb363dd  52 years ago  505 MB
+----
+
+The distroless debug image adds a shell and other command-line tools to the
+application image. The resulting image is almost twice the size of the plain
+distroless Java image and not meant to go into production. But for development
+it might be sometimes useful to exec into a shell in the container for analyzing
+issues. Let's check the Java version using the debug image's shell:
+
+[source, shell]
+----
+$ podman exec -it 1c46b504e801 sh
+/ # ps
+PID   USER     TIME  COMMAND
+    1 root      0:16 java -cp @/app/jib-classpath-file org.wildfly.core.jar.boot.Main -b=0.0.0.0
+   76 root      0:00 sh
+   77 root      0:00 ps
+/ # java -version
+openjdk version "11.0.13" 2021-10-19
+OpenJDK Runtime Environment (build 11.0.13+8-post-Debian-1deb11u1)
+OpenJDK 64-Bit Server VM (build 11.0.13+8-post-Debian-1deb11u1, mixed mode)
+/ #
+----
+
+== Conclusion
+
+The jib tooling provides an easy and straight-forward way to build containerized
+Java applications without leaving the Java development environment. Even a
+Dockerfile is not required at all, just proper configuration of the Maven
+(or Gradle) build plugin is required.
+
+While we packaged the Wildfly REST application into a single jar, this bootable
+jar is rebuilt each time the app is built. This is sub-optimal because major
+parts of the application, the included _just-enough_ application server, does
+not change, only the actual application changes from build to build. In the
+next part of this mini-series, we look at the decoupling of server packaging
+and app packaging, to optimize the image build further.
+
+
+== Links
+
+- https://github.com/GoogleContainerTools/jib[Google Container Tools - jib]
+- https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-jar[
+Simple JAX/RS Demo Application]
+- https://docs.wildfly.org/bootablejar/[WildFly Bootable JAR Documentation]
+- https://github.com/GoogleContainerTools/distroless[Google Container Tools - Distroless]
