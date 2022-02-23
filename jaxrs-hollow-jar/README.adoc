@@ -1,0 +1,15 @@
+
+= JAX-RS WildFly bootable jar Jib generated image
+
+We are using the packaged JAR and WAR support of Java Image Builder Jib. This
+example separates the creation of a hollow bootable JAR Jib image from the
+application JIB image. This allows for efficient application image build.
+The bootable JAR is built only once.
+
+[jaxrs-hollow-jar/server] $ mvn verify jib:build -DDOCKERHUB_TOKEN=${DOCKERHUB_TOKEN})
+
+[jaxrs-hollow-jar/app] $ mvn verify jib:build -DDOCKERHUB_TOKEN=${DOCKERHUB_TOKEN})
+
+[jaxrs-hollow] $ podman run --rm -it --publish "0.0.0.0:8080:8080" docker.io/guntherrotsch/jaxrs-app:jib
+
+Access the application: http://localhost:8080/hello

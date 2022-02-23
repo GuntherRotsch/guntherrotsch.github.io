@@ -3,12 +3,12 @@ package com.github.guntherrotsch.mvc.demo;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.mvc.Models;
 import javax.mvc.MvcContext;
 import javax.mvc.engine.ViewEngine;
 import javax.mvc.engine.ViewEngineContext;
@@ -39,23 +39,19 @@ public class FreeMarkerViewEngine implements ViewEngine {
 	public void processView(ViewEngineContext context) throws ViewEngineException {
 		ensureInit(context);
 
-		Models models = context.getModels();
-		// if model does not contain 'mvc' setting, the 'MvcContext' bean is added under
-		// this key
-		if (models.get("mvc") == null) {
-			models.put("mvc", mvcContext);
-		}
-		// if model does not contain 'named' setting, an instance of 'NamedBeanResolver'
-		// is added under this key
-		if (models.get("named") == null) {
-			models.put("named", new NamedBeanResolver());
-		}
+		Map<String, Object> modelsMap = new HashMap<>(context.getModels().asMap());
+		// Add the 'mvcContext' bean with key 'mvc' to the models map
+		modelsMap.put("mvc", mvcContext);
+		// Add an instance of 'NamedBeanResolver' with key 'named' to the models map
+		modelsMap.put("named", new NamedBeanResolver());
+		// Add the 'request' to the models map
+		modelsMap.put("request", context.getRequest(HttpServletRequest.class));
 
 		try {
 			Template temp = cfg.getTemplate(context.getView());
 			/* Merge data-model with template */
 			Writer out = new OutputStreamWriter(context.getOutputStream());
-			temp.process(models, out);
+			temp.process(modelsMap, out);
 		} catch (IOException | TemplateException e) {
 			throw new ViewEngineException(e);
 		}

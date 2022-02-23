@@ -115,21 +115,23 @@ Add output (at least snippets) should be provided for the commands (for debug
 container configuration):
 
 ```
-$ podman pull docker.io/guntherrotsch/jaxrs-jar:jib
-Trying to pull docker.io/guntherrotsch/jaxrs-jar:jib...
+$ podman pull docker.io/guntherrotsch/jaxrs-app:jib
+Trying to pull docker.io/guntherrotsch/jaxrs-app:jib...
 Getting image source signatures
-Copying blob 6748f1c8d3a9 done
-Copying blob c6f4d1a13b69 done
-Copying blob 2df365faf0e3 done
-Copying blob 6c435cae1aa4 done
-Copying blob a1f1879bb7de done
-Copying blob 7e061386ba97 done
-Copying blob 7184b4032cdf skipped: already exists
-Copying blob cb0722bc62de done
-Copying config 26cd06e55a done
+Copying blob 2df365faf0e3 skipped: already exists
+Copying blob a1f1879bb7de skipped: already exists
+Copying blob c6f4d1a13b69 skipped: already exists
+Copying blob f8637ebdb9cf done
+Copying blob 7f693fb4c128 done
+Copying blob de8ad43aa6b8 done
+Copying blob dc592bd45c36 done
+Copying blob cadddfac8147 done
+Copying blob f0e3c6c4292c done
+Copying config 08898d5db9 done
 Writing manifest to image destination
 Storing signatures
-26cd06e55a87e2c0125c3c2d3f9ffd2eba86383f0690fecd05e9972f105db4ff
+08898d5db904bdeaf3b86bb9c2a8171bebbc74878a2e48d7977ae7ae8a29e6dc
+
 
 $ podman images
 REPOSITORY                         TAG     IMAGE ID      CREATED       SIZE

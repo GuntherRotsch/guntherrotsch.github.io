@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.gunther.wildfly</groupId>
+	<artifactId>jaxrs-server</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<properties>
+		<plugin.fork.embedded>true</plugin.fork.embedded>
+
+		<docker.password>${DOCKERHUB_TOKEN}</docker.password>
+
+		<version.server.bom>26.0.1.Final</version.server.bom>
+	</properties>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+
+        <plugins>
+			<plugin>
+				<groupId>org.wildfly.plugins</groupId>
+				<artifactId>wildfly-jar-maven-plugin</artifactId>
+                <version>7.0.0.Final</version>
+				<configuration>
+					<feature-pack-location>wildfly@maven(org.jboss.universe:community-universe)#${version.server.bom}</feature-pack-location>
+					<layers>
+						<layer>jaxrs</layer>
+						<layer>management</layer>
+						<layer>undertow</layer>
+						<layer>logging</layer>
+					</layers>
+					<excluded-layers>
+						<layer>deployment-scanner</layer>
+					</excluded-layers>
+					<hollow-jar>true</hollow-jar>
+					<cli-sessions>
+						<cli-session>
+							<script-files>
+								<script>scripts/logging.cli</script>
+							</script-files>
+							<properties-file>scripts/cli.properties</properties-file>
+							<resolve-expressions>true</resolve-expressions>
+						</cli-session>
+					</cli-sessions>
+					<extra-server-content-dirs>
+						<extra-content>extra-content</extra-content>
+					</extra-server-content-dirs>
+					<plugin-options>
+						<jboss-fork-embedded>${plugin.fork.embedded}</jboss-fork-embedded>
+					</plugin-options>
+					<!-- required by jib to retrieve the bootable jar -->
+					<output-file-name>${project.artifactId}.jar</output-file-name>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>package</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+                <version>3.2.0</version>
+				<configuration>
+					<containerizingMode>packaged</containerizingMode>
+					<from>
+						<image>gcr.io/distroless/java:11</image>
+					</from>
+					<to>
+						<!-- to push to external Dockerhub repo -->
+						<image>docker.io/guntherrotsch/jaxrs-server-jar:jib</image>
+						<auth>
+							<username>guntherrotsch</username>
+							<password>${docker.password}</password>
+						</auth>
+					</to>
+
+					<container>
+						<args>
+							<!-- required to create a route -->
+							<arg>-b=0.0.0.0</arg>
+                            <!-- Deployed app installed by next layer -->
+                            <arg>--deployment=/deployments/ROOT.war/</arg>
+						</args>
+						<ports>
+							<port>8080</port>
+						</ports>
+						<mainClass>org.wildfly.core.jar.boot.Main</mainClass>
+					</container>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<!-- to push to external repo -->
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
