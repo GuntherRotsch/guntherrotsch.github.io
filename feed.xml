@@ -6,9 +6,428 @@
     <atom:link href="http://www.jbake.org/feed.xml" rel="self" type="application/rss+xml" />
     <description>JBake Bootstrap Template</description>
     <language>en-gb</language>
-    <pubDate>Sun, 30 Jan 2022 11:46:54 +0100</pubDate>
-    <lastBuildDate>Sun, 30 Jan 2022 11:46:54 +0100</lastBuildDate>
+    <pubDate>Sat, 26 Feb 2022 10:15:25 +0100</pubDate>
+    <lastBuildDate>Sat, 26 Feb 2022 10:15:25 +0100</lastBuildDate>
 
+    <item>
+      <title>Java Image Build, Part 2</title>
+      <link>http://www.jbake.org/blog_2022/java-image-build-part-2.html</link>
+      <pubDate>Sat, 26 Feb 2022 00:00:00 +0100</pubDate>
+      <guid isPermaLink="false">blog_2022/java-image-build-part-2.html</guid>
+      	<description>
+	&lt;div id=&quot;preamble&quot;&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;In &lt;a href=&quot;https://guntherrotsch.github.io/blog_2022/java-image-build-part-1.html&quot;&gt;part 1&lt;/a&gt;
+of this mini series about packaging Wildfly bootable JARs with JIB, the build
+has been performed in a single step. But if we have a closer look at the build
+steps, we can distinguish&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Java build (and unit test execution) of the application&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Provisioning of Wildfly application server as bootable JAR&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Creating the container image&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Typically, during development the application (code) changes frequently, while
+the provisioned server is more or less stable. Because of that, it would make
+sense to separate the provisioning of the application server and the build of
+the application. In this case, the application will be packaged as web
+application (WAR),  while the provisioned server is still an executable JAR
+file called Hollow JAR - see Blog Post
+&lt;a href=&quot;https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar.html&quot;&gt;Wildfly
+Bootable JAR&lt;/a&gt; for more details about Hollow JARs.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;So, the packaging as Hollow JAR can be beneficial when containerizing
+applications. Let&amp;#8217;s imagine that we create an application server image, that
+contains only the necessary parts required by our application. Such a image
+becomes the base image for building the application image itself. That way,
+the server image containing the Hollow JAR is built once (or at least rarely),
+while the build of the application takes place frequently, whenever any code
+changes. Because the application is small compared to the server runtime (just
+WAR of some kilobytes), the image build is expected to be much faster compared
+to the previous approach, when server and application has always been
+re-created from scratch.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect2&quot;&gt;
+&lt;h3 id=&quot;_build_setup&quot;&gt;Build Setup&lt;/h3&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;For setting up the build, I copied the demo project from the previous Blog Post
+and separated the packaging of the server runtime and the application itself
+in two independent Maven projects hosted in two sub-directories.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;You&amp;#8217;ll find the code of the demo project in
+&lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-hollow-jar&quot;&gt;
+JAX/RS Sample Hollow JAR Project&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The project structure of the Hollow JAR project separates the &lt;code&gt;server&lt;/code&gt; and &lt;code&gt;app&lt;/code&gt;
+into two distinct and independent Maven projects. The Maven projects are
+actually independent from Maven&amp;#8217;s perspective, i.e. not comprised in a parent
+(POM) project.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The main differences of the build configuration of the `server`to the build
+configuration of the first article are&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Wildfly JAR plugin creates hollow JAR due to &lt;code&gt;&amp;lt;hollow-jar&amp;gt;true&amp;lt;/hollow-jar&amp;gt;&lt;/code&gt;
+configuration&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;JIB plugin requires additional runtime argument
+&lt;code&gt;&amp;lt;arg&amp;gt;--deployment=/deployments/ROOT.war/&amp;lt;/arg&amp;gt;&lt;/code&gt;, because the application&amp;#8217;s
+WAR is built and added later&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;The packaging of the application build is a regular web application &lt;code&gt;war&lt;/code&gt;, so
+the Wildfly JAR plugin is not required. The JIB plugin configuration look like:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;xml&quot;&gt;&amp;lt;plugin&amp;gt;
+    &amp;lt;groupId&amp;gt;com.google.cloud.tools&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;jib-maven-plugin&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;3.2.0&amp;lt;/version&amp;gt;
+    &amp;lt;configuration&amp;gt;
+        &amp;lt;from&amp;gt;
+            &amp;lt;image&amp;gt;docker.io/guntherrotsch/jaxrs-server-jar:jib&amp;lt;/image&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;(1)&lt;/b&gt;
+        &amp;lt;/from&amp;gt;
+        &amp;lt;to&amp;gt;
+            &amp;lt;!-- to push to external Dockerhub repo --&amp;gt;
+            &amp;lt;image&amp;gt;docker.io/guntherrotsch/jaxrs-app:jib&amp;lt;/image&amp;gt;
+            &amp;lt;auth&amp;gt;
+                &amp;lt;username&amp;gt;guntherrotsch&amp;lt;/username&amp;gt;
+                &amp;lt;password&amp;gt;${docker.password}&amp;lt;/password&amp;gt;
+            &amp;lt;/auth&amp;gt;
+        &amp;lt;/to&amp;gt;
+
+        &amp;lt;container&amp;gt;
+            &amp;lt;entrypoint&amp;gt;INHERIT&amp;lt;/entrypoint&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;(2)&lt;/b&gt;
+            &amp;lt;appRoot&amp;gt;/deployments/ROOT.war&amp;lt;/appRoot&amp;gt; &lt;i class=&quot;conum&quot; data-value=&quot;3&quot;&gt;&lt;/i&gt;&lt;b&gt;(3)&lt;/b&gt;
+        &amp;lt;/container&amp;gt;
+    &amp;lt;/configuration&amp;gt;
+    &amp;lt;executions&amp;gt;
+        &amp;lt;execution&amp;gt;
+            &amp;lt;phase&amp;gt;package&amp;lt;/phase&amp;gt;
+            &amp;lt;goals&amp;gt;
+                &amp;lt;!-- to push to external repo --&amp;gt;
+                &amp;lt;goal&amp;gt;build&amp;lt;/goal&amp;gt;
+            &amp;lt;/goals&amp;gt;
+        &amp;lt;/execution&amp;gt;
+    &amp;lt;/executions&amp;gt;
+&amp;lt;/plugin&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;colist arabic&quot;&gt;
+&lt;table&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;1&quot;&gt;&lt;/i&gt;&lt;b&gt;1&lt;/b&gt;&lt;/td&gt;
+&lt;td&gt;The Hollow JAR &lt;code&gt;server&lt;/code&gt; image becomes the base image of the application
+image.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;2&quot;&gt;&lt;/i&gt;&lt;b&gt;2&lt;/b&gt;&lt;/td&gt;
+&lt;td&gt;The entrypoint of the images is inherited from the base image.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;i class=&quot;conum&quot; data-value=&quot;3&quot;&gt;&lt;/i&gt;&lt;b&gt;3&lt;/b&gt;&lt;/td&gt;
+&lt;td&gt;The application WAR is added to the &lt;code&gt;deployments&lt;/code&gt; folder corresponding
+to the additional runtime argument of the &lt;code&gt;server&lt;/code&gt; build.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_image_build_and_execution&quot;&gt;Image Build and Execution&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;With the Maven configuration in place the images, server as well as application,
+can be build:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;shell&quot;&gt;[jaxrs-hollow-jar] cd server
+[jaxrs-hollow-jar/server] mvn verify jib:build -DDOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------&amp;lt; net.gunther.wildfly:jaxrs-server &amp;gt;------------------
+[INFO] Building jaxrs-server 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+
+...
+
+[INFO] --- wildfly-jar-maven-plugin:7.0.0.Final:package (default) @ jaxrs-server ---
+[INFO] Provisioning server configuration based on the set of configured layers
+[INFO] Building server based on [[wildfly@maven(org.jboss.universe:community-universe)#26.0.1.Final inherit-packages=false inheritConfigs=false]] galleon feature-packs
+[INFO] Found boot artifact org.wildfly.core:wildfly-jar-boot:jar:18.0.4.Final:provided in org.wildfly:wildfly-ee-galleon-pack:26.0.1.Final
+[INFO] CLI executions are done in forked process
+[INFO] Hollow jar, No application deployment added to server.
+[INFO] Executing CLI, CLI Session, scripts=[scripts/logging.cli], resolve-expressions=true, properties-file=scripts/cli.properties
+[INFO] CLI scripts execution done.
+[INFO]
+[INFO] --- jib-maven-plugin:3.2.0:build (default) @ jaxrs-server ---
+[INFO]
+[INFO] Containerizing application to guntherrotsch/jaxrs-server-jar:jib...
+[WARNING] Base image &apos;gcr.io/distroless/java:11&apos; does not use a specific image digest - build may not be reproducible
+[INFO] Using credentials from &amp;lt;to&amp;gt;&amp;lt;auth&amp;gt; for guntherrotsch/jaxrs-server-jar:jib
+[INFO] Using base image with digest: sha256:b45698486fb932b6a1b462b86a0038f0b53df905575c91c8b591974f3e0cac98
+[INFO]
+[INFO] Container entrypoint set to [java, -cp, /app/classpath/*:/app/libs/*, org.wildfly.core.jar.boot.Main]
+[INFO] Container program arguments set to [-b=0.0.0.0, --deployment=/deployments/ROOT.war/]
+[INFO]
+[INFO] Built and pushed image as guntherrotsch/jaxrs-server-jar:jib
+[INFO] Executing tasks:
+[INFO] [============================  ] 91.7% complete
+[INFO] &amp;gt; launching layer pushers
+[INFO]
+[INFO]
+[INFO] --- jib-maven-plugin:3.2.0:build (default-cli) @ jaxrs-server ---
+[INFO]
+[INFO] Containerizing application to guntherrotsch/jaxrs-server-jar:jib...
+[WARNING] Base image &apos;gcr.io/distroless/java:11&apos; does not use a specific image digest - build may not be reproducible
+[INFO] Using credentials from &amp;lt;to&amp;gt;&amp;lt;auth&amp;gt; for guntherrotsch/jaxrs-server-jar:jib
+[INFO] Using base image with digest: sha256:b45698486fb932b6a1b462b86a0038f0b53df905575c91c8b591974f3e0cac98
+[INFO]
+[INFO] Container entrypoint set to [java, -cp, /app/classpath/*:/app/libs/*, org.wildfly.core.jar.boot.Main]
+[INFO] Container program arguments set to [-b=0.0.0.0, --deployment=/deployments/ROOT.war/]
+[INFO]
+[INFO] Built and pushed image as guntherrotsch/jaxrs-server-jar:jib
+[INFO] Executing tasks:
+[INFO] [============================  ] 91.7% complete
+[INFO] &amp;gt; launching layer pushers
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  46.806 s
+[INFO] Finished at: 2022-02-16T11:34:32+01:00
+[INFO] ------------------------------------------------------------------------
+[jaxrs-hollow-jar/server]
+[jaxrs-hollow-jar/server] $ podman pull docker.io/guntherrotsch/jaxrs-server-jar:jib
+Trying to pull docker.io/guntherrotsch/jaxrs-server-jar:jib...
+Getting image source signatures
+Copying blob c6f4d1a13b69 skipped: already exists
+Copying blob a1f1879bb7de skipped: already exists
+Copying blob 2df365faf0e3 skipped: already exists
+Copying blob 7f693fb4c128 done
+Copying blob 86e52a123483 done
+Copying blob f8637ebdb9cf done
+Copying blob dc592bd45c36 done
+Copying config 7f1a44fa17 done
+Writing manifest to image destination
+Storing signatures
+7f1a44fa17caf6e8c75b9005c0903ccaec5d7274683714ebea21403451ebfcb1
+
+[jaxrs-hollow-jar/server] cd ../app
+[jaxrs-hollow-jar/app]
+
+[jaxrs-hollow-jar/app]
+
+[jaxrs-hollow-jar/app]
+
+[jaxrs-hollow-jar/app] mvn verify jib:build -DDOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}
+[INFO] Scanning for projects...
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-war-plugin/3.1.0/maven-war-plugin-3.1.0.pom
+Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-war-plugin/3.1.0/maven-war-plugin-3.1.0.pom (9.3 kB at 16 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-war-plugin/3.1.0/maven-war-plugin-3.1.0.jar
+Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-war-plugin/3.1.0/maven-war-plugin-3.1.0.jar (91 kB at 666 kB/s)
+[INFO]
+[INFO] -------------------&amp;lt; net.gunther.wildfly:jaxrs-app &amp;gt;--------------------
+[INFO] Building jaxrs-app 1.0-SNAPSHOT
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ jaxrs-app ---
+[INFO] Using &apos;UTF-8&apos; encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-hollow-jar/app/src/main/resources
+
+...
+
+[INFO]
+[INFO] --- maven-war-plugin:3.1.0:war (default-war) @ jaxrs-app ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [jaxrs-app] in [/home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-hollow-jar/app/target/jaxrs-app]
+[INFO] Processing war project
+[INFO] Webapp assembled in [25 msecs]
+[INFO] Building war: /home/gunther/_work/repos/GuntherRotsch.github.com/guntherrotsch.github.io/code/jaxrs-hollow-jar/app/target/jaxrs-app.war
+[INFO]
+[INFO] --- jib-maven-plugin:3.2.0:build (default) @ jaxrs-app ---
+[INFO]
+[INFO] Containerizing application to guntherrotsch/jaxrs-app:jib...
+[WARNING] Base image &apos;guntherrotsch/jaxrs-server-jar:jib&apos; does not use a specific image digest - build may not be reproducible
+[INFO] Using credentials from &amp;lt;to&amp;gt;&amp;lt;auth&amp;gt; for guntherrotsch/jaxrs-app:jib
+[INFO] The base image requires auth. Trying again for guntherrotsch/jaxrs-server-jar:jib...
+[INFO] Using credentials from Docker config (/home/gunther/.docker/config.json) for guntherrotsch/jaxrs-server-jar:jib
+[INFO] Using base image with digest: sha256:d038a8f169944753f157b644c135dbb54ab645d71112cb5da7f16bd85955d39e
+[INFO]
+[INFO] Container entrypoint set to [java, -cp, /app/classpath/*:/app/libs/*, org.wildfly.core.jar.boot.Main] (inherited from base image)
+[INFO] Container program arguments set to [-b=0.0.0.0, --deployment=/deployments/ROOT.war/] (inherited from base image)
+[INFO]
+[INFO] Built and pushed image as guntherrotsch/jaxrs-app:jib
+[INFO] Executing tasks:
+[INFO] [============================  ] 92.9% complete
+[INFO] &amp;gt; launching layer pushers
+[INFO]
+[INFO]
+[INFO] --- jib-maven-plugin:3.2.0:build (default-cli) @ jaxrs-app ---
+[INFO]
+[INFO] Containerizing application to guntherrotsch/jaxrs-app:jib...
+[WARNING] Base image &apos;guntherrotsch/jaxrs-server-jar:jib&apos; does not use a specific image digest - build may not be reproducible
+[INFO] Using credentials from &amp;lt;to&amp;gt;&amp;lt;auth&amp;gt; for guntherrotsch/jaxrs-app:jib
+[INFO] The base image requires auth. Trying again for guntherrotsch/jaxrs-server-jar:jib...
+[INFO] Using credentials from Docker config (/home/gunther/.docker/config.json) for guntherrotsch/jaxrs-server-jar:jib
+[INFO] Using base image with digest: sha256:d038a8f169944753f157b644c135dbb54ab645d71112cb5da7f16bd85955d39e
+[INFO]
+[INFO] Container entrypoint set to [java, -cp, /app/classpath/*:/app/libs/*, org.wildfly.core.jar.boot.Main] (inherited from base image)
+[INFO] Container program arguments set to [-b=0.0.0.0, --deployment=/deployments/ROOT.war/] (inherited from base image)
+[INFO]
+[INFO] Built and pushed image as guntherrotsch/jaxrs-app:jib
+[INFO] Executing tasks:
+[INFO] [============================  ] 91.7% complete
+[INFO] &amp;gt; launching layer pushers
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  24.552 s
+[INFO] Finished at: 2022-02-16T11:42:50+01:00
+[INFO] ------------------------------------------------------------------------
+
+[jaxrs-hollow-jar/app] podman pull docker.io/guntherrotsch/jaxrs-app:jib
+Trying to pull docker.io/guntherrotsch/jaxrs-app:jib...
+Getting image source signatures
+Copying blob 86e52a123483 skipped: already exists
+Copying blob c6f4d1a13b69 skipped: already exists
+Copying blob f8637ebdb9cf skipped: already exists
+Copying blob dc592bd45c36 skipped: already exists
+Copying blob a1f1879bb7de skipped: already exists
+Copying blob 2df365faf0e3 skipped: already exists
+Copying blob 7f693fb4c128 skipped: already exists
+Copying blob aa8ec6fe4535 done
+Copying blob f0e3c6c4292c done
+Copying config 519f539e98 done
+Writing manifest to image destination
+Storing signatures
+519f539e98d032fc1b986f8cb907b1f6e35408d8d5c18f22eb1b0398bb34ec77&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Because the application image is based on the server image, the build requires
+only half of the time about. Please note the many already existing layers
+reported by the build log.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Now we can execute the application and test it:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;shell&quot;&gt;[jaxrs-hollow-jar] podman images
+REPOSITORY                                TAG        IMAGE ID      CREATED       SIZE
+docker.io/guntherrotsch/jaxrs-jar         jib        07440e12af76  52 years ago  276 MB
+docker.io/guntherrotsch/jaxrs-jar         jib-debug  ad70cdb363dd  52 years ago  505 MB
+docker.io/guntherrotsch/jaxrs-server-jar  jib        7f1a44fa17ca  52 years ago  277 MB
+docker.io/guntherrotsch/jaxrs-app         jib        519f539e98d0  52 years ago  277 MB
+
+[jaxrs-hollow-jar] $ podman run --rm -it --publish &quot;0.0.0.0:8080:8080&quot; docker.io/guntherrotsch/jaxrs-app:jib
+10:46:08,328 INFO  [org.wildfly.jar] (main) WFLYJAR0006: Deployed /deployments/ROOT.war in server
+10:46:08,338 INFO  [org.wildfly.jar] (main) WFLYJAR0007: Installed server and application in /tmp/wildfly-bootable-server935367089119766930, took 1144ms
+10:46:08,621 INFO  [org.wildfly.jar] (main) WFLYJAR0008: Server options: [-b=0.0.0.0, --read-only-server-config=standalone.xml]
+10:46:08,718 INFO  [org.jboss.msc] (main) JBoss MSC version 1.4.13.Final
+10:46:08,724 INFO  [org.jboss.threads] (main) JBoss Threads version 2.4.0.Final
+10:46:08,865 INFO  [org.jboss.as] (MSC service thread 1-3) WFLYSRV0049: WildFly Full 26.0.1.Final (WildFly Core 18.0.4.Final) starting
+
+...
+
+10:46:10,120 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-4) WFLYUT0003: Undertow 2.2.14.Final starting
+10:46:10,215 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-2) WFLYUT0012: Started server default-server.
+10:46:10,216 WARN  [org.wildfly.extension.elytron] (MSC service thread 1-5) WFLYELY00023: KeyStore file &apos;/tmp/wildfly-bootable-server935367089119766930/standalone/configuration/application.keystore&apos; does not exist. Used blank.
+10:46:10,222 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) Queuing requests.
+10:46:10,223 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0018: Host default-host starting
+10:46:10,235 WARN  [org.wildfly.extension.elytron] (MSC service thread 1-2) WFLYELY01084: KeyStore /tmp/wildfly-bootable-server935367089119766930/standalone/configuration/application.keystore not found, it will be auto generated on first use with a self-signed certificate for host localhost
+10:46:10,283 WARN  [org.jboss.as.domain.http.api.undertow] (MSC service thread 1-4) WFLYDMHTTP0003: Unable to load console module for slot main, disabling console
+10:46:10,319 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-2) WFLYSRV0027: Starting deployment of &quot;ROOT.war&quot; (runtime-name: &quot;ROOT.war&quot;)
+10:46:10,328 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-8) WFLYUT0006: Undertow HTTP listener default listening on [0:0:0:0:0:0:0:0]:8080
+10:46:11,802 INFO  [org.jboss.resteasy.resteasy_jaxrs.i18n] (ServerService Thread Pool -- 23) RESTEASY002225: Deploying javax.ws.rs.core.Application: class net.gunther.wildfly.demo.app.RestApplication
+10:46:11,902 INFO  [org.hibernate.validator.internal.util.Version] (ServerService Thread Pool -- 23) HV000001: Hibernate Validator 6.0.22.Final
+10:46:12,012 INFO  [org.wildfly.extension.undertow] (ServerService Thread Pool -- 23) WFLYUT0021: Registered web context: &apos;/&apos; for server &apos;default-server&apos;
+10:46:12,015 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0010: Deployed &quot;ROOT.war&quot; (runtime-name : &quot;ROOT.war&quot;)
+10:46:12,051 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0212: Resuming server
+10:46:12,055 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Full 26.0.1.Final (WildFly Core 18.0.4.Final) started in 3428ms - Started 160 of 166 services (33 services are lazy, passive or on-demand)
+10:46:12,057 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0060: Http management interface listening on http://127.0.0.1:9990/management
+10:46:12,057 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0054: Admin console is not enabled&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;In a different terminal &lt;code&gt;cURL&lt;/code&gt; can be used to request the &lt;code&gt;hello&lt;/code&gt; end-point:&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;listingblock&quot;&gt;
+&lt;div class=&quot;content&quot;&gt;
+&lt;pre class=&quot;prettyprint highlight&quot;&gt;&lt;code data-lang=&quot;shell&quot;&gt;$ curl localhost:8080/hello
+Hello from Wildfly JAR&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;Looks like everything works fine, really cool.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;paragraph&quot;&gt;
+&lt;p&gt;As we already noticed in the first article, JIB tooling provides an easy and
+straight-forward way to build containerized Java applications without leaving
+the Java development environment. With the optimization for Wildfly Bootable
+JAR projects presented here, we in addition get a really fast image build,
+which safes a lot of time in &lt;em&gt;Edit-Build-Test&lt;/em&gt; cycles.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;sect1&quot;&gt;
+&lt;h2 id=&quot;_links&quot;&gt;Links&lt;/h2&gt;
+&lt;div class=&quot;sectionbody&quot;&gt;
+&lt;div class=&quot;ulist&quot;&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/GoogleContainerTools/jib&quot;&gt;Google Container Tools - jib&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://docs.wildfly.org/bootablejar/&quot;&gt;WildFly Bootable JAR Documentation&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/jaxrs-hollow-jar&quot;&gt;
+JAX/RS Sample Hollow JAR Project&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/GoogleContainerTools/distroless&quot;&gt;Google Container
+Tools - Distroless&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+	</description>
+    </item>
     <item>
       <title>Java Image Build, Part 1</title>
       <link>http://www.jbake.org/blog_2022/java-image-build-part-1.html</link>
