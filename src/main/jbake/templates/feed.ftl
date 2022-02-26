@@ -17,7 +17,11 @@
       <guid isPermaLink="false">${post.uri}</guid>
       	<description>
 	<#escape x as x?xml>
-	${post.body}
+      <#if (post.summary??)>
+        ${post.summary}
+      <#else>
+        ${post.body}
+      </#if>
 	</#escape>
 	</description>
     </item>
