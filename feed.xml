@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>JBake</title>
-    <link>http://www.jbake.org</link>
-    <atom:link href="http://www.jbake.org/feed.xml" rel="self" type="application/rss+xml" />
-    <description>JBake Bootstrap Template</description>
-    <language>en-gb</language>
-    <pubDate>Sat, 26 Feb 2022 10:15:25 +0100</pubDate>
-    <lastBuildDate>Sat, 26 Feb 2022 10:15:25 +0100</lastBuildDate>
+    <title>Gunther's Blog</title>
+    <link>https://guntherrotsch.github.io</link>
+    <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <description>Gunther Rotsch - Blog</description>
+    <language>en-us</language>
+    <pubDate>Sat, 26 Feb 2022 10:27:06 +0100</pubDate>
+    <lastBuildDate>Sat, 26 Feb 2022 10:27:06 +0100</lastBuildDate>
 
     <item>
       <title>Java Image Build, Part 2</title>
-      <link>http://www.jbake.org/blog_2022/java-image-build-part-2.html</link>
+      <link>https://guntherrotsch.github.io/blog_2022/java-image-build-part-2.html</link>
       <pubDate>Sat, 26 Feb 2022 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2022/java-image-build-part-2.html</guid>
       	<description>
@@ -430,7 +430,7 @@ Tools - Distroless&lt;/a&gt;&lt;/p&gt;
     </item>
     <item>
       <title>Java Image Build, Part 1</title>
-      <link>http://www.jbake.org/blog_2022/java-image-build-part-1.html</link>
+      <link>https://guntherrotsch.github.io/blog_2022/java-image-build-part-1.html</link>
       <pubDate>Sun, 30 Jan 2022 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2022/java-image-build-part-1.html</guid>
       	<description>
@@ -877,7 +877,7 @@ Simple JAX/RS Demo Application&lt;/a&gt;&lt;/p&gt;
     </item>
     <item>
       <title>Jakarta MVC with FreeMarker, part 2</title>
-      <link>http://www.jbake.org/blog_2021/jakarta-mvc-freemarker2.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/jakarta-mvc-freemarker2.html</link>
       <pubDate>Tue, 28 Dec 2021 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2021/jakarta-mvc-freemarker2.html</guid>
       	<description>
@@ -1308,7 +1308,7 @@ Sample Project Code on Github&lt;/a&gt;&lt;/p&gt;
     </item>
     <item>
       <title>Code-First REST API Development</title>
-      <link>http://www.jbake.org/blog_2021/rest-api-code-first.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/rest-api-code-first.html</link>
       <pubDate>Sat, 20 Nov 2021 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2021/rest-api-code-first.html</guid>
       	<description>
@@ -1610,7 +1610,7 @@ Development?&lt;/a&gt;&lt;/p&gt;
     </item>
     <item>
       <title>Framework-less Dependency Injection Applied, Part 2</title>
-      <link>http://www.jbake.org/blog_2021/dependency-injection-part-2.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/dependency-injection-part-2.html</link>
       <pubDate>Fri, 29 Oct 2021 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2021/dependency-injection-part-2.html</guid>
       	<description>
@@ -1940,7 +1940,7 @@ Blog Post - You don&amp;#8217;t need a dependency injection container&lt;/a&gt;&
     </item>
     <item>
       <title>Framework-less Dependency Injection Applied, Part 1</title>
-      <link>http://www.jbake.org/blog_2021/dependency-injection-part-1.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/dependency-injection-part-1.html</link>
       <pubDate>Thu, 30 Sep 2021 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2021/dependency-injection-part-1.html</guid>
       	<description>
@@ -2196,7 +2196,7 @@ You don&amp;#8217;t need a dependency injection container&lt;/a&gt;&lt;/p&gt;
     </item>
     <item>
       <title>Functional Java: Partial Application</title>
-      <link>http://www.jbake.org/blog_2021/partial-application-java.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/partial-application-java.html</link>
       <pubDate>Sat, 28 Aug 2021 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2021/partial-application-java.html</guid>
       	<description>
@@ -2531,7 +2531,7 @@ Java.&lt;/p&gt;
     </item>
     <item>
       <title>Pythonic Context Managers for Java</title>
-      <link>http://www.jbake.org/blog_2021/pythonic-context-manager.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/pythonic-context-manager.html</link>
       <pubDate>Sun, 25 Jul 2021 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2021/pythonic-context-manager.html</guid>
       	<description>
@@ -2748,7 +2748,7 @@ Advanced Python: What Are Magic Methods?&lt;/a&gt;&lt;/p&gt;
     </item>
     <item>
       <title>Distroless? Distroless!</title>
-      <link>http://www.jbake.org/blog_2021/distroless-distroless.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/distroless-distroless.html</link>
       <pubDate>Wed, 2 Jun 2021 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2021/distroless-distroless.html</guid>
       	<description>
@@ -2990,7 +2990,7 @@ a way, that shells and other components of a Linux distribution are not required
     </item>
     <item>
       <title>Wildfly Bootable JAR and Static Content</title>
-      <link>http://www.jbake.org/blog_2021/wildfly-bootable-static-content.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/wildfly-bootable-static-content.html</link>
       <pubDate>Wed, 12 May 2021 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2021/wildfly-bootable-static-content.html</guid>
       	<description>
@@ -3299,7 +3299,7 @@ Blog Post, this is not a big deal.&lt;/p&gt;
     </item>
     <item>
       <title>Jakarta MVC with FreeMarker</title>
-      <link>http://www.jbake.org/blog_2021/jakarta-mvc-freemarker.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/jakarta-mvc-freemarker.html</link>
       <pubDate>Thu, 22 Apr 2021 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2021/jakarta-mvc-freemarker.html</guid>
       	<description>
@@ -3575,7 +3575,7 @@ Jakarta MVC Reference Implementation&lt;/a&gt;&lt;/p&gt;
     </item>
     <item>
       <title>Wildfly Bootable JAR Starter</title>
-      <link>http://www.jbake.org/blog_2021/wildfly-bootable-jar-starter.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar-starter.html</link>
       <pubDate>Fri, 26 Mar 2021 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2021/wildfly-bootable-jar-starter.html</guid>
       	<description>
@@ -3711,7 +3711,7 @@ Bootable JAR&amp;#8230;&amp;#8203;&lt;/p&gt;
     </item>
     <item>
       <title>JAX/RS Multipart Server</title>
-      <link>http://www.jbake.org/blog_2021/jaxrs-multipart-server.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-server.html</link>
       <pubDate>Sat, 13 Mar 2021 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2021/jaxrs-multipart-server.html</guid>
       	<description>
@@ -4016,7 +4016,7 @@ multipart/form-data&lt;/a&gt;&lt;/p&gt;
     </item>
     <item>
       <title>JAX/RS Multipart Client</title>
-      <link>http://www.jbake.org/blog_2021/jaxrs-multipart-client.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/jaxrs-multipart-client.html</link>
       <pubDate>Mon, 22 Feb 2021 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2021/jaxrs-multipart-client.html</guid>
       	<description>
@@ -4421,7 +4421,7 @@ multipart/form-data&lt;/a&gt;&lt;/p&gt;
     </item>
     <item>
       <title>Wildfly Bootable JAR</title>
-      <link>http://www.jbake.org/blog_2021/wildfly-bootable-jar.html</link>
+      <link>https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar.html</link>
       <pubDate>Sat, 30 Jan 2021 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2021/wildfly-bootable-jar.html</guid>
       	<description>
@@ -4765,7 +4765,7 @@ interesting for teams already working with Wildfly.&lt;/p&gt;
     </item>
     <item>
       <title>Dependency Injection Without Framework</title>
-      <link>http://www.jbake.org/blog_2020/di-without-framework.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/di-without-framework.html</link>
       <pubDate>Thu, 31 Dec 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/di-without-framework.html</guid>
       	<description>
@@ -4984,7 +4984,7 @@ field injection is evil&lt;/a&gt;
     </item>
     <item>
       <title>Maven And The Classpath</title>
-      <link>http://www.jbake.org/blog_2020/maven-classpath.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/maven-classpath.html</link>
       <pubDate>Sun, 22 Nov 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/maven-classpath.html</guid>
       	<description>
@@ -5224,7 +5224,7 @@ early state, but looks promising.&lt;/p&gt;
     </item>
     <item>
       <title>Executable Scripts with Java</title>
-      <link>http://www.jbake.org/blog_2020/executable-java-scripting.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/executable-java-scripting.html</link>
       <pubDate>Tue, 20 Oct 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/executable-java-scripting.html</guid>
       	<description>
@@ -5419,7 +5419,7 @@ to the source approach.&lt;/p&gt;
     </item>
     <item>
       <title>Cloud-native Java with Quarkus</title>
-      <link>http://www.jbake.org/blog_2020/quarkus-first-steps.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/quarkus-first-steps.html</link>
       <pubDate>Fri, 21 Aug 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/quarkus-first-steps.html</guid>
       	<description>
@@ -5938,7 +5938,7 @@ cloud.&lt;/p&gt;
     </item>
     <item>
       <title>Sharing Host File with Container</title>
-      <link>http://www.jbake.org/blog_2020/file-sharing-with-container.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/file-sharing-with-container.html</link>
       <pubDate>Tue, 9 Jun 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/file-sharing-with-container.html</guid>
       	<description>
@@ -6145,7 +6145,7 @@ ID.&lt;/p&gt;
     </item>
     <item>
       <title>Cloud-native Java</title>
-      <link>http://www.jbake.org/blog_2020/containerized-java-app.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/containerized-java-app.html</link>
       <pubDate>Sun, 17 May 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/containerized-java-app.html</guid>
       	<description>
@@ -6314,7 +6314,7 @@ Quarkus in the near future.&lt;/p&gt;
     </item>
     <item>
       <title>OpenApi generated JAX/RS Service: Bean Validation</title>
-      <link>http://www.jbake.org/blog_2020/openapi-bean-validation.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/openapi-bean-validation.html</link>
       <pubDate>Sun, 19 Apr 2020 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2020/openapi-bean-validation.html</guid>
       	<description>
@@ -6954,7 +6954,7 @@ mix business code with validation logic and worsen the usability of the API.&lt;
     </item>
     <item>
       <title>OpenApi generated JAX/RS Service: JAX/RS Context</title>
-      <link>http://www.jbake.org/blog_2020/openapi-jaxrs-context.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-context.html</link>
       <pubDate>Mon, 23 Mar 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/openapi-jaxrs-context.html</guid>
       	<description>
@@ -7444,7 +7444,7 @@ CDI bean offers several benefits as listed above.&lt;/p&gt;
     </item>
     <item>
       <title>JBake, Asciidoc and PlantUML</title>
-      <link>http://www.jbake.org/blog_2020/jbake-asciidoctor-plantuml.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/jbake-asciidoctor-plantuml.html</link>
       <pubDate>Sat, 29 Feb 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/jbake-asciidoctor-plantuml.html</guid>
       	<description>
@@ -7568,7 +7568,7 @@ end legend
     </item>
     <item>
       <title>OpenAPI generated JAX/RS Service: Binary Encoding</title>
-      <link>http://www.jbake.org/blog_2020/openapi-jaxrs-encoding-configuration.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/openapi-jaxrs-encoding-configuration.html</link>
       <pubDate>Mon, 24 Feb 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/openapi-jaxrs-encoding-configuration.html</guid>
       	<description>
@@ -7648,7 +7648,7 @@ long-term maintainability into account.&lt;/p&gt;
     </item>
     <item>
       <title>Maven Dependecy Analyzis Plugin</title>
-      <link>http://www.jbake.org/blog_2020/maven-dependency-analysis-plugin.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/maven-dependency-analysis-plugin.html</link>
       <pubDate>Wed, 12 Feb 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/maven-dependency-analysis-plugin.html</guid>
       	<description>
@@ -7703,7 +7703,7 @@ interface.
     </item>
     <item>
       <title>Non-Jekyll Github Pages</title>
-      <link>http://www.jbake.org/blog_2020/non-jekyll-github-pages.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/non-jekyll-github-pages.html</link>
       <pubDate>Sat, 1 Feb 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/non-jekyll-github-pages.html</guid>
       	<description>
@@ -7832,7 +7832,7 @@ understandable and also well documented. JBake, really good stuff.&lt;/p&gt;
     </item>
     <item>
       <title>JBake Blog with Maven Plugin</title>
-      <link>http://www.jbake.org/blog_2020/jbake-blog-with-maven.html</link>
+      <link>https://guntherrotsch.github.io/blog_2020/jbake-blog-with-maven.html</link>
       <pubDate>Tue, 21 Jan 2020 00:00:00 +0100</pubDate>
       <guid isPermaLink="false">blog_2020/jbake-blog-with-maven.html</guid>
       	<description>
@@ -8074,5 +8074,5 @@ JBake dependencies.&lt;/p&gt;
 	</description>
     </item>
 
-  </channel> 
+  </channel>
 </rss>
