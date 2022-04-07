@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Security API JSR-375, Part 1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Security API JSR-375, Part 1</h1>
+	</div>
+
+	<p><em>07 April 2022</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>Java EE 8, nowadays known as Jakarta EE 8, added a new Security API in version 1.0 to the technology stack. This little series of articles takes a look at the new API and how it can be used with various application servers, starting in the first part with Payara (Glassfish).</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div class="sect1">
+<h2 id="_why_a_new_security_api">Why a new Security API?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The history of Java EE has seen many different security specifications:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>JAAS (Java Authentication and Authorization Service)</p>
+</li>
+<li>
+<p>JACC (Java Authorization Contract for Containers)</p>
+</li>
+<li>
+<p>JASPIC (Java Authentication Service Provider Interface for Containers)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>All of these depend to some degree on the supplier of application server and
+are therefore specific to their containers. The security modules implemented
+according to the listed specifications have always been hard to port to
+different application servers, if possible at all. The solutions are in
+addition often depend on proprietary technology.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_jsr_375">JSR-375</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The goal of the new Security API, standardized by
+<a href="https://jcp.org/en/jsr/detail?id=375">JSR-375</a>,
+is to unify the security mechanism for the Jakarta EE platform. The
+specification supports CDI and provides several annotations to simplify the
+security configuration. The specification also promises to improve compatibility
+across application servers by</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>No container configuration anymore</p>
+</li>
+<li>
+<p>Avoiding direct dependency on container specific frameworks</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The reference implementation of JSR-375 is called
+<a href="https://github.com/javaee/security-soteria">Soteria</a> and integrated in Payara
+(Glassfish) as well as in the Wildfly/JBoss application server.</p>
+</div>
+<div class="paragraph">
+<p>The Security API is based on three main interfaces for which Soteria provides
+standard implementations. The interfaces are</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>HttpAuthenticationMechanism</code>: Mechanisms included in the standard support
+BASIC, FORM, and Custom FORM authentication.</p>
+</li>
+<li>
+<p><code>IdentityStore</code>: Store implementations included in the standard provide
+LDAP and Database backends to store user and group information.</p>
+</li>
+<li>
+<p><code>SecurityContext</code>: Provides caller data to the applications.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The implementations are CDI beans, i.e. the <code>SecurityContext</code> can be easily
+injected into any application class. The build-in authentication mechanisms
+can be configured by the annotations <code>@BasicAuthenticationMechanismDefinition</code>,
+<code>@FormAuthenticationMechanismDefinition</code> and
+<code>@CustomFormAuthenticationMechanismDefinition​</code>. For the identity store the
+annotations <code>@LdapIdentityStoreDefinition</code> and
+ <code>@DatabaseIdentityStoreDefinition</code> are defined. All these annotations must be
+placed on beans with qualifier <code>@Default</code> and the scope <code>@ApplicationScoped</code>.</p>
+</div>
+<div class="paragraph">
+<p>In addition to the mechanisms included in the standard, custom implementations
+are possible.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_demo_application">Demo Application</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The demo application implements a simple REST API and demonstrates in regard
+of the new Security API</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>the configuration of a standard authentication mechanism</p>
+</li>
+<li>
+<p>the implementation of a custom identity store</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The demo project is hosted on
+<a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/rest-security-jsr375">
+Github</a>.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s start with the configuration of the authentication mechanism:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="java">@ApplicationScoped
+@BasicAuthenticationMechanismDefinition
+@DeclareRoles({"users","admins"})
+public class RestApiConfig {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For REST APIs the configured Basic Authentication is still often used. It
+requires clients of the API to set the <code>Authorization</code> header preemptively.
+In addition, the roles used by the application are specified at the
+application scoped bean.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, the demo application implements its own identity store:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="java">public class CustomIdentityStore implements IdentityStore {
+
+	@Override
+	public CredentialValidationResult validate(Credential credential) {
+		CredentialValidationResult result = NOT_VALIDATED_RESULT;
+		if (credential instanceof UsernamePasswordCredential) {
+			UsernamePasswordCredential usernamePassword = (UsernamePasswordCredential) credential;
+
+			if ("gunther".equals(usernamePassword.getCaller())
+					&amp;&amp; "secret".equals(usernamePassword.getPasswordAsString())) {
+				result = new CredentialValidationResult("gunther", new HashSet&lt;&gt;(asList("users")));
+			} else if ("gunther_admin".equals(usernamePassword.getCaller())
+					&amp;&amp; "topsecret".equals(usernamePassword.getPasswordAsString())) {
+				result = new CredentialValidationResult("gunther_admin", new HashSet&lt;&gt;(asList("users", "admins")));
+			} else {
+				result = INVALID_RESULT;
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public Set&lt;String&gt; getCallerGroups(CredentialValidationResult validationResult) {
+		if ("gunther".equals(validationResult.getCallerPrincipal())) {
+			return new HashSet&lt;&gt;(asList("users"));
+		} else if ("gunther_admin".equals(validationResult.getCallerPrincipal())) {
+			return new HashSet&lt;&gt;(asList("users", "admins"));
+		}
+		return emptySet();
+	}
+
+	@Override
+	public int priority() {
+		return 50;
+	}
+
+	@Override
+	public Set&lt;ValidationType&gt; validationTypes() {
+		return new HashSet&lt;&gt;(asList(PROVIDE_GROUPS, VALIDATE));
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This identity store defines two (hard-coded) users:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>gunther</code> with password <code>secret</code> belonging to the <code>users</code> group</p>
+</li>
+<li>
+<p><code>gunther_admin</code> with password <code>topsecret</code>, which is member of the groups
+<code>users</code> and <code>admins</code></p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Instead of implementing a custom identity store, we could have used the
+<code>EmbeddedIdentityStore</code> provided by Soteria. But first I want to rely on
+the JSR-375 standard only, and second the idea was also to demonstrate how
+custom security components can be implemented :-).
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The application consists of just a single JAX-RS resource:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="java">@Path("/hello")
+@ApplicationScoped
+@DenyAll
+public class HelloController {
+
+	@GET
+	@RolesAllowed("users")
+	public String sayHello() {
+		return "Hello world";
+	}
+
+	@GET
+	@Path("/privileged")
+	@RolesAllowed("admins")
+	public String sayHelloAgain() {
+		return "Hello, privileged dude";
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The security annotations <code>DenyAll</code> and <code>RolesAllowed</code> are considered by
+JSR-375 implementations and control the access to the resources.</p>
+</div>
+<div class="paragraph">
+<p>The application is packaged as WAR file by a Maven build.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_deployment_and_test">Deployment and Test</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>After downloading and extracting the installation ZIP from the
+<a href="https://www.payara.fish/downloads/payara-platform-community-edition/">Payara
+Download Page</a>, the WAR file can simply be copied into the folder
+<code>payara5/glassfish/domains/domain1/autodeploy</code> of the Payara installation.
+The Payara <code>payara5/glassfish/bin</code> contains the application server&#8217;s start
+script, which automatically deploys the application WAR when booting the
+server.</p>
+</div>
+<div class="paragraph">
+<p>First we try to call the <code>/rest-api/hello</code> end-point without any authentication:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="shell">$ curl localhost:8080/rest-api/hello
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /rest-api/hello HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 401 Unauthorized
+&lt; Server: Payara Server  5.2022.1 #badassfish
+&lt; X-Powered-By: Servlet/4.0 JSP/2.3 (Payara Server  5.2022.1 #badassfish Java/Oracle Corporation/17)
+&lt; WWW-Authenticate: Basic realm=""
+&lt; Content-Language:
+&lt; Content-Type: text/html
+&lt; Content-Length: 1076
+&lt; X-Frame-Options: SAMEORIGIN
+&lt;
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;&lt;head&gt;&lt;title&gt;Payara Server  5.2022.1 #badassfish - Error report&lt;/title&gt;&lt;style type="text/css"&gt;&lt;!--H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A {color : black;}HR {color : #525D76;}--&gt;&lt;/style&gt; &lt;/head&gt;&lt;body&gt;&lt;h1&gt;HTTP Status 401 - Unauthorized&lt;/h1&gt;&lt;hr/&gt;&lt;p&gt;&lt;b&gt;type&lt;/b&gt; Status report&lt;/p&gt;&lt;p&gt;&lt;b&gt;message&lt;/b&gt;Unauthorized&lt;/p&gt;&lt;p&gt;&lt;b&gt;description&lt;/b&gt;This request requires HTTP authentication.&lt;/p&gt;&lt;hr/&gt;&lt;h3&gt;Pa* Connection #0 to host localhost left intact
+Payara Server  5.2022.1 #badassfish&lt;/h3&gt;&lt;/body&gt;&lt;/html&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The application refuses the request with an HTTP status of 401 (Unauthorized),
+which makes sense due the lack of credentials to authenticate the user.</p>
+</div>
+<div class="paragraph">
+<p>For the next call of the REST API, we prepare an <code>Authorization</code> header
+accordingly and call the same end-point again:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="shell">$ echo -n "gunther:secret" | base64
+Z3VudGhlcjpzZWNyZXQ=
+
+$ curl localhost:8080/rest-api/hello -v -H"Authorization: Basic Z3VudGhlcjpzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /rest-api/hello HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt; Authorization: Basic Z3VudGhlcjpzZWNyZXQ=
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 200 OK
+&lt; Server: Payara Server  5.2022.1 #badassfish
+&lt; X-Powered-By: Servlet/4.0 JSP/2.3 (Payara Server  5.2022.1 #badassfish Java/Oracle Corporation/17)
+&lt; Content-Type: text/plain
+&lt; Content-Length: 11
+&lt; X-Frame-Options: SAMEORIGIN
+&lt;
+* Connection #0 to host localhost left intact
+Hello world</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This time the application returns the greeting message and says "Hello world".</p>
+</div>
+<div class="paragraph">
+<p>The next test requests the privileged end-point, which should only be accessible
+for users of group <code>admins</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="shell">$ curl localhost:8080/rest-api/hello/privileged -v -H"Authorization: Basic Z3VudGhlcjpzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /rest-api/hello/privileged HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt; Authorization: Basic Z3VudGhlcjpzZWNyZXQ=
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 403 Forbidden
+&lt; Server: Payara Server  5.2022.1 #badassfish
+&lt; X-Powered-By: Servlet/4.0 JSP/2.3 (Payara Server  5.2022.1 #badassfish Java/Oracle Corporation/17)
+&lt; Content-Language:
+&lt; Content-Type: text/html
+&lt; Content-Length: 1080
+&lt; X-Frame-Options: SAMEORIGIN
+&lt;
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;&lt;head&gt;&lt;title&gt;Payara Server  5.2022.1 #badassfish - Error report&lt;/title&gt;&lt;style type="text/css"&gt;&lt;!--H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A {color : black;}HR {color : #525D76;}--&gt;&lt;/style&gt; &lt;/head&gt;&lt;body&gt;&lt;h1&gt;HTTP Status 403 - Forbidden&lt;/h1&gt;&lt;hr/&gt;&lt;p&gt;&lt;b&gt;type&lt;/b&gt; Status report&lt;/p&gt;&lt;p&gt;&lt;b&gt;message&lt;/b&gt;Forbidden&lt;/p&gt;&lt;p&gt;&lt;b&gt;description&lt;/b&gt;Access to the specified resource has been forbidden.&lt;/p&gt;&lt;hr/&gt;&lt;h* Connection #0 to host localhost left intact
+3&gt;Payara Server  5.2022.1 #badassfish&lt;/h3&gt;&lt;/body&gt;&lt;/html&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case the application responds with HTTP status 403 (Forbidden), because
+the authenticated user is not authorized to access the end-point.</p>
+</div>
+<div class="paragraph">
+<p>Eventually, an <code>Authorization</code> header for the privileged user is prepared and
+added to the request:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="shell">$ echo -n "gunther_admin:topsecret" | base64
+Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ=
+$ curl localhost:8080/rest-api/hello/privileged -v -H"Authorization: Basic Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /rest-api/hello/privileged HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.74.0
+&gt; Accept: */*
+&gt; Authorization: Basic Z3VudGhlcl9hZG1pbjp0b3BzZW9NyZXQ=
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 200 OK
+&lt; Server: Payara Server  5.2022.1 #badassfish
+&lt; X-Powered-By: Servlet/4.0 JSP/2.3 (Payara Server  5.2022.1 #badassfish Java/Oracle Corporation/17)
+&lt; Content-Type: text/plain
+&lt; Content-Length: 22
+&lt; X-Frame-Options: SAMEORIGIN
+&lt;
+* Connection #0 to host localhost left intact
+Hello, privileged dude</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The application server responds as expected with a greeting to the privileged
+user.</p>
+</div>
+<div class="paragraph">
+<p>All performed tests give the expected result on Payara application server. The
+new Security APIs looks very nice, really awesome.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>JSR-375 fulfills the promise of simple implementation of authentication of HTTP
+based authentication and authorization of authenticated users. In
+addition, for Payara no application server specific configuration is required,
+standard components can be configured easily and custom security components can
+be implemented by the application by plain CDI beans. The applications responds
+in all use cases (missing authentication, lack of authorization, authorized
+requests) in a sensible way. Overall, JSR-375 actually makes security accessible
+for seasoned application developers.</p>
+</div>
+<div class="paragraph">
+<p>The next part of the article series is about the usage of the Security API with
+Wildfly/JBoss application server. So, stay tuned.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://jcp.org/en/jsr/detail?id=375">JSR-375</a>,</p>
+</li>
+<li>
+<p><a href="https://javaee.github.io/security-spec/">Java EE Security API on Github</a></p>
+</li>
+<li>
+<p><a href="https://www.payara.fish/">Payara Home Page</a></p>
+</li>
+<li>
+<p><a href="https://www.payara.fish/downloads/payara-platform-community-edition/">
+Payara Download Page</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/glassfish.html">glassfish</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jakarta-security.html">jakarta-security</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jsr-375.html">jsr-375</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jakarta-ee.html">jakarta-ee</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/payara.html">payara</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2022 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>
