@@ -1,0 +1,337 @@
+= Security API JSR-375, Part 1
+Gunther Rotsch
+2022-04-07
+:jbake-type: post
+:jbake-tags: java, jakarta-ee, jsr-375, jakarta-security, payara, glassfish
+:jbake-status: published
+:jbake-summary: Java EE 8, nowadays known as Jakarta EE 8, added a new Security API in version 1.0 to the technology stack. This little series of articles takes a look at the new API and how it can be used with various application servers, starting in the first part with Payara (Glassfish).
+
+
+== Why a new Security API?
+
+The history of Java EE has seen many different security specifications:
+
+* JAAS (Java Authentication and Authorization Service)
+* JACC (Java Authorization Contract for Containers)
+* JASPIC (Java Authentication Service Provider Interface for Containers)
+
+All of these depend to some degree on the supplier of application server and
+are therefore specific to their containers. The security modules implemented
+according to the listed specifications have always been hard to port to
+different application servers, if possible at all. The solutions are in
+addition often depend on proprietary technology.
+
+
+== JSR-375
+
+The goal of the new Security API, standardized by
+https://jcp.org/en/jsr/detail?id=375[JSR-375],
+is to unify the security mechanism for the Jakarta EE platform. The
+specification supports CDI and provides several annotations to simplify the
+security configuration. The specification also promises to improve compatibility
+across application servers by
+
+* No container configuration anymore
+* Avoiding direct dependency on container specific frameworks
+
+The reference implementation of JSR-375 is called
+https://github.com/javaee/security-soteria[Soteria] and integrated in Payara
+(Glassfish) as well as in the Wildfly/JBoss application server.
+
+The Security API is based on three main interfaces for which Soteria provides
+standard implementations. The interfaces are
+
+* `HttpAuthenticationMechanism`: Mechanisms included in the standard support
+BASIC, FORM, and Custom FORM authentication.
+* `IdentityStore`: Store implementations included in the standard provide
+LDAP and Database backends to store user and group information.
+* `SecurityContext`: Provides caller data to the applications.
+
+The implementations are CDI beans, i.e. the `SecurityContext` can be easily
+injected into any application class. The build-in authentication mechanisms
+can be configured by the annotations `@BasicAuthenticationMechanismDefinition`,
+`@FormAuthenticationMechanismDefinition` and
+`@CustomFormAuthenticationMechanismDefinition​`. For the identity store the
+annotations `@LdapIdentityStoreDefinition` and
+ `@DatabaseIdentityStoreDefinition` are defined. All these annotations must be
+placed on beans with qualifier `@Default` and the scope `@ApplicationScoped`.
+
+In addition to the mechanisms included in the standard, custom implementations
+are possible.
+
+
+== Demo Application
+
+The demo application implements a simple REST API and demonstrates in regard
+of the new Security API
+
+1. the configuration of a standard authentication mechanism
+1. the implementation of a custom identity store
+
+The demo project is hosted on
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/rest-security-jsr375[
+Github].
+
+Let's start with the configuration of the authentication mechanism:
+
+[source, java]
+----
+@ApplicationScoped
+@BasicAuthenticationMechanismDefinition
+@DeclareRoles({"users","admins"})
+public class RestApiConfig {
+}
+----
+
+For REST APIs the configured Basic Authentication is still often used. It
+requires clients of the API to set the `Authorization` header preemptively.
+In addition, the roles used by the application are specified at the
+application scoped bean.
+
+Additionally, the demo application implements its own identity store:
+
+[source, java]
+----
+
+public class CustomIdentityStore implements IdentityStore {
+
+	@Override
+	public CredentialValidationResult validate(Credential credential) {
+		CredentialValidationResult result = NOT_VALIDATED_RESULT;
+		if (credential instanceof UsernamePasswordCredential) {
+			UsernamePasswordCredential usernamePassword = (UsernamePasswordCredential) credential;
+
+			if ("gunther".equals(usernamePassword.getCaller())
+					&& "secret".equals(usernamePassword.getPasswordAsString())) {
+				result = new CredentialValidationResult("gunther", new HashSet<>(asList("users")));
+			} else if ("gunther_admin".equals(usernamePassword.getCaller())
+					&& "topsecret".equals(usernamePassword.getPasswordAsString())) {
+				result = new CredentialValidationResult("gunther_admin", new HashSet<>(asList("users", "admins")));
+			} else {
+				result = INVALID_RESULT;
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public Set<String> getCallerGroups(CredentialValidationResult validationResult) {
+		if ("gunther".equals(validationResult.getCallerPrincipal())) {
+			return new HashSet<>(asList("users"));
+		} else if ("gunther_admin".equals(validationResult.getCallerPrincipal())) {
+			return new HashSet<>(asList("users", "admins"));
+		}
+		return emptySet();
+	}
+
+	@Override
+	public int priority() {
+		return 50;
+	}
+
+	@Override
+	public Set<ValidationType> validationTypes() {
+		return new HashSet<>(asList(PROVIDE_GROUPS, VALIDATE));
+	}
+}
+----
+
+This identity store defines two (hard-coded) users:
+
+* `gunther` with password `secret` belonging to the `users` group
+* `gunther_admin` with password `topsecret`, which is member of the groups
+`users` and `admins`
+
+[NOTE]
+Instead of implementing a custom identity store, we could have used the
+`EmbeddedIdentityStore` provided by Soteria. But first I want to rely on
+the JSR-375 standard only, and second the idea was also to demonstrate how
+custom security components can be implemented :-).
+
+The application consists of just a single JAX-RS resource:
+
+[source, java]
+----
+@Path("/hello")
+@ApplicationScoped
+@DenyAll
+public class HelloController {
+
+	@GET
+	@RolesAllowed("users")
+	public String sayHello() {
+		return "Hello world";
+	}
+
+	@GET
+	@Path("/privileged")
+	@RolesAllowed("admins")
+	public String sayHelloAgain() {
+		return "Hello, privileged dude";
+	}
+}
+----
+
+The security annotations `DenyAll` and `RolesAllowed` are considered by
+JSR-375 implementations and control the access to the resources.
+
+The application is packaged as WAR file by a Maven build.
+
+
+== Deployment and Test
+
+After downloading and extracting the installation ZIP from the
+https://www.payara.fish/downloads/payara-platform-community-edition/[Payara
+Download Page], the WAR file can simply be copied into the folder
+`payara5/glassfish/domains/domain1/autodeploy` of the Payara installation.
+The Payara `payara5/glassfish/bin` contains the application server's start
+script, which automatically deploys the application WAR when booting the
+server.
+
+First we try to call the `/rest-api/hello` end-point without any authentication:
+
+[source, shell]
+----
+$ curl localhost:8080/rest-api/hello
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> GET /rest-api/hello HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.74.0
+> Accept: */*
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 401 Unauthorized
+< Server: Payara Server  5.2022.1 #badassfish
+< X-Powered-By: Servlet/4.0 JSP/2.3 (Payara Server  5.2022.1 #badassfish Java/Oracle Corporation/17)
+< WWW-Authenticate: Basic realm=""
+< Content-Language:
+< Content-Type: text/html
+< Content-Length: 1076
+< X-Frame-Options: SAMEORIGIN
+<
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Payara Server  5.2022.1 #badassfish - Error report</title><style type="text/css"><!--H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A {color : black;}HR {color : #525D76;}--></style> </head><body><h1>HTTP Status 401 - Unauthorized</h1><hr/><p><b>type</b> Status report</p><p><b>message</b>Unauthorized</p><p><b>description</b>This request requires HTTP authentication.</p><hr/><h3>Pa* Connection #0 to host localhost left intact
+Payara Server  5.2022.1 #badassfish</h3></body></html>
+----
+
+The application refuses the request with an HTTP status of 401 (Unauthorized),
+which makes sense due the lack of credentials to authenticate the user.
+
+For the next call of the REST API, we prepare an `Authorization` header
+accordingly and call the same end-point again:
+
+[source, shell]
+----
+$ echo -n "gunther:secret" | base64
+Z3VudGhlcjpzZWNyZXQ=
+
+$ curl localhost:8080/rest-api/hello -v -H"Authorization: Basic Z3VudGhlcjpzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> GET /rest-api/hello HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.74.0
+> Accept: */*
+> Authorization: Basic Z3VudGhlcjpzZWNyZXQ=
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: Payara Server  5.2022.1 #badassfish
+< X-Powered-By: Servlet/4.0 JSP/2.3 (Payara Server  5.2022.1 #badassfish Java/Oracle Corporation/17)
+< Content-Type: text/plain
+< Content-Length: 11
+< X-Frame-Options: SAMEORIGIN
+<
+* Connection #0 to host localhost left intact
+Hello world
+----
+
+This time the application returns the greeting message and says "Hello world".
+
+The next test requests the privileged end-point, which should only be accessible
+for users of group `admins`:
+
+[source, shell]
+----
+$ curl localhost:8080/rest-api/hello/privileged -v -H"Authorization: Basic Z3VudGhlcjpzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> GET /rest-api/hello/privileged HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.74.0
+> Accept: */*
+> Authorization: Basic Z3VudGhlcjpzZWNyZXQ=
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 403 Forbidden
+< Server: Payara Server  5.2022.1 #badassfish
+< X-Powered-By: Servlet/4.0 JSP/2.3 (Payara Server  5.2022.1 #badassfish Java/Oracle Corporation/17)
+< Content-Language:
+< Content-Type: text/html
+< Content-Length: 1080
+< X-Frame-Options: SAMEORIGIN
+<
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Payara Server  5.2022.1 #badassfish - Error report</title><style type="text/css"><!--H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;} H2 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:16px;} H3 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:14px;} BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;} B {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;} P {font-family:Tahoma,Arial,sans-serif;background:white;color:black;font-size:12px;}A {color : black;}HR {color : #525D76;}--></style> </head><body><h1>HTTP Status 403 - Forbidden</h1><hr/><p><b>type</b> Status report</p><p><b>message</b>Forbidden</p><p><b>description</b>Access to the specified resource has been forbidden.</p><hr/><h* Connection #0 to host localhost left intact
+3>Payara Server  5.2022.1 #badassfish</h3></body></html>
+----
+
+In this case the application responds with HTTP status 403 (Forbidden), because
+the authenticated user is not authorized to access the end-point.
+
+Eventually, an `Authorization` header for the privileged user is prepared and
+added to the request:
+
+[source, shell]
+----
+$ echo -n "gunther_admin:topsecret" | base64
+Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ=
+$ curl localhost:8080/rest-api/hello/privileged -v -H"Authorization: Basic Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> GET /rest-api/hello/privileged HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.74.0
+> Accept: */*
+> Authorization: Basic Z3VudGhlcl9hZG1pbjp0b3BzZW9NyZXQ=
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Server: Payara Server  5.2022.1 #badassfish
+< X-Powered-By: Servlet/4.0 JSP/2.3 (Payara Server  5.2022.1 #badassfish Java/Oracle Corporation/17)
+< Content-Type: text/plain
+< Content-Length: 22
+< X-Frame-Options: SAMEORIGIN
+<
+* Connection #0 to host localhost left intact
+Hello, privileged dude
+----
+
+The application server responds as expected with a greeting to the privileged
+user.
+
+All performed tests give the expected result on Payara application server. The
+new Security APIs looks very nice, really awesome.
+
+
+== Conclusion
+
+JSR-375 fulfills the promise of simple implementation of authentication of HTTP
+based authentication and authorization of authenticated users. In
+addition, for Payara no application server specific configuration is required,
+standard components can be configured easily and custom security components can
+be implemented by the application by plain CDI beans. The applications responds
+in all use cases (missing authentication, lack of authorization, authorized
+requests) in a sensible way. Overall, JSR-375 actually makes security accessible
+for seasoned application developers.
+
+The next part of the article series is about the usage of the Security API with
+Wildfly/JBoss application server. So, stay tuned.
+
+
+== Links
+
+- https://jcp.org/en/jsr/detail?id=375[JSR-375],
+- https://javaee.github.io/security-spec/[Java EE Security API on Github]
+- https://www.payara.fish/[Payara Home Page]
+- https://www.payara.fish/downloads/payara-platform-community-edition/[
+Payara Download Page]
