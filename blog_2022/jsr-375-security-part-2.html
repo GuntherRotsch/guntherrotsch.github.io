@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Security API JSR-375 with JBoss/Wildfly, Part 2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Security API JSR-375 with JBoss/Wildfly, Part 2</h1>
+	</div>
+
+	<p><em>30 April 2022</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>Java EE 8, nowadays known as Jakarta EE 8, added a new Security API in version 1.0 to the technology stack. While the previous article was about the new API and how it integrates into Payara (Glassfish), this time we look at the integration into JBoss/Wildlfy.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div class="sect1">
+<h2 id="_setup">Setup</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the <a href="https://guntherrotsch.github.io/blog_2022/jsr-375-security-part-1.html">
+last part of this article series</a> we created a simple REST API demo
+application to test the features of the new security API. It&#8217;s assumed that
+you&#8217;re familiar with the demo application, so please have a look at the previous
+article. You&#8217;ll find the code of the demo application on
+<a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/rest-security-jsr375">
+Github</a>.</p>
+</div>
+<div class="paragraph">
+<p>The application has been deployed to the Payara (Glassfish) application
+server and worked fine. The promise of the new Security API is that the
+implementation of security features can be packaged with the application, is
+portable across compliant application servers, i.e. the very same application
+package (WAR file) can be deployed to Wildfly as well and works the same way as
+on Payara (Glassfish).</p>
+</div>
+<div class="paragraph">
+<p>Unfortunately, this is not the case, because Wildfly does not come with a
+security configuration eligible for JSR-375 Security API, but has proprietary
+Elytron security framework enabled by default. The answer to the
+<a href="https://stackoverflow.com/questions/70225352/why-does-this-simple-jakarta-security-example-from-soteria-work-on-payara-but-no">
+question on Stack Overflow gives more insights</a>. The SO article also contains
+links to
+<a href="https://github.com/wildfly/quickstart/tree/main/ee-security#configure-the-server">
+configuration examples</a> to activate the JSR-375 Security API on Wildfly.
+In addition, the
+<a href="https://docs.wildfly.org/26/WildFly_Elytron_Security.html#Elytron_and_Java_EE_Security">
+Wildfly Elytron Security Guide</a> gives more information.</p>
+</div>
+<div class="paragraph">
+<p>Basically, the security configuration can be changed by submitting the following
+JBoss CLI commands to the server:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code># Enable a default JACC policy with WildFly Elytron
+/subsystem=elytron/policy=jacc:add(jacc-policy={})
+
+# Disable 'integrated-jaspi' as the quickstart will be managing it's own identities
+/subsystem=undertow/application-security-domain=other:write-attribute(name=integrated-jaspi, value=false)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For REST APIs this is still not enough, because RESTEasy ignores the security
+annotations and requires additional configuration in the application&#8217;s
+<code>WEB-INF/web.xml:</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;web-app&gt;
+  &lt;context-param&gt;
+    &lt;param-name&gt;resteasy.role.based.security&lt;/param-name&gt;
+    &lt;param-value&gt;true&lt;/param-value&gt;
+  &lt;/context-param&gt;
+&lt;/web-app&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>​
+That should now be enough, so let&#8217;s move on to test the setup.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_test">Test</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>First we try to call the <code>/rest-api/hello</code> end-point of the demo application
+without any authentication:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="shell">$ curl localhost:8080/rest-api/hello -v
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /rest-api/hello HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.81.0
+&gt; Accept: */*
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 403 Forbidden
+&lt; Connection: keep-alive
+&lt; Content-Type: text/html;charset=UTF-8
+&lt; Content-Length: 34
+&lt; Date: Sun, 01 May 2022 11:31:35 GMT
+&lt;
+* Connection #0 to host localhost left intact
+Access forbidden: role not allowed</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In contrast, to Payara (Glassfish) the Wildfly application responds with an
+status of 403 (Forbidden), when actually status 401 (Unauthorized) is expected.
+Because the (basic) authentication information was not provided at all, the
+401 response of Payara (Glassfish) makes much more sense. But for a REST API
+this may be acceptable, even if not consistent with the specification.</p>
+</div>
+<div class="paragraph">
+<p>For the next call of the REST API, we prepare an <code>Authorization</code> header
+accordingly and call the same end-point again:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="shell">$ echo -n "gunther:secret" | base64
+Z3VudGhlcjpzZWNyZXQ=
+
+$ curl localhost:8080/rest-api/hello -v -H"Authorization: Basic Z3VudGhlcjpzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /rest-api/hello HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.81.0
+&gt; Accept: */*
+&gt; Authorization: Basic Z3VudGhlcjpzZWNyZXQ=
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 200 OK
+&lt; Connection: keep-alive
+&lt; Content-Type: application/octet-stream
+&lt; Content-Length: 11
+&lt; Date: Sun, 01 May 2022 11:37:12 GMT
+&lt;
+* Connection #0 to host localhost left intact
+Hello world</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This time the application is able to authenticate the provided user, returns
+the greeting message and says "Hello world".</p>
+</div>
+<div class="paragraph">
+<p>The next test requests the privileged end-point, which should only be accessible
+for users of group <code>admins</code>. We&#8217;re still providing the credentials of the
+non-privileged user:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="shell">$ curl localhost:8080/rest-api/hello/privileged -v -H"Authorization: Basic Z3VudGhlcjpzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /rest-api/hello/privileged HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.81.0
+&gt; Accept: */*
+&gt; Authorization: Basic Z3VudGhlcjpzZWNyZXQ=
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 403 Forbidden
+&lt; Connection: keep-alive
+&lt; Content-Type: text/html;charset=UTF-8
+&lt; Content-Length: 34
+&lt; Date: Sun, 01 May 2022 11:38:14 GMT
+&lt;
+* Connection #0 to host localhost left intact
+Access forbidden: role not allowed</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case the application responds with HTTP status 403 (Forbidden), because
+although the user could be authenticated, it is not authorized to access the
+end-point.</p>
+</div>
+<div class="paragraph">
+<p>Eventually, an <code>Authorization</code> header for the privileged user is prepared and
+added to the request:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="shell">$ echo -n "gunther_admin:topsecret" | base64
+Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ=
+
+$ curl localhost:8080/rest-api/hello/privileged -v -H"Authorization: Basic Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+&gt; GET /rest-api/hello/privileged HTTP/1.1
+&gt; Host: localhost:8080
+&gt; User-Agent: curl/7.81.0
+&gt; Accept: */*
+&gt; Authorization: Basic Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ=
+&gt;
+* Mark bundle as not supporting multiuse
+&lt; HTTP/1.1 200 OK
+&lt; Connection: keep-alive
+&lt; Content-Type: application/octet-stream
+&lt; Content-Length: 22
+&lt; Date: Sun, 01 May 2022 11:39:30 GMT
+&lt;
+* Connection #0 to host localhost left intact
+Hello, privileged dude</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The application server responds as expected with a greeting to the privileged
+user.</p>
+</div>
+<div class="paragraph">
+<p>After additional security configuration and activation of role-based security
+for RESTeasy, the application behaves (almost) the same as on Payara (Glassfish).
+The only exception is the unexpected response status when no authentication
+information at all is provided.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_wildfly_bootable_jar">Wildfly Bootable JAR</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>But measures taken for the standalone Wildfly application server are not enough
+if you want to package the application as Wildfly Bootable JAR.</p>
+</div>
+<div class="paragraph">
+<p>Obviously, we need to add the required Galleon layers to the Maven Wildfly JAR
+plugin:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="xml">&lt;layers&gt;
+    &lt;layer&gt;jaxrs&lt;/layer&gt;
+    &lt;layer&gt;elytron&lt;/layer&gt;
+    &lt;layer&gt;ee-security&lt;/layer&gt;
+&lt;/layers&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However, because the standalone server comes with several configurations that
+are not present in the Bootable JAR packaging, the configuration of the
+application server needs some tweaking by additional JBoss CLI commands:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code># Enable a default JACC policy with WildFly Elytron
+/subsystem=elytron/policy=jacc:add(jacc-policy={})
+
+# ###########################
+# Additional for bootable jar
+
+# Bootable jar configuration misses BASIC http-authentication-factory of elytron subsystem --&gt; add it
+/subsystem=elytron/http-authentication-factory=application-http-authentication:add(http-server-mechanism-factory=global,security-domain=ApplicationDomain,mechanism-configurations=[{mechanism-name=BASIC,mechanism-realm-configurations=[{realm-name=ApplicationRealm}]}])
+# Bootable jar configuration misses application-security-domain --&gt; create it first before setting integrated-jaspi to false
+/subsystem=undertow/application-security-domain=other:add(security-domain=ApplicationDomain)
+# Bootable jar configuration misses link of undertow to "other" as default-security-domain --&gt; add it
+/subsystem=undertow:write-attribute(name=default-security-domain, value="other")
+# Bootable jar configuration misses appliction-http-authentication of http-invoker --&gt; add it
+/subsystem=undertow/server=default-server/host=default-host/setting=http-invoker/:write-attribute(name=http-authentication-factory,value=application-http-authentication)
+# ###########################
+
+# Disable 'integrated-jaspi' as the quickstart will be managing it's own identities
+/subsystem=undertow/application-security-domain=other:write-attribute(name=integrated-jaspi, value=false)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The listed JBoss CLI commands have to be executed during packaging of the
+application by the Wildfly&#8217;s Maven JAR plugin. Configured that way the Wildfly
+Bootable JAR packaged application gives the same result as the standalone
+Wildfly Application Server.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The new Security API JSR-375 goes definitely into the right direction by
+simplifying the implementation of authentication of HTTP based authentication
+and authorization of authenticated users. The entire security logic can be
+packaged with the application, standard components can be configured easily
+and custom security components can be implemented by the application by means
+of regular CDI beans.</p>
+</div>
+<div class="paragraph">
+<p>Unfortunately, JBoss/Wildfly requires additional configuration to make usage
+of JSR-375 possible. But at least no application server-specific module
+implementation is required and the security-related implementation can be
+shipped with the application.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://guntherrotsch.github.io/blog_2022/jsr-375-security-part-1.html">Security
+API with Payara (Glassfish) - part 1 of the article series</a></p>
+</li>
+<li>
+<p><a href="https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/rest-security-jsr375">
+Code of demo application on Github</a></p>
+</li>
+<li>
+<p><a href="https://jcp.org/en/jsr/detail?id=375">JSR-375 Specification</a></p>
+</li>
+<li>
+<p><a href="https://javaee.github.io/security-spec/">Java EE Security API on Github</a></p>
+</li>
+<li>
+<p><a href="https://stackoverflow.com/questions/70225352/why-does-this-simple-jakarta-security-example-from-soteria-work-on-payara-but-no">
+SO: Why does this simple Jakarta Security example from Soteria work on Payara
+but not on WildFly? See answer 1</a></p>
+</li>
+<li>
+<p><a href="https://github.com/wildfly/quickstart/tree/main/ee-security#configure-the-server">
+Elytron Configuration Example to Activate Jakarta EE Security</a></p>
+</li>
+<li>
+<p><a href="https://docs.wildfly.org/26/WildFly_Elytron_Security.html#Elytron_and_Java_EE_Security">
+Wildfly Elytron Security Guide about Elytron and Jakarta EE Security</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jboss.html">jboss</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/wildfly.html">wildfly</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jakarta-security.html">jakarta-security</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jsr-375.html">jsr-375</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/java.html">java</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jakarta-ee.html">jakarta-ee</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2022 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>

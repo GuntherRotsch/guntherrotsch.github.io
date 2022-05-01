@@ -6,11 +6,20 @@
     <atom:link href="https://guntherrotsch.github.io/feed.xml" rel="self" type="application/rss+xml" />
     <description>Gunther Rotsch - Blog</description>
     <language>en-us</language>
-    <pubDate>Thu, 7 Apr 2022 19:19:46 +0200</pubDate>
-    <lastBuildDate>Thu, 7 Apr 2022 19:19:46 +0200</lastBuildDate>
+    <pubDate>Sun, 1 May 2022 17:48:14 +0200</pubDate>
+    <lastBuildDate>Sun, 1 May 2022 17:48:14 +0200</lastBuildDate>
 
     <item>
-      <title>Security API JSR-375, Part 1</title>
+      <title>Security API JSR-375 with JBoss/Wildfly, Part 2</title>
+      <link>https://guntherrotsch.github.io/blog_2022/jsr-375-security-part-2.html</link>
+      <pubDate>Sat, 30 Apr 2022 00:00:00 +0200</pubDate>
+      <guid isPermaLink="false">blog_2022/jsr-375-security-part-2.html</guid>
+      	<description>
+        Java EE 8, nowadays known as Jakarta EE 8, added a new Security API in version 1.0 to the technology stack. While the previous article was about the new API and how it integrates into Payara (Glassfish), this time we look at the integration into JBoss/Wildlfy.
+	</description>
+    </item>
+    <item>
+      <title>Security API JSR-375 with Payara/Glassfish, Part 1</title>
       <link>https://guntherrotsch.github.io/blog_2022/jsr-375-security-part-1.html</link>
       <pubDate>Thu, 7 Apr 2022 00:00:00 +0200</pubDate>
       <guid isPermaLink="false">blog_2022/jsr-375-security-part-1.html</guid>
