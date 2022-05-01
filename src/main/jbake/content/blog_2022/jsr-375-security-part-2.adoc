@@ -1,0 +1,274 @@
+= Security API JSR-375 with JBoss/Wildfly, Part 2
+Gunther Rotsch
+2022-04-30
+:jbake-type: post
+:jbake-tags: java, jakarta-ee, jsr-375, jakarta-security, jboss, wildfly
+:jbake-status: published
+:jbake-summary: Java EE 8, nowadays known as Jakarta EE 8, added a new Security API in version 1.0 to the technology stack. While the previous article was about the new API and how it integrates into Payara (Glassfish), this time we look at the integration into JBoss/Wildlfy.
+
+
+== Setup
+
+In the https://guntherrotsch.github.io/blog_2022/jsr-375-security-part-1.html[
+last part of this article series] we created a simple REST API demo
+application to test the features of the new security API. It's assumed that
+you're familiar with the demo application, so please have a look at the previous
+article. You'll find the code of the demo application on
+https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/rest-security-jsr375[
+Github].
+
+The application has been deployed to the Payara (Glassfish) application
+server and worked fine. The promise of the new Security API is that the
+implementation of security features can be packaged with the application, is
+portable across compliant application servers, i.e. the very same application
+package (WAR file) can be deployed to Wildfly as well and works the same way as
+on Payara (Glassfish).
+
+Unfortunately, this is not the case, because Wildfly does not come with a
+security configuration eligible for JSR-375 Security API, but has proprietary
+Elytron security framework enabled by default. The answer to the
+https://stackoverflow.com/questions/70225352/why-does-this-simple-jakarta-security-example-from-soteria-work-on-payara-but-no[
+question on Stack Overflow gives more insights]. The SO article also contains
+links to
+https://github.com/wildfly/quickstart/tree/main/ee-security#configure-the-server[
+configuration examples] to activate the JSR-375 Security API on Wildfly.
+In addition, the
+https://docs.wildfly.org/26/WildFly_Elytron_Security.html#Elytron_and_Java_EE_Security[
+Wildfly Elytron Security Guide] gives more information.
+
+Basically, the security configuration can be changed by submitting the following
+JBoss CLI commands to the server:
+
+[source]
+----
+# Enable a default JACC policy with WildFly Elytron
+/subsystem=elytron/policy=jacc:add(jacc-policy={})
+
+# Disable 'integrated-jaspi' as the quickstart will be managing it's own identities
+/subsystem=undertow/application-security-domain=other:write-attribute(name=integrated-jaspi, value=false)
+----
+
+For REST APIs this is still not enough, because RESTEasy ignores the security
+annotations and requires additional configuration in the application's
+`WEB-INF/web.xml:`
+
+[source,xml]
+----
+<web-app>
+  <context-param>
+    <param-name>resteasy.role.based.security</param-name>
+    <param-value>true</param-value>
+  </context-param>
+</web-app>
+----
+​
+That should now be enough, so let's move on to test the setup.
+
+== Test
+
+First we try to call the `/rest-api/hello` end-point of the demo application
+without any authentication:
+
+[source, shell]
+----
+$ curl localhost:8080/rest-api/hello -v
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> GET /rest-api/hello HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.81.0
+> Accept: */*
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 403 Forbidden
+< Connection: keep-alive
+< Content-Type: text/html;charset=UTF-8
+< Content-Length: 34
+< Date: Sun, 01 May 2022 11:31:35 GMT
+<
+* Connection #0 to host localhost left intact
+Access forbidden: role not allowed
+----
+
+In contrast, to Payara (Glassfish) the Wildfly application responds with an
+status of 403 (Forbidden), when actually status 401 (Unauthorized) is expected.
+Because the (basic) authentication information was not provided at all, the
+401 response of Payara (Glassfish) makes much more sense. But for a REST API
+this may be acceptable, even if not consistent with the specification.
+
+For the next call of the REST API, we prepare an `Authorization` header
+accordingly and call the same end-point again:
+
+[source, shell]
+----
+$ echo -n "gunther:secret" | base64
+Z3VudGhlcjpzZWNyZXQ=
+
+$ curl localhost:8080/rest-api/hello -v -H"Authorization: Basic Z3VudGhlcjpzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> GET /rest-api/hello HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Authorization: Basic Z3VudGhlcjpzZWNyZXQ=
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Connection: keep-alive
+< Content-Type: application/octet-stream
+< Content-Length: 11
+< Date: Sun, 01 May 2022 11:37:12 GMT
+<
+* Connection #0 to host localhost left intact
+Hello world
+----
+
+This time the application is able to authenticate the provided user, returns
+the greeting message and says "Hello world".
+
+The next test requests the privileged end-point, which should only be accessible
+for users of group `admins`. We're still providing the credentials of the
+non-privileged user:
+
+[source, shell]
+----
+$ curl localhost:8080/rest-api/hello/privileged -v -H"Authorization: Basic Z3VudGhlcjpzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> GET /rest-api/hello/privileged HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Authorization: Basic Z3VudGhlcjpzZWNyZXQ=
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 403 Forbidden
+< Connection: keep-alive
+< Content-Type: text/html;charset=UTF-8
+< Content-Length: 34
+< Date: Sun, 01 May 2022 11:38:14 GMT
+<
+* Connection #0 to host localhost left intact
+Access forbidden: role not allowed
+----
+
+In this case the application responds with HTTP status 403 (Forbidden), because
+although the user could be authenticated, it is not authorized to access the
+end-point.
+
+Eventually, an `Authorization` header for the privileged user is prepared and
+added to the request:
+
+[source, shell]
+----
+$ echo -n "gunther_admin:topsecret" | base64
+Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ=
+
+$ curl localhost:8080/rest-api/hello/privileged -v -H"Authorization: Basic Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ="
+*   Trying 127.0.0.1:8080...
+* Connected to localhost (127.0.0.1) port 8080 (#0)
+> GET /rest-api/hello/privileged HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/7.81.0
+> Accept: */*
+> Authorization: Basic Z3VudGhlcl9hZG1pbjp0b3BzZWNyZXQ=
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 200 OK
+< Connection: keep-alive
+< Content-Type: application/octet-stream
+< Content-Length: 22
+< Date: Sun, 01 May 2022 11:39:30 GMT
+<
+* Connection #0 to host localhost left intact
+Hello, privileged dude
+----
+
+The application server responds as expected with a greeting to the privileged
+user.
+
+After additional security configuration and activation of role-based security
+for RESTeasy, the application behaves (almost) the same as on Payara (Glassfish).
+The only exception is the unexpected response status when no authentication
+information at all is provided.
+
+== Wildfly Bootable JAR
+
+But measures taken for the standalone Wildfly application server are not enough
+if you want to package the application as Wildfly Bootable JAR.
+
+Obviously, we need to add the required Galleon layers to the Maven Wildfly JAR
+plugin:
+
+[source, xml]
+----
+<layers>
+    <layer>jaxrs</layer>
+    <layer>elytron</layer>
+    <layer>ee-security</layer>
+</layers>
+----
+
+However, because the standalone server comes with several configurations that
+are not present in the Bootable JAR packaging, the configuration of the
+application server needs some tweaking by additional JBoss CLI commands:
+
+[source]
+----
+# Enable a default JACC policy with WildFly Elytron
+/subsystem=elytron/policy=jacc:add(jacc-policy={})
+
+# ###########################
+# Additional for bootable jar
+
+# Bootable jar configuration misses BASIC http-authentication-factory of elytron subsystem --> add it
+/subsystem=elytron/http-authentication-factory=application-http-authentication:add(http-server-mechanism-factory=global,security-domain=ApplicationDomain,mechanism-configurations=[{mechanism-name=BASIC,mechanism-realm-configurations=[{realm-name=ApplicationRealm}]}])
+# Bootable jar configuration misses application-security-domain --> create it first before setting integrated-jaspi to false
+/subsystem=undertow/application-security-domain=other:add(security-domain=ApplicationDomain)
+# Bootable jar configuration misses link of undertow to "other" as default-security-domain --> add it
+/subsystem=undertow:write-attribute(name=default-security-domain, value="other")
+# Bootable jar configuration misses appliction-http-authentication of http-invoker --> add it
+/subsystem=undertow/server=default-server/host=default-host/setting=http-invoker/:write-attribute(name=http-authentication-factory,value=application-http-authentication)
+# ###########################
+
+# Disable 'integrated-jaspi' as the quickstart will be managing it's own identities
+/subsystem=undertow/application-security-domain=other:write-attribute(name=integrated-jaspi, value=false)
+----
+
+The listed JBoss CLI commands have to be executed during packaging of the
+application by the Wildfly's Maven JAR plugin. Configured that way the Wildfly
+Bootable JAR packaged application gives the same result as the standalone
+Wildfly Application Server.
+
+
+== Conclusion
+
+The new Security API JSR-375 goes definitely into the right direction by
+simplifying the implementation of authentication of HTTP based authentication
+and authorization of authenticated users. The entire security logic can be
+packaged with the application, standard components can be configured easily
+and custom security components can be implemented by the application by means
+of regular CDI beans.
+
+Unfortunately, JBoss/Wildfly requires additional configuration to make usage
+of JSR-375 possible. But at least no application server-specific module
+implementation is required and the security-related implementation can be
+shipped with the application.
+
+
+== Links
+
+- https://guntherrotsch.github.io/blog_2022/jsr-375-security-part-1.html[Security
+API with Payara (Glassfish) - part 1 of the article series]
+- https://github.com/GuntherRotsch/guntherrotsch.github.io/tree/code/rest-security-jsr375[
+Code of demo application on Github]
+- https://jcp.org/en/jsr/detail?id=375[JSR-375 Specification]
+- https://javaee.github.io/security-spec/[Java EE Security API on Github]
+- https://stackoverflow.com/questions/70225352/why-does-this-simple-jakarta-security-example-from-soteria-work-on-payara-but-no[
+SO: Why does this simple Jakarta Security example from Soteria work on Payara
+but not on WildFly? See answer 1]
+- https://github.com/wildfly/quickstart/tree/main/ee-security#configure-the-server[
+Elytron Configuration Example to Activate Jakarta EE Security]
+- https://docs.wildfly.org/26/WildFly_Elytron_Security.html#Elytron_and_Java_EE_Security[
+Wildfly Elytron Security Guide about Elytron and Jakarta EE Security]

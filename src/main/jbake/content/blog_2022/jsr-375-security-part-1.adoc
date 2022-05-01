@@ -1,4 +1,4 @@
-= Security API JSR-375, Part 1
+= Security API JSR-375 with Payara/Glassfish, Part 1
 Gunther Rotsch
 2022-04-07
 :jbake-type: post
