@@ -8,7 +8,7 @@
 
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>
-		<version.wildfly>26.0.1.Final</version.wildfly>
+		<version.wildfly>26.1.0.Final</version.wildfly>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<maven.compiler.source>11</maven.compiler.source>
 		<final.name>rest-api</final.name>
@@ -43,7 +43,7 @@
 					<plugin>
 						<groupId>org.wildfly.plugins</groupId>
 						<artifactId>wildfly-jar-maven-plugin</artifactId>
-						<version>7.0.0.Final</version>
+						<version>7.0.1.Final</version>
 						<executions>
 							<execution>
 								<goals>
@@ -55,8 +55,21 @@
 							<feature-pack-location>wildfly@maven(org.jboss.universe:community-universe)#${version.wildfly}</feature-pack-location>
 							<layers>
 								<layer>jaxrs</layer>
+								<layer>elytron</layer>
+								<layer>ee-security</layer>
 							</layers>
-							<hollowJar>true</hollowJar>
+							<excluded-layers>
+								<layer>deployment-scanner</layer>
+							</excluded-layers>
+							<hollow-jar>true</hollow-jar>
+							<cli-sessions>
+								<cli-session>
+									<script-files>
+										<script>scripts/setup.cli</script>
+									</script-files>
+									<resolve-expressions>true</resolve-expressions>
+								</cli-session>
+							</cli-sessions>
 						</configuration>
 					</plugin>
 				</plugins>

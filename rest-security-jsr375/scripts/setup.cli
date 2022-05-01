@@ -1,0 +1,19 @@
+# Enable a default JACC policy with WildFly Elytron
+/subsystem=elytron/policy=jacc:add(jacc-policy={})
+
+# ###########################
+# Additional for bootable jar
+
+# Bootable jar configuration misses BASIC http-authentication-factory of elytron subsystem --> add it
+/subsystem=elytron/http-authentication-factory=application-http-authentication:add(http-server-mechanism-factory=global,security-domain=ApplicationDomain,mechanism-configurations=[{mechanism-name=BASIC,mechanism-realm-configurations=[{realm-name=ApplicationRealm}]}])
+# Bootable jar configuration misses application-security-domain --> create it first before setting integrated-jaspi to false
+/subsystem=undertow/application-security-domain=other:add(security-domain=ApplicationDomain)
+# Bootable jar configuration misses link of undertow to "other" as default-security-domain --> add it
+/subsystem=undertow:write-attribute(name=default-security-domain, value="other")
+# Bootable jar configuration misses appliction-http-authentication of http-invoker --> add it
+/subsystem=undertow/server=default-server/host=default-host/setting=http-invoker/:write-attribute(name=http-authentication-factory,value=application-http-authentication)
+# ###########################
+
+# Disable 'integrated-jaspi' as the quickstart will be managing it's own identities
+/subsystem=undertow/application-security-domain=other:write-attribute(name=integrated-jaspi, value=false)
+

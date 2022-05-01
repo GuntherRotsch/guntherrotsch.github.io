@@ -7,7 +7,6 @@ import static javax.security.enterprise.identitystore.CredentialValidationResult
 import static javax.security.enterprise.identitystore.IdentityStore.ValidationType.PROVIDE_GROUPS;
 import static javax.security.enterprise.identitystore.IdentityStore.ValidationType.VALIDATE;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
