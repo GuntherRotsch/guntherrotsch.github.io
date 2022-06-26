@@ -1,0 +1,33 @@
+= Configuring JBoss/Wildfly, Part 2
+Gunther Rotsch
+2022-09-19
+:jbake-type: post
+:jbake-tags: jboss, wildfly
+:jbake-status: draft
+:jbake-summary:
+
+...JBoss/Wildfly offers various options to configure the application server. In this article, the "classical" and more common configuration approach of using JBoss CLI is lit up.
+
+&nbsp;
+
+
+PART 2:
+
+https://developer.jboss.org/docs/DOC-17506
+
+https://goldmann.pl/blog/2014/07/23/customizing-the-configuration-of-the-wildfly-docker-image/?amp=1
+
+
+http://www.mastertheboss.com/jbossas/jboss-as-7/using-jboss-management-api-programmatically/
+
+DMR:: Dynamic Model Representation
+
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/6.3/html/administration_and_configuration_guide/sect-deploy_with_the_http_api
+
+
+== Links
+
+- https://docs.jboss.org/author/display/WFLY/Command%20Line%20Interface.html[
+Wildfly - Command Line Interface]
+- https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar.html[Blog Post
+"Wildfly Bootable JAR"]
