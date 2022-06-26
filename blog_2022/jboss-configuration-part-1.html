@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="google-site-verification" content="HjCDXQDYGTp90NJMDiU2lbcUwyx6JTOxQAV_wB0aVso" />
+    <title>Configuring JBoss/Wildfly, Part 1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="keywords" content="">
+    <meta name="generator" content="JBake">
+
+    <!-- Le styles -->
+    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/asciidoctor.css" rel="stylesheet">
+    <link href="../assets/css/base.css" rel="stylesheet">
+    <link href="../assets/css/prettify.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <!--<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">-->
+    <link rel="shortcut icon" href="../favicon.ico">
+
+    <!-- Dark Mode by inverting colors (works well with Chrome but not with Firefox)-->
+    <style>
+    /*
+        html { filter: invert(100%); }
+        img { filter: invert(100%); }
+        */
+    </style>
+  </head>
+  <body onload="prettyPrint()">
+    <div id="wrap">
+
+	<!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../">GR</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../tags/index.html">Tags</a></li>
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../feed.xml">Subscribe</a></li>
+		<!--
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+		-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container">
+
+	<div class="page-header">
+		<h1>Configuring JBoss/Wildfly, Part 1</h1>
+	</div>
+
+	<p><em>26 June 2022</em></p>
+
+	<div class="dlist">
+   <dl>
+    <dt class="hdlist1">
+     	Summary
+    </dt>
+    <dd>
+			<p>JBoss/Wildfly offers various options to configure the application server. In this article, the "classical" and more common configuration approach of using JBoss CLI is lit up.</p>
+    </dd>
+   </dl>
+  </div>
+
+	<p><div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>&nbsp;</p>
+</div>
+<div class="paragraph">
+<p>JBoss/Wildfly application server persists its configuration in XML formatted
+files in the directory <code>$JBOSS_HOME/standalone/configuration</code> <sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>.
+Depending on the profile the application server is started with, one of the
+following files becomes effective: <code>standalone.xml</code>, <code>standalone-full.xml</code>,
+<code>standalone-full-ha.xml</code>, <code>standalone-ha.xml</code>, <code>standalone-microprofile.xml</code>,
+<code>standalone-microprofile-ha.xml`or `standalone-load-balancer.xml</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_manual_editing">Manual Editing</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Because the JBoss configuration files are in XML format and human-readable, it&#8217;s
+tempting to power up <code>vi</code> or any other text editor of your choice and modify the
+configuration manually. This may be a viable option if only one JBoss server
+instance need to be managed, for example in a developer&#8217;s environment. But as
+soon as many application servers have to be managed, this approach becomes
+daunting and error-prone. This is especially true if the application servers
+host different applications and need different configurations.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Because JBoss/Wildfly writes the configuration on every (regular) shutdown,
+manual editing of the configuration requires that the server is stopped
+beforehand. Otherwise manual changes are likely overwritten.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The drawbacks of manually changing the JBoss configuration files becomes even
+more obvious, when the application servers are upgraded to incorporate bug
+and security fixes. Given that the upgraded installation starts with a fresh
+new up-to-date JBoss/Wildfly installation package, the manual editing must be
+conducted again <sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnotedef_2" title="View footnote.">2</a>]</sup>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Because the version of the JBoss subsystems and as consequence the structure of
+the JBoss configuration file is different from one version to another, it&#8217;s
+advised against taking over the configuration file from the initial installation
+- doing so might work, but is never guaranteed.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_jboss_cli">JBoss CLI</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The JBoss CLI is included in the JBoss/Wildfly distribution and can be found in
+<code>$JBOSS_HOME/bin</code> of the installation folder.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+For the following demonstration examples, the Wildfly/JBoss server must run.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_usage">Usage</h3>
+<div class="paragraph">
+<p>The CLI can be used interactively. For that purpose the JBoss command line can
+be started:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>  $ cd $JBOSS_HOME
+
+  $ ./bin/jboss-cli.sh --connect
+  [standalone@localhost:9990 /] ls deployment
+  rest-api.war
+
+  [standalone@localhost:9990 /] exit
+  $</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>--connect</code> option causes that the CLI to connect to the already running
+application server. The JBoss CLI then enters a REPL (read-evaluate-print-loop)
+and outputs a prompt showing the connected server. The <code>ls deployment</code> is an
+sample CLI command which lists the applications deployed to the server. The
+<code>exit</code> command leaves the JBoss CLI tool.</p>
+</div>
+<div class="paragraph">
+<p>Commands don&#8217;t have to be typed in manually. It&#8217;s also possible to directly
+provide commands when calling the CLI:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ./bin/jboss-cli.sh --connect --command="ls deployment"
+rest-api.war
+$</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As soon as the command is executed the JBoss CLI ends.</p>
+</div>
+<div class="paragraph">
+<p>Alternatively to providing CLI commands on the command line, the commands
+can also be provided in a file. In this case it&#8217;s easy to execute a sequence
+of commands, which are listed in the file, e.g.:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ./bin/jboss-cli.sh -c --file=./commands.cli</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If all CLI commands to provision a server for a specific application are
+provided in a file and applied by a script, we can call it
+<em>Infrastructure-as-Code</em> (IaC). This way the provisioning of JBoss/Wildfly
+application servers can be fully automated.</p>
+</div>
+<div class="paragraph">
+<p>More on the usage of the JBoss/Wildfly CLI can be find in official
+<a href="https://docs.jboss.org/author/display/WFLY/Command%20Line%20Interface.html">
+Wildfly documentation</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cli_commands">CLI Commands</h3>
+<div class="paragraph">
+<p>Sometimes it can be hard, in particular if you start with the CLI, to find
+the proper commands to configure the application server as desired.
+Sometimes articles on the Web or Cookbooks like the
+<a href="https://docs.jboss.org/author/display/AS72/CLI%20Recipes.html">JBoss CLI Recipes</a>
+may help. But often the proper commands are not obvious and applying the
+"trial and error" method may become tedious. In such situations the
+<em>JBoss CLI GUI</em> can be a great help.</p>
+</div>
+<div class="paragraph">
+<p>Please note, that the GUI mode of JBoss CLI also requires that the application
+server is running. It can be started by providing the <code>--gui</code> parameter:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ $JBOSS_HOME/bin/jboss-cli.sh --gui</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The GUI looks (on Linux) like:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/assets/img/JBoss-CLI-GUI.png" alt="Image: JBoss CLI GUI">
+</div>
+</div>
+<div class="paragraph">
+<p>The shown example is about disabling the scanning of deployment directory, which
+is BTW recommended for production environments. The command in the <code>cmd&gt;</code> field
+can be executed directly by hitting the <code>Submit</code> button or copied over to a
+command file for later execution.</p>
+</div>
+<div class="paragraph">
+<p>After execution of the sample command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>[standalone@localhost:9990 /] /subsystem=deployment-scanner/scanner=default/:write-attribute(name=scan-enabled,value=false)
+{"outcome" =&gt; "success"}
+
+[standalone@localhost:9990 /]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>&#8230;&#8203;the application server configuration in <code>standalone.xml</code> contains:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="xml">...
+&lt;subsystem xmlns="urn:jboss:domain:deployment-scanner:2.0"&gt;
+     &lt;deployment-scanner path="deployments"
+                         relative-to="jboss.server.base.dir"
+                         scan-enabled="false"
+                         scan-interval="5000"
+                         runtime-failure-causes-rollback="${jboss.deployment.scanner.rollback.on.failure:false}"/&gt;
+ &lt;/subsystem&gt;
+ ...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>standalone.xml</code> comes with XML attribute <code>scan-enabled=true</code> by default.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_embedded_server">Embedded Server</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The CLI tool provides a command named <code>embed-server</code>. This command starts an
+embedded server running together with the CLI. This server is started in
+<em>admin-only</em> mode, i.e.  no actual applications are started and no network
+ports are occupied. By default the embedded server uses the <code>standalone.xml</code>
+configuration, which can be changed by <code>--server-config</code> or <code>--empty-config</code>
+option.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Due to the fact that no network ports are occupied by the embedded server,
+many parallel instances of embedded servers can run on the system, which means
+that many different application servers can be provisioned on the same server
+at the same time.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s start with an example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>$ $JBOSS_HOME/bin/jboss-cli.sh
+You are disconnected at the moment. Type 'connect' to connect to the server or 'help' for the list of supported commands.
+[disconnected /] embed-server --std-out=echo
+11:24:05,367 INFO  [org.jboss.modules] (CLI command executor) JBoss Modules version 2.0.0.Final
+11:24:05,387 INFO  [org.jboss.as] (MSC service thread 3-4) WFLYSRV0049: WildFly Full 26.0.1.Final (WildFly Core 18.0.4.Final) starting
+11:24:05,852 WARN  [org.wildfly.extension.elytron] (MSC service thread 3-5) WFLYELY00023: KeyStore file 'C:\programme\wildfly-26.0.1.Final\standalone\configuration\application.keystore' does not exist. Used blank.
+11:24:05,858 INFO  [org.jboss.as.patching] (MSC service thread 3-2) WFLYPAT0050: WildFly Full cumulative patch ID is: base, one-off patches include: none
+11:24:05,912 WARN  [org.wildfly.extension.elytron] (MSC service thread 3-7) WFLYELY01084: KeyStore C:\programme\wildfly-26.0.1.Final\standalone\configuration\application.keystore not found, it will be auto generated on first use with a self-signed certificate for host localhost
+11:24:05,995 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0212: Resuming server
+11:24:06,034 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Full 26.0.1.Final (WildFly Core 18.0.4.Final) started in 663ms - Started 50
+of 73 services (24 services are lazy, passive or on-demand)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>echo</code> configuration of <code>--std-out</code> option causes the output of the embedded
+server to standard out, which is reasonable in an interactive session. Other
+possible configuration value and default is <code>discard</code> which wipes out the output
+of the embedded server. The CLI is automatically connected with the embedded
+server, so that we can interact with the server immediately:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>[standalone@embedded /] /subsystem=deployment-scanner/scanner=default/:write-attribute(name=scan-enabled,value=false)
+{"outcome" =&gt; "success"}
+
+[standalone@embedded /]
+[standalone@embedded /] stop-embedded-server
+17:13:34,369 INFO  [org.jboss.as] (MSC service thread 1-4) WFLYSRV0050: WildFly Full 26.1.0.Final (WildFly Core 18.1.0.Final) stopped in 44ms
+[disconnected /] exit
+$</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The provided sample command turns off scanning of the deployment folder. Then
+the command <code>stop-embedded-server</code> and <code>exit</code> stops the embedded application
+server and exits the CLI.</p>
+</div>
+<div class="paragraph">
+<p>Embedding the server inside the CLI allows the configuration of the application
+server installation without starting the server.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_scripted_configuration">Scripted Configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The embedded server can be useful for configuration from a prepared file of
+CLI commands as well. If we collect the CLI commands to configure JBoss/Wildfly
+server configuration for a specific application in a file <code>commands.cli</code>,
+scripting the configuration could looks as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>$ cat commands.cli
+embed-server
+/subsystem=deployment-scanner/scanner=default/:write-attribute(name=scan-enabled,value=false)
+stop-embedded-server
+
+$ $JBOSS_HOME/bin/jboss-cli.sh --file=commands.cli
+{"outcome" =&gt; "success"}
+$</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_bootable_jar">Bootable JAR</h3>
+<div class="paragraph">
+<p>The configuration of JBoss/Wildfly with the embedded server in admin-only mode
+is also used to set up applications packaged as Bootable JAR. See
+<a href="https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar.html">Blog Post
+"Wildfly Bootable JAR"</a> if you&#8217;re interested in a detailed introduction
+into the Bootable JAR packaging of JBoss/Wildfly.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Nowadays, the JBoss CLI is the standard way to configure JBoss/Wildfly
+application servers. Compared to manual editing configuration files the
+advantages are compelling:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Keeping the logs of scripted server configuration make the provisioning
+process <strong>Traceable</strong></p>
+</li>
+<li>
+<p>The scripted configuration also makes the provisioning process <strong>Repeatable</strong>,
+e.g. for different environments or when a new release of the application sever
+comes up</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Therefore manual editing should be the exception and the JBoss CLI always
+preferred.</p>
+</div>
+<div class="paragraph">
+<p>In the next part of this mini-series, we have a closer look at some
+configuration options, that are lesser known but may be handy in non-standard
+use cases.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_links">Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.jboss.org/author/display/WFLY/Command%20Line%20Interface.html">
+Wildfly - Command Line Interface</a></p>
+</li>
+<li>
+<p><a href="https://docs.jboss.org/author/display/AS72/CLI%20Recipes.html">JBoss
+Application Server - CLI Recipes</a></p>
+</li>
+<li>
+<p><a href="https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar.html">Blog Post
+"Wildfly Bootable JAR"</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<hr>
+<div class="footnote" id="_footnotedef_1">
+<a href="#_footnoteref_1">1</a>. For sake of simplicity we focus on standalone server configurations, clustered application servers host their configuration under <code>$JBOSS_HOME/domain/configuration</code>.
+</div>
+<div class="footnote" id="_footnotedef_2">
+<a href="#_footnoteref_2">2</a>. The alternative is to upgrade the existing JBoss installation, which is possible on-premises, but not for containerized deployments into the cloud
+</div>
+</div></p>
+
+  <span>Tags:
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/jboss.html">jboss</a></span>
+			  <span><a style="border: 2px solid; padding: 0.3em" href="../tags/wildfly.html">wildfly</a></span>
+	</span>
+
+	<hr />
+
+		</div>
+		<div id="push"></div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="muted credit">&copy; 2022 Gunther Rotsch | <a href= "/contact.html">Contact and Legal Notice</a>
+        <!--| Mixed with <a href="http://getbootstrap.com/">Bootstrap v3.1.1</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></p>
+          -->
+      </div>
+    </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../assets/js/jquery-1.12.4.min.js"></script>
+    <script src="../assets/js/bootstrap.min.js"></script>
+    <script src="../assets/js/prettify.js"></script>
+
+  </body>
+</html>
