@@ -15,7 +15,7 @@ servers host their configuration under `$JBOSS_HOME/domain/configuration`.].
 Depending on the profile the application server is started with, one of the
 following files becomes effective: `standalone.xml`, `standalone-full.xml`,
 `standalone-full-ha.xml`, `standalone-ha.xml`, `standalone-microprofile.xml`,
-`standalone-microprofile-ha.xml`or `standalone-load-balancer.xml`.
+`standalone-microprofile-ha.xml` or `standalone-load-balancer.xml`.
 
 
 == Manual Editing

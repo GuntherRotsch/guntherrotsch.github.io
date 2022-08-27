@@ -1,33 +1,272 @@
 = Configuring JBoss/Wildfly, Part 2
 Gunther Rotsch
-2022-09-19
+2022-08-27
 :jbake-type: post
 :jbake-tags: jboss, wildfly
-:jbake-status: draft
-:jbake-summary:
+:jbake-status: published
+:jbake-summary: The JBoss CLI, as presented in the last part of this series, is the standard way of configuring JBoss/Wildfly application servers. But there are more options available, some of them we will cover in this article. These options are lesser known and may not be applied very often, but may nevertheless useful in some situations.
 
-...JBoss/Wildfly offers various options to configure the application server. In this article, the "classical" and more common configuration approach of using JBoss CLI is lit up.
+== CLI again...
 
-&nbsp;
+When we talked about JBoss CLI in
+https://guntherrotsch.github.io/blog_2022/jboss-configuration-part-1.html[
+the first part of the series], we meant the
+Command-Line Interface of the JBoss management interface, the `jboss-cli` tool.
+This CLI allows to submit configuration requests to a running or embedded
+application server. But the abbreviation CLI is sometimes also used to denote
+the term _Common Language Interface_. This language interface defines an
+intermediate representation called Dynamic Model Representation (DMR). The
+DMR is a new syntax introduced with JBoss EAP 6 and Wildfly 9 respectively, to
+describe objects associated with the JBoss/Wildfly management interfaces.
+Although, DMR represents JBoss/Wildfly configuration just in another way,
+DMR is flatter than the corresponding XML we know from `standalone.xml`
+configuration file. In fact, with DMR all the items are at the same level.
+
+The DMR interface describes requests to query, create or update configuration
+objects as _operations_. Such operation requests consist of:
+
+operation::
+The name of the operation to invoke. All operation requests must include this
+field and its value must be a String.
+
+address::
+The address of the resource to invoke the operation against. This field is a
+list/array of properties. If the field is omitted the operation will target
+the root resource. The operation can be targeted at any address in the
+management model.
+
+parameter::
+Optionally, operations may take parameters.
+
+In the following, we'll have a look at two implementations of the DMR interface,
+the REST API and the Java API. But a basic understanding of the anatomy of
+DMR operations requests is helpful to comprehend any of the API implementations.
+
+=== REST API
+
+The JBoss/Wildfly application servers set up two management interfaces: The
+native on port 9999, and the HTTP management interface on port 9990. While
+the `jboss-cli` command line tool uses the native management port, the
+management web console and the REST API are available on the HTTP management
+port.
+
+All management interfaces rely on JBoss DRM to read/update the configuration;
+also the REST API is based on this feature.
+
+The management API of an application server running locally is available at
+`http://127.0.0.1:9990/management`, and this endpoint accepts JSON POST
+requests of the format:
+
+[source]
+----
+    { "operation": "the operation to be performed",
+      "address": [
+         "the path on which the operation should be performed"
+       ],
+       "optional operation parameters"
+    }
+----
+
+Let's give an example. To check the `scan-enabled` attribute of the default
+deployment scanner, for example. For this we would use the following JBoss CLI
+command:
+
+[source]
+----
+$ jboss-cli.sh -c /subsystem=deployment-scanner/scanner=default:read-attribute(name=scan-enabled)
+{
+ "outcome" => "success",
+ "result" => true
+}
+----
+
+Given that the admin user `manager` with password `manager` exists in
+JBoss/Wildfly management realm, the following REST API call will give the
+same result:
+
+[source]
+----
+$ curl 'http://localhost:9990/management' --digest -u "manager:manager" --header "Content-type:application/json" -d '{"operation": "read-attribute", "address": [ "subsystem", "deployment-scanner", "scanner", "default" ],"name": "scan-enabled", "json.pretty": 1}' --silent # suppress curl's progress bar
+{
+    "outcome" : "success",
+    "result" : true
+}
+----
+
+The article
+https://developers.redhat.com/blog/2016/08/15/jboss-eap-7-domain-deployments-part-4-domain-deployment-with-rest-management-api#[
+JBoss EAP 7 Domain deployments – Part 4: Domain deployment with REST Management
+API] gives more examples of the REST API implementation of the JBoss/Wildfly
+management interface.
 
 
-PART 2:
+=== Java API
 
-https://developer.jboss.org/docs/DOC-17506
+The Java DMR interface is implemented as so-called _detyped_ management API to
+control your application server resources - whereby detyped means that the Java
+API is not type-safe as we'll see later. The CLI tool that comes with the
+application server uses this interface, and we can develop custom clients
+using the API as well.
 
-https://goldmann.pl/blog/2014/07/23/customizing-the-configuration-of-the-wildfly-docker-image/?amp=1
+The detyped API works by making it possible to build up arbitrarily complex data
+structures using a small number of Java types. The API is very simple: The
+primary class is `org.jboss.dmr.ModelNode`, which is essentially just a wrapper
+around some value. All of the parameter values and return values in the API are
+expressed using those few types - most of the types are basic JDK types, like
+`java.lang.String`, `java.lang.Integer`, etc. In addition, the value can also
+be of type `ModelNode`, i.e. the created data structure implements the
+_Composite Pattern_. The `ModelNode` in addition exposes a `getType()` method,
+which returns a value of type `org.jboss.dmr.ModelType`, which is an enumeration
+of all the valid types of values.
 
+In order to develop a custom management client the following dependency is
+required in the project setup:
 
-http://www.mastertheboss.com/jbossas/jboss-as-7/using-jboss-management-api-programmatically/
+[source, xml]
+----
+<dependency>
+   <groupId>org.wildfly.core</groupId>
+   <artifactId>wildfly-controller-client</artifactId>
+   <version>18.1.1.Final</version>
+</dependency>
+----
 
-DMR:: Dynamic Model Representation
+The first step in developing the custom client is to create the management
+client object. Because the management is typically secured, a `CallbackHandler`
+for providing credentials is required. This `CallbackHandler` is registered
+with the management client:
 
-https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/6.3/html/administration_and_configuration_guide/sect-deploy_with_the_http_api
+[source, java]
+----
+    CallbackHandler callbackHandler = new CallbackHandler() {
+
+      public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+        for (Callback current : callbacks) {
+          if (current instanceof NameCallback) {
+            NameCallback ncb = (NameCallback) current;
+            ncb.setName("manager");
+          } else if (current instanceof PasswordCallback) {
+            PasswordCallback pcb = (PasswordCallback) current;
+            pcb.setPassword("manager".toCharArray());
+          } else if (current instanceof RealmCallback) {
+            RealmCallback rcb = (RealmCallback) current;
+            rcb.setText(rcb.getDefaultText());
+          } else {
+            throw new UnsupportedCallbackException(current);
+          }
+        }
+      }
+    };
+
+    ModelControllerClient client = ModelControllerClient.Factory
+        .create(InetAddress.getByName("127.0.0.1"), 9990, callbackHandler);
+----
+
+The DMR commands are then built and executed as follows:
+
+[source, java]
+----
+    ModelNode op = new ModelNode();
+    op.get("operation").set("read-attribute");
+
+    ModelNode address = op.get("address");
+    address.add("subsystem", "deployment-scanner");
+    address.add("scanner", "default");
+
+    op.get("name").set("scan-enabled");
+
+    ModelNode returnVal = client.execute(op);
+    System.out.println(returnVal.get("result").toString());
+----
+
+The pattern to create the DRM operation with the Java API is basically the
+same as we've seen at the REST API: The `read-attribute` is set in the
+`ModelNode` named `operation`, then the address
+`{ subsystem: deplyoment-scanner, scanner: default }` is configured and
+eventually the operations parameter `name` gets the value `scan-enabled`
+gets assigned. Please note, that the order of setting up the different parts
+of such an operation request does not matter, only the resulting data
+structure is relevant.
+
+Similar to reading an attribute, the same attribute can be written with:
+
+[source, java]
+----
+    ModelNode op = new ModelNode();
+    op.get("operation").set("write-attribute");
+
+    ModelNode address = op.get("address");
+    address.add("subsystem", "deployment-scanner");
+    address.add("scanner", "default");
+
+    op.get("name").set("scan-enabled");
+    op.get("value").set(true);
+    ModelNode returnVal = client.execute(op);
+    System.out.println(returnVal.get("result").toString());
+----
+
+The API offers a lot more features:
+
+- Asynchronous execution of commands
+- Support of operation headers
+- Composite operations
+- Operations with rollback plan
+- Multi-server responses (for clustered environments)
+
+A comprehensive description of the features of the Java DRM API can be found at
+https://docs.jboss.org/author/display/WFLY/The%20native%20management%20API.html[
+Latest WildFly Documentation - The native management API].
+
+== XML Transformation with XSLT
+
+Another way to configure JBoss/Wildfly is based on the idea, that the JBoss
+configuration files like `standalone.xml` are regular XML files. XML files can
+be transformed using XSLT, i.e. a valid XML can be generated from a input XML
+document. Because this approach is mainly tempting for XML specialists
+(and I'm not one of them), I don't want to go too much into detail, but
+suggest to read
+
+- https://developer.jboss.org/docs/DOC-17506[Changing AS 7 configuration
+(standalone.xml) with XSLT]
+- https://developers.redhat.com/blog/2013/12/05/xml-editing-bash-script#[
+XML editing with Bash script]
+- https://goldmann.pl/blog/2014/07/23/customizing-the-configuration-of-the-wildfly-docker-image/?amp=1[
+Customizing the configuration of the WildFly Docker image]
+
+The benefits of the XSLT approach are that the JBoss/Wildfly can be configured
+at boot time (e.g. by the start script) and the application server does not
+have to run, even not in embedded mode - in fact, the application server must
+not run at all.
+
+[NOTE]
+Patching a JBoss/Wildfly configuration using standard Unix tools like `sed`
+is the _small bother_ of the XSLT approach.
+
+== Summary
+
+The presented configuration approaches are not very common, but can be
+appropriate in some non-standard use cases.
+
+For example, if complex JBoss installations need to be configured, it may be
+desired to work with rollback plans for deployments or apply composite DMR
+operations in clustered server installations. Then a custom Java management
+client may be a good solution.
+
+If the configuration need to be adapted dynamically at startup, then XSLT
+transformation may be a viable option.
 
 
 == Links
 
-- https://docs.jboss.org/author/display/WFLY/Command%20Line%20Interface.html[
-Wildfly - Command Line Interface]
-- https://guntherrotsch.github.io/blog_2021/wildfly-bootable-jar.html[Blog Post
-"Wildfly Bootable JAR"]
+- https://guntherrotsch.github.io/blog_2022/jboss-configuration-part-1.html[
+Blog Post - Configuring JBoss/Wildfly, Part 1],
+- https://developers.redhat.com/blog/2016/08/15/jboss-eap-7-domain-deployments-part-4-domain-deployment-with-rest-management-api#[
+JBoss EAP 7 Domain deployments – Part 4: Domain deployment with REST Management API]
+- https://docs.jboss.org/author/display/WFLY/The%20native%20management%20API.html[
+Latest WildFly Documentation - The native management API]
+- https://developer.jboss.org/docs/DOC-17506[Changing AS 7 configuration
+(standalone.xml) with XSLT]
+- https://developers.redhat.com/blog/2013/12/05/xml-editing-bash-script#[
+XML editing with Bash script]
+- https://goldmann.pl/blog/2014/07/23/customizing-the-configuration-of-the-wildfly-docker-image/?amp=1[
+Customizing the configuration of the WildFly Docker image]
